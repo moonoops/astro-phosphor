@@ -1,0 +1,78 @@
+.tube-mount { display: none; }
+
+@media (min-width: 1000px) and (min-aspect-ratio: 6/5) {
+  /* The beam adds light to the same photographed glass in both power states.
+     Its ambient light recedes as the camera enters the flat desktop. */
+  .crt-bezel::after {
+    content: "";
+    position: absolute;
+    left: var(--tube-left);
+    top: var(--tube-top);
+    width: var(--tube-width);
+    height: var(--tube-height);
+    clip-path: url("#tube-aperture");
+    background: rgb(0 0 0 / calc(.34 + .66 * var(--crt-full)));
+  }
+  .screen-plane {
+    --tube-radius: 0px;
+    --tube-overscan: calc(var(--raster-overscan) * var(--photo-unit) * (1 - var(--crt-full)));
+    --raster-x: calc(var(--raster-inset) / var(--aperture-width) * (1 - var(--crt-full)));
+    --raster-y: calc(var(--raster-inset) / var(--aperture-height) * (1 - var(--crt-full)));
+    --standby-signal-opacity: var(--crt-full);
+    overflow: visible;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    mix-blend-mode: screen;
+    clip-path: url("#tube-aperture");
+  }
+  html[data-crt-flat="on"] .screen-plane {
+    overflow: hidden;
+    clip-path: none;
+    background: var(--ground);
+    mix-blend-mode: normal;
+  }
+  html[data-crt-flat="on"]:is([data-entry="booting"], [data-warming], [data-cooling], [data-power="off"]) .screen-plane {
+    background: var(--crt-off);
+  }
+  .screen-plane .crt-emission,
+  .screen-plane .crt-optics,
+  .screen-plane .crt-glass,
+  .screen-plane .crt-off-screen { inset: calc(-1 * var(--tube-overscan)); }
+  .screen-plane .crt-emission {
+    background: transparent;
+    mask: url("#tube-raster");
+  }
+  html[data-crt-flat="on"] .screen-plane .crt-emission {
+    background: var(--crt-off);
+    mask: none;
+  }
+
+  /* Position the interactive source beneath the phosphor coating so hit
+     targets follow the visible desktop all the way to the edge of the tube. */
+  html[data-zoom] .screen-plane .screen-stage {
+    left: calc(var(--tube-overscan) + var(--tube-width) * var(--raster-x));
+    top: calc(var(--tube-overscan) + var(--tube-height) * var(--raster-y));
+    right: auto;
+    bottom: auto;
+    transform: scale(calc(var(--stage-scale, 1) * (1 - 2 * var(--raster-x))), calc(var(--stage-scale-y, 1) * (1 - 2 * var(--raster-y))));
+  }
+  .crt-optics .crt-contour { box-shadow: none; }
+
+  /* Switching off the beam leaves the underlying glass and its reflection. */
+  html:not([data-crt-flat="on"]) .screen-plane .crt-blank { background: transparent; }
+  html[data-power="off"]:not([data-cooling]):not([data-crt-flat="on"]) .screen-plane :is(.crt-emission, .crt-optics) {
+    opacity: 0;
+    visibility: hidden;
+  }
+  html[data-power="off"] .screen-plane .crt-glass { opacity: calc(1 - var(--crt-full)); }
+  html[data-power="off"] .screen-plane .crt-off-screen { color: rgb(255 255 255 / .55); }
+
+  .tube-mount {
+    display: block;
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+}

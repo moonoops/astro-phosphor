@@ -1,0 +1,133 @@
+---
+import room from '../../assets/macintosh-lc-afternoon-desk-details.webp';
+import standardRoom from '../../assets/macintosh-lc-afternoon-desk-details-standard.webp';
+import { roomMedia, roomSources } from '../../room-scenes';
+---
+
+<room-photograph class="room-artwork" style={{ '--daylight-photo': `image-set(url("${standardRoom.src}") 1x, url("${room.src}") 2x)` }}>
+  {Object.entries(roomSources).map(([scene, candidates]) => (
+    <picture data-room-scene={scene}>
+      <source media={roomMedia} data-candidates={candidates} />
+      <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" width={room.width} height={room.height} fetchpriority="high" />
+    </picture>
+  ))}
+</room-photograph>
+
+<script is:inline>
+  if (!customElements.get('room-photograph')) {
+    customElements.define('room-photograph', class extends HTMLElement {
+      layerZ = 1;
+      cleanupTimer = 0;
+      readyFallback = 0;
+
+      markRoomReady = () => {
+        clearTimeout(this.readyFallback);
+        const root = document.documentElement;
+        if (root.dataset.roomReady !== 'on') {
+          root.dataset.roomReady = 'on';
+          window.dispatchEvent(new Event('astro-phosphor:room-ready'));
+        }
+      };
+
+      ensureLoaded = (scene, width) => {
+        const picture = this.querySelector(`picture[data-room-scene="${scene}"]`);
+        if (!picture) return null;
+        const source = picture.querySelector('source');
+        const image = picture.querySelector('img');
+        if (!source || !image) return null;
+        const size = Math.ceil(width) + 'px';
+        if (source.sizes !== size) source.sizes = size;
+        if (!source.srcset || (image.complete && image.naturalWidth === 0)) {
+          source.srcset = source.dataset.candidates;
+        }
+        return { picture, image };
+      };
+
+      present = async (image) => {
+        const root = document.documentElement;
+        const picture = image.parentElement;
+        const scene = picture?.dataset?.roomScene;
+        if (!scene || image.naturalWidth <= 1 || scene !== root.dataset.scene) return;
+        if (this.hasAttribute('data-photo-ready') && root.dataset.photoScene === scene) return;
+        try {
+          await image.decode();
+        } catch {
+          return;
+        }
+        if (!this.isConnected || scene !== root.dataset.scene) return;
+
+        const firstPaint = !this.hasAttribute('data-photo-ready');
+        const previous = this.querySelector('picture[data-scene-active]');
+
+        if (firstPaint || previous === picture) {
+          picture.removeAttribute('data-scene-fade');
+          picture.style.zIndex = String(++this.layerZ);
+          picture.setAttribute('data-scene-active', '');
+          picture.setAttribute('data-scene-shown', '');
+          root.dataset.photoScene = scene;
+          this.setAttribute('data-photo-ready', '');
+          this.markRoomReady();
+          return;
+        }
+
+        clearTimeout(this.cleanupTimer);
+        if (previous) previous.removeAttribute('data-scene-active');
+        picture.removeAttribute('data-scene-shown');
+        picture.setAttribute('data-scene-fade', '');
+        picture.style.zIndex = String(++this.layerZ);
+        picture.setAttribute('data-scene-active', '');
+        void picture.offsetWidth;
+        picture.setAttribute('data-scene-shown', '');
+        root.dataset.photoScene = scene;
+
+        const order = ['morning', 'noon', 'afternoon', 'dusk', 'night'];
+        const nextScene = order[(order.indexOf(scene) + 1) % order.length];
+        const width = this.getBoundingClientRect().width;
+        if (width > 0 && nextScene) this.ensureLoaded(nextScene, width);
+
+        this.cleanupTimer = setTimeout(() => {
+          if (!this.isConnected) return;
+          for (const el of this.querySelectorAll('picture[data-room-scene]')) {
+            if (el !== picture) {
+              el.removeAttribute('data-scene-shown');
+              el.removeAttribute('data-scene-active');
+              el.removeAttribute('data-scene-fade');
+              el.style.zIndex = '';
+            }
+          }
+          picture.removeAttribute('data-scene-fade');
+          this.layerZ = 1;
+          picture.style.zIndex = '1';
+        }, 720);
+      };
+
+      onLoad = (event) => this.present(event.target);
+
+      select = () => {
+        const width = this.getBoundingClientRect().width;
+        if (!width) return;
+        const scene = document.documentElement.dataset.scene;
+        const loaded = this.ensureLoaded(scene, width);
+        if (loaded && loaded.image.complete) this.present(loaded.image);
+      };
+
+      connectedCallback() {
+        this.addEventListener('load', this.onLoad, true);
+        this.resize = new ResizeObserver(this.select);
+        this.resize.observe(this);
+        this.scene = new MutationObserver(this.select);
+        this.scene.observe(document.documentElement, { attributes: true, attributeFilter: ['data-scene'] });
+        this.readyFallback = setTimeout(this.markRoomReady, 1200);
+        this.select();
+      }
+
+      disconnectedCallback() {
+        clearTimeout(this.cleanupTimer);
+        clearTimeout(this.readyFallback);
+        this.resize?.disconnect();
+        this.scene?.disconnect();
+        this.removeEventListener('load', this.onLoad, true);
+      }
+    });
+  }
+</script>

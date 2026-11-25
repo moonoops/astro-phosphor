@@ -1,0 +1,138 @@
+---
+import { Code } from 'astro:components';
+import DesktopLayout from '../layouts/DesktopLayout.astro';
+import WindowFrame from '../components/os/Window';
+import PixelIcon, { pixelIconNames } from '../components/os/PixelIcon';
+import ButtonBase from '../components/ui/ButtonBase';
+import PhosphorPicture from '../components/ui/PhosphorPicture.astro';
+import DisplayPreferences from '../components/interactive/DisplayPreferences';
+import SetupWizard from '../components/interactive/SetupWizard';
+import FAQPanel from '../components/interactive/FAQPanel';
+import GalleryLightbox from '../components/interactive/GalleryLightbox';
+import ShareButtons from '../components/interactive/ShareButtons';
+import pageCopy from '../data/page-copy.json';
+import '../styles/design-system.css';
+import '../styles/information.css';
+import '../styles/journal.css';
+import '../styles/work.css';
+
+const colors = ['lit', 'ground', 'lit-28', 'lit-10', 'lit-72', 'hi', 'side', 'room-bg', 'hardware-base', 'hardware-hi', 'hardware-shadow', 'crt-off', 'crt-wake', 'crt-led', 'zoom-bg'];
+const typeSamples = [
+  { label: 'Heading 1', css: 'hero-title', sample: 'Aa 08' },
+  { label: 'Heading 2', css: 'page-title', sample: 'Aa 08' },
+  { label: 'Heading 3', css: 'section-title', sample: 'Aa 08' },
+  { label: 'Article H2', css: 'specimen-ah2', sample: 'Aa 08' },
+  { label: 'Article H3', css: 'specimen-ah3', sample: 'Aa 08' },
+  { label: 'Article H4', css: 'specimen-ah4', sample: 'Aa 08' },
+  { label: 'Body large', css: 'lead', sample: 'Aa 08' },
+  { label: 'Body', css: 'specimen-body', sample: 'Aa 08' },
+  { label: 'Label', css: 'specimen-label', sample: 'Aa 08' },
+  { label: 'Quote', css: 'specimen-quote', sample: 'Aa 08' },
+  { label: 'Nav', css: 'specimen-nav', sample: 'Aa 08' },
+  { label: 'Quiet', css: 'quiet', sample: 'Aa 08' },
+  { label: 'Table', css: 'specimen-table', sample: 'Aa 08' },
+];
+
+const photo = {
+  src: '/media/work/kulo-hero.webp',
+  alt: 'Kulo cross-device agent workbench preview',
+  caption: 'PhosphorPicture thumbnail — select to inspect in true-color lightbox',
+};
+const codeSample = [
+  "const phosphor = 'amber';",
+  '// Every ink, border, bevel, glow, and pixel cursor derives from --lit.',
+  'document.documentElement.dataset.theme = phosphor;',
+].join('\n');
+---
+
+<DesktopLayout title={pageCopy.system.title} description={pageCopy.system.description} section="system">
+  <WindowFrame
+    client:load
+    windowId="system"
+    title={pageCopy.system.title}
+    icon="system"
+    path={[{ label: pageCopy.site.desktopLabel, href: '/' }, { label: pageCopy.system.title }]}
+    closeHref="/"
+    statusLeft={pageCopy.system.title}
+    statusRight="Live specimens"
+  >
+    <div class="window-content specimen-page">
+      <header class="specimen-header">
+        <h1 class="page-title">Design System</h1>
+        <p class="lead">Single-hue phosphor tokens, display preferences, and live component specimens.</p>
+      </header>
+
+      <section class="specimen-section">
+        <h2 class="section-title">Phosphor</h2>
+        <DisplayPreferences client:load />
+        <ul class="specimen-colors">
+          {colors.map(token => (
+            <li>
+              <span class="specimen-color" aria-hidden="true" style={`--swatch: var(--${token})`}></span>
+              <code>--{token}</code>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="specimen-section" id="specimen-type">
+        <h2 class="section-title">Type scale</h2>
+        <dl class="specimen-type">
+          {typeSamples.map(({ label, css, sample }) => (
+            <div>
+              <dt class="quiet">{label}</dt>
+              <dd class={css}>{sample}</dd>
+            </div>
+          ))}
+        </dl>
+        <div class="prose">
+          <Code code={codeSample} lang="ts" theme="css-variables" />
+        </div>
+      </section>
+
+      <section class="specimen-section">
+        <h2 class="section-title">Keys and fields</h2>
+        <div class="specimen-keys">
+          <ButtonBase variant="primary">Primary</ButtonBase>
+          <ButtonBase>Secondary</ButtonBase>
+          <ButtonBase variant="icon" aria-label="Icon key"><PixelIcon name="system" /></ButtonBase>
+          <ButtonBase className="specimen-key--pressed">Pressed</ButtonBase>
+          <ButtonBase className="specimen-key--focus">Focus</ButtonBase>
+          <ButtonBase disabled>Disabled</ButtonBase>
+        </div>
+        <div class="specimen-fields">
+          <label>Input<input type="text" placeholder="Type here" /></label>
+          <label>Choice
+            <span>
+              <select><option>Amber</option><option>Green</option><option>Blue</option><option>White</option></select>
+              <PixelIcon name="chevron" />
+            </span>
+          </label>
+        </div>
+      </section>
+
+      <section class="specimen-section">
+        <h2 class="section-title">Pixel icons</h2>
+        <ul class="specimen-icons">
+          {pixelIconNames.map(name => (
+            <li><PixelIcon name={name} size={24} /><span>{name.replace(/([A-Z])/g, ' $1').toLowerCase()}</span></li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="specimen-section">
+        <h2 class="section-title">Interactive specimens</h2>
+        <SetupWizard client:idle />
+        <FAQPanel client:idle />
+        <figure class="specimen-picture">
+          <a href={photo.src} data-gallery="specimen" data-gallery-index="0">
+            <PhosphorPicture src={photo.src} alt={photo.alt} width={764} height={508} />
+          </a>
+          <figcaption class="quiet">Select the image to open the true-color gallery lightbox.</figcaption>
+        </figure>
+        <GalleryLightbox client:idle items={[photo]} group="specimen" />
+        <ShareButtons title="Astro Phosphor Design System" client:idle />
+      </section>
+    </div>
+  </WindowFrame>
+</DesktopLayout>

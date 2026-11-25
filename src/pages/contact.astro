@@ -1,0 +1,104 @@
+---
+import ContactComposer from "../components/interactive/ContactComposer";
+import PixelIcon from "../components/os/PixelIcon";
+import WindowFrame from "../components/os/Window";
+import ButtonBase from "../components/ui/ButtonBase";
+import pageCopy from "../data/page-copy.json";
+import DesktopLayout from "../layouts/DesktopLayout.astro";
+import { CONTACT_EMAIL, formatCopy, OWNER_HANDLE, SITE_NAME, SOCIAL_LINKS } from "../site";
+import "../styles/information.css";
+
+const { contact, site } = pageCopy;
+const { details, form, status } = contact;
+const description = formatCopy(contact.description, { siteName: SITE_NAME });
+const formId = "contact-composer";
+---
+
+<DesktopLayout title={contact.title} description={description} section="contact">
+  <WindowFrame
+    client:load
+    windowId="contact"
+    title={contact.windowTitle}
+    icon="contact"
+    path={[{ label: site.desktopLabel, href: "/" }, { label: contact.title }]}
+    closeHref="/"
+    statusLeft={contact.title}
+    statusRight={CONTACT_EMAIL ? status.mailApp : status.localDrafts}
+  >
+    <div class="window-content information-page">
+      <h1 class="sr-only">{contact.title}</h1>
+
+      <div class="contact-layout">
+        <form class="contact-form" id={formId} method="post" aria-label={contact.windowTitle}>
+          <dl class="contact-field contact-recipient">
+            <dt>{form.to}</dt>
+            <dd>{OWNER_HANDLE}{CONTACT_EMAIL ? ` <${CONTACT_EMAIL}>` : ` (${SITE_NAME})`}</dd>
+          </dl>
+          <div class="contact-field">
+            <label for="contact-name">{form.from.label}</label>
+            <input id="contact-name" name="sender" autocomplete="name" type="text" placeholder={form.from.placeholder} maxlength="120" required />
+          </div>
+          <div class="contact-field">
+            <label for="contact-email">{form.email.label}</label>
+            <input id="contact-email" name="email" autocomplete="email" type="email" placeholder={form.email.placeholder} maxlength="254" required />
+          </div>
+          <div class="contact-field">
+            <label for="contact-topic">{form.topic.label}</label>
+            <div class="contact-select">
+              <select id="contact-topic" name="topic" required>
+                <option value="" disabled selected>{form.topic.placeholder}</option>
+                {form.topic.options.map((topic) => <option value={topic}>{topic}</option>)}
+              </select>
+              <PixelIcon name="chevron" size={16} />
+            </div>
+          </div>
+          <div class="contact-field contact-message">
+            <label for="contact-message">{form.message.label}</label>
+            <textarea id="contact-message" name="message" rows="6" placeholder={form.message.placeholder} maxlength="3000" required></textarea>
+          </div>
+          <div class="contact-actions">
+            <ButtonBase variant="primary" type="submit" disabled>
+              {CONTACT_EMAIL ? form.send : form.saveDraft}
+            </ButtonBase>
+            <p class="quiet contact-feedback" role="status"></p>
+          </div>
+          <noscript>
+            <p class="quiet">
+              {CONTACT_EMAIL ? form.noScript.mailApp : form.noScript.localDrafts}
+            </p>
+          </noscript>
+        </form>
+        <ContactComposer client:load formId={formId} recipient={CONTACT_EMAIL} />
+
+        <aside class="contact-aside" aria-label={details.label}>
+          <dl class="contact-details">
+            <div>
+              <dt>{details.writeTo.label}</dt>
+              <dd>{CONTACT_EMAIL ? <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> : details.writeTo.pending}</dd>
+            </div>
+            <div>
+              <dt>{details.drafts.label}</dt>
+              <dd>{CONTACT_EMAIL ? details.drafts.mailApp : details.drafts.localDrafts}</dd>
+            </div>
+          </dl>
+          <div class="contact-links">
+            <h2>{details.links.title}</h2>
+            <ul role="list">
+              <li>
+                <ButtonBase
+                  variant="secondary"
+                  href={SOCIAL_LINKS.github.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <PixelIcon name="github" size={16} />
+                  <span>{details.links.github}</span>
+                </ButtonBase>
+              </li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </WindowFrame>
+</DesktopLayout>

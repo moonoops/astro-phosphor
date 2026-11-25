@@ -1,0 +1,34 @@
+---
+import PixelIcon from "../components/os/PixelIcon";
+import WindowFrame from "../components/os/Window";
+import ButtonBase from "../components/ui/ButtonBase";
+import pageCopy from "../data/page-copy.json";
+import DesktopLayout from "../layouts/DesktopLayout.astro";
+import "../styles/information.css";
+
+const { error } = pageCopy;
+---
+
+<DesktopLayout title={error.title} description={error.description} section="error">
+  <WindowFrame
+    client:load
+    windowId="not-found"
+    title={error.windowTitle}
+    icon="warning"
+    path={[]}
+    closeHref="/"
+    variant="error"
+  >
+    <div class="error-message">
+      <PixelIcon name="warning" size={48} />
+      <div class="error-copy">
+        <h1>{error.title}</h1>
+        <p>{error.description}</p>
+        <div class="error-actions">
+          <ButtonBase variant="primary" href="/">{error.desktopAction}</ButtonBase>
+          <ButtonBase variant="secondary" href="/work">{error.workAction}</ButtonBase>
+        </div>
+      </div>
+    </div>
+  </WindowFrame>
+</DesktopLayout>

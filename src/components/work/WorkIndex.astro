@@ -1,0 +1,55 @@
+---
+import type { CollectionEntry } from "astro:content";
+import WindowFrame from "../os/Window";
+import PhosphorPicture from "../ui/PhosphorPicture.astro";
+import { site, work } from "../../data/page-copy.json";
+import { formatCopy } from "../../site";
+import "../../styles/work.css";
+
+interface Props {
+  projects: CollectionEntry<"projects">[];
+  inactive?: boolean;
+}
+
+const { projects, inactive = false } = Astro.props;
+const Heading = inactive ? "h2" : "h1";
+const count = formatCopy(projects.length === 1 ? work.projectSingle : work.projectMultiple, { count: projects.length });
+---
+
+<WindowFrame
+  client:load
+  windowId="work"
+  title={work.title}
+  icon="work"
+  path={[{ label: site.desktopLabel, href: "/" }, { label: work.title }]}
+  closeHref="/"
+  statusLeft={work.title}
+  statusRight={work.sortStatus}
+  inactive={inactive}
+>
+  <div class="window-content work-index">
+    <Heading class="sr-only">{work.title}</Heading>
+    <p class="sr-only">{work.description} {count}.</p>
+
+    {projects.length ? (
+      <ul class="work-grid">
+        {projects.map(({ id, data }, index) => (
+          <li>
+            <a class="work-card" href={`/work/${id}`} aria-labelledby={`project-title-${id}`}>
+              <PhosphorPicture
+                class="work-card-image"
+                src={data.thumbnail}
+                alt={data.thumbnailAlt}
+                loading={!inactive && index < 3 ? "eager" : "lazy"}
+              />
+              <h2 id={`project-title-${id}`}>{data.title}</h2>
+              <span class="work-card-year quiet">{data.year}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="quiet">{work.empty}</p>
+    )}
+  </div>
+</WindowFrame>

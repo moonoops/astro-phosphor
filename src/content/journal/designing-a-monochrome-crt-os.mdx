@@ -1,0 +1,53 @@
+---
+title: Designing a Single-Hue Monochrome CRT OS
+pubDate: 2026-10-18
+summary: How Astro Phosphor derives every ink, border, 3D pixel bevel, glow, and custom cursor from one CSS variable — and pairs 1990s nostalgia with calm long-form reading.
+category: Design
+tags:
+  - crt
+  - design-system
+  - astro
+coverImage: /media/work/kulo-hero.webp
+coverAlt: Monochrome phosphor desktop interface specimen
+lang: en
+---
+
+Most retro websites bolt a green monospace font onto a standard dark layout and call it a day. **Astro Phosphor** takes a stricter architectural approach: the entire interface inside the monitor obeys a **single-hue derivation law**.
+
+## One Variable to Recolor Everything
+
+Inside `src/styles/tokens.css`, every visible surface inside the tube derives mathematically from `--lit` and `--ground` via CSS `color-mix()`:
+
+```css
+:root,
+[data-theme="amber"] {
+  --lit: #ffb648;
+  --ground: #020b14;
+}
+
+:root {
+  --lit-28: color-mix(in srgb, var(--lit) 28%, transparent);
+  --lit-10: color-mix(in srgb, var(--lit) 10%, transparent);
+  --lit-72: color-mix(in srgb, var(--lit) 72%, transparent);
+  --hi: color-mix(in srgb, var(--lit) 50%, white);
+  --side: color-mix(in srgb, var(--lit) 45%, var(--ground));
+}
+```
+
+Because zero components hardcode hex colors, switching `data-theme` between `amber`, `green`, `blue`, and `white` instantly updates text, rules, 3D keycap bevels, phosphor bloom, Shiki code tokens, Canvas arcade palettes, and even the custom SVG data-URI cursors.
+
+## Astro Static Content + Persistent OS Chrome
+
+Instead of wrapping the site in a monolithic client SPA, Astro renders all routes, SEO metadata, MDX content, and headings at build time. Only stateful OS primitives hydrate as React islands, while Astro's `<ClientRouter />` and `transition:persist` keep the room photograph, CRT optics, and taskbar rock-steady across page navigation.
+
+```ts
+// Preferences sync before first paint via an inline <head> script
+export const themes = ['amber', 'green', 'blue', 'white'] as const;
+export const zoomModes = ['room', 'close', 'fullscreen'] as const;
+```
+
+## Controlled Nostalgia for Real Reading
+
+Scanlines, vignette, glass glare, and subtle phosphor glow bring a 1990s monitor to life — but heavy effects tire your eyes during a 2,000-word essay. Toggling **Reading Mode** (`data-reading="on"`) from `Menu -> System` dials back scanlines and glare and disables flicker immediately while preserving the crisp monochrome typography.
+
+> Open `/design-system` at any time to test all four phosphor presets, inspect the 13-step type scale, and try every component live.

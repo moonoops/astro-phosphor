@@ -1,0 +1,33 @@
+---
+import TetrisGame from "../../components/interactive/TetrisGame";
+import WindowFrame from "../../components/os/Window";
+import pageCopy from "../../data/page-copy.json";
+import DesktopLayout from "../../layouts/DesktopLayout.astro";
+import { formatCopy, SITE_NAME } from "../../site";
+import "../../styles/arcade-games.css";
+
+const { tetris, site } = pageCopy;
+const description = formatCopy(tetris.description, { siteName: SITE_NAME });
+---
+
+<DesktopLayout title={tetris.title} description={description} section="tetris">
+  <WindowFrame
+    client:load
+    windowId="tetris"
+    title={tetris.windowTitle}
+    icon="tetris"
+    path={[
+      { label: site.desktopLabel, href: "/" },
+      { label: tetris.folderLabel, href: "/games" },
+      { label: tetris.title },
+    ]}
+    closeHref="/games"
+    statusLeft={tetris.windowTitle}
+    statusRight={tetris.initialStatus}
+  >
+    <TetrisGame client:load />
+    <noscript>
+      <p class="quiet arcade-noscript">{tetris.noScript}</p>
+    </noscript>
+  </WindowFrame>
+</DesktopLayout>

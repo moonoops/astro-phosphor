@@ -1,0 +1,48 @@
+---
+import PixelIcon from "../../components/os/PixelIcon";
+import WindowFrame from "../../components/os/Window";
+import pageCopy from "../../data/page-copy.json";
+import DesktopLayout from "../../layouts/DesktopLayout.astro";
+import { offlineGames } from "../../navigation";
+import { formatCopy, SITE_NAME } from "../../site";
+import "../../styles/arcade-games.css";
+
+const { games, site } = pageCopy;
+const description = formatCopy(games.description, { siteName: SITE_NAME });
+---
+
+<DesktopLayout title={games.title} description={description} section="games">
+  <WindowFrame
+    client:load
+    windowId="games"
+    title={games.windowTitle}
+    icon="games"
+    path={[{ label: site.desktopLabel, href: "/" }, { label: games.title }]}
+    closeHref="/"
+    statusLeft={games.windowTitle}
+    statusRight={games.status}
+  >
+    <div class="window-content games-hub">
+      <header class="games-hub-header">
+        <h1 class="page-title">{games.title}</h1>
+        <p class="lead">{games.lead}</p>
+      </header>
+
+      <ul class="games-hub-grid" role="list">
+        {offlineGames.map((game) => (
+          <li>
+            <a class="games-hub-card" href={game.href}>
+              <span class="games-hub-icon" aria-hidden="true">
+                <PixelIcon name={game.icon} size={32} />
+              </span>
+              <div class="games-hub-copy">
+                <h2>{game.menuTitle}</h2>
+                <p class="quiet">{game.summary}</p>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </WindowFrame>
+</DesktopLayout>

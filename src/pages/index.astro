@@ -1,0 +1,21 @@
+---
+import TypedText from '../components/interactive/TypedText';
+import pageCopy from '../data/page-copy.json';
+import DesktopLayout from '../layouts/DesktopLayout.astro';
+import { SITE_NAME } from '../site';
+import '../styles/home.css';
+
+const { home } = pageCopy;
+---
+
+<DesktopLayout title={SITE_NAME}>
+  <section class="desktop-home" aria-labelledby="desktop-heading">
+    <div class="desktop-home-wallpaper">
+      <TypedText text={home.intro} client:idle />
+      <h1 class="hero-title" id="desktop-heading">{SITE_NAME}</h1>
+    </div>
+    <div class="desktop-home-footer">
+      <p class="desktop-home-hint quiet">{home.hint}</p>
+    </div>
+  </section>
+</DesktopLayout>

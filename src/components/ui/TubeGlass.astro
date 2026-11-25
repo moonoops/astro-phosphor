@@ -1,0 +1,21 @@
+---
+import { aperture, glassPath, rasterPath, rasterMaskTransform } from '../../geometry/tube';
+---
+
+<svg width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <path id="glass-profile" d={glassPath} />
+    <path id="raster-profile" d={rasterPath} />
+    <clipPath id="tube-aperture" clipPathUnits="objectBoundingBox">
+      <use href="#glass-profile" transform={`scale(${1 / aperture.width} ${1 / aperture.height})`} />
+    </clipPath>
+    <filter id="phosphor-rolloff" filterUnits="userSpaceOnUse" x="-8" y="-8" width="396" height="301">
+      <feGaussianBlur stdDeviation=".72" />
+    </filter>
+    <mask id="tube-raster" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox" x="0" y="0" width="1" height="1">
+      <g transform={rasterMaskTransform(0)}>
+        <use href="#raster-profile" fill="white" filter="url(#phosphor-rolloff)" />
+      </g>
+    </mask>
+  </defs>
+</svg>

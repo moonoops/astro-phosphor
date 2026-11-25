@@ -1,0 +1,33 @@
+---
+import SnakeGame from "../../components/interactive/SnakeGame";
+import WindowFrame from "../../components/os/Window";
+import pageCopy from "../../data/page-copy.json";
+import DesktopLayout from "../../layouts/DesktopLayout.astro";
+import { formatCopy, SITE_NAME } from "../../site";
+import "../../styles/arcade-games.css";
+
+const { snake, site } = pageCopy;
+const description = formatCopy(snake.description, { siteName: SITE_NAME });
+---
+
+<DesktopLayout title={snake.title} description={description} section="snake">
+  <WindowFrame
+    client:load
+    windowId="snake"
+    title={snake.windowTitle}
+    icon="snake"
+    path={[
+      { label: site.desktopLabel, href: "/" },
+      { label: snake.folderLabel, href: "/games" },
+      { label: snake.title },
+    ]}
+    closeHref="/games"
+    statusLeft={snake.windowTitle}
+    statusRight={snake.initialStatus}
+  >
+    <SnakeGame client:load />
+    <noscript>
+      <p class="quiet arcade-noscript">{snake.noScript}</p>
+    </noscript>
+  </WindowFrame>
+</DesktopLayout>

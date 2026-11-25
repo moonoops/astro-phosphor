@@ -1,0 +1,116 @@
+---
+import { render, type CollectionEntry } from "astro:content";
+import Contents from "../../components/interactive/Contents";
+import GalleryLightbox from "../../components/interactive/GalleryLightbox";
+import ShareButtons from "../../components/interactive/ShareButtons";
+import JournalIndex from "../../components/journal/JournalIndex.astro";
+import { getJournalPosts, journalDate } from "../../components/journal/posts";
+import WindowFrame from "../../components/os/Window";
+import ButtonBase from "../../components/ui/ButtonBase";
+import PhosphorPicture from "../../components/ui/PhosphorPicture.astro";
+import DesktopLayout from "../../layouts/DesktopLayout.astro";
+import { SITE_NAME } from "../../site";
+import { site, journal } from "../../data/page-copy.json";
+import "../../styles/journal.css";
+
+export async function getStaticPaths() {
+  const posts = await getJournalPosts();
+  return posts.map((entry) => ({ params: { slug: entry.id }, props: { entry, posts } }));
+}
+
+interface Props {
+  entry: CollectionEntry<"journal">;
+  posts: CollectionEntry<"journal">[];
+}
+
+const { entry, posts } = Astro.props;
+const { title, summary, pubDate, category, tags, coverImage, coverAlt, lang } = entry.data;
+const { Content, headings } = await render(entry);
+const contents = headings.filter(({ depth }) => depth === 2);
+const date = journalDate(pubDate, "long");
+const canonical = Astro.site && new URL(Astro.url.pathname, Astro.site).href;
+const cover = coverImage ? { src: coverImage, alt: coverAlt ?? "" } : undefined;
+const gallery = "journal-cover";
+const articleId = `journal-${entry.id}`;
+---
+
+<DesktopLayout title={title} description={summary} section="journal" activeLabel={title} image={coverImage} lang={lang}>
+  <WindowFrame
+    client:load
+    windowId="journal"
+    title={journal.title}
+    icon="journal"
+    path={[{ label: site.desktopLabel, href: "/" }, { label: journal.title }]}
+    closeHref="/"
+    statusLeft={journal.title}
+    statusRight={journal.sortStatus}
+    inactive
+  >
+    <JournalIndex posts={posts} interactive={false} />
+  </WindowFrame>
+
+  <WindowFrame
+    client:load
+    windowId={articleId}
+    title={title}
+    icon="article"
+    path={[{ label: site.desktopLabel, href: "/" }, { label: journal.title, href: "/journal" }, { label: title }]}
+    closeHref="/journal"
+    statusLeft={category}
+    statusRight={date}
+    variant="child"
+  >
+    <article class="journal-article" id={articleId} lang={lang}>
+      <div class="journal-article-layout">
+        <aside class="journal-sidebar" aria-label={journal.article.controls} lang="en">
+          <ButtonBase href="/journal" className="journal-all-posts">{journal.article.allPosts}</ButtonBase>
+          <div class="journal-sidebar-controls">
+            {contents.length > 0 && <Contents client:visible articleId={articleId} headings={contents} lang={lang} />}
+            <ShareButtons client:visible title={title} url={canonical} />
+          </div>
+        </aside>
+
+        <div class="journal-article-body">
+          <header class="journal-article-header">
+            <div class="journal-article-meta" lang="en">
+              <time class="journal-chip" datetime={pubDate.toISOString().slice(0, 10)}>{journalDate(pubDate)}</time>
+              <span class="journal-chip">{SITE_NAME}</span>
+              <a class="journal-chip" href={`/journal?category=${encodeURIComponent(category)}`}>{category}</a>
+            </div>
+            <h1 class="page-title">{title}</h1>
+            <p class="lead">{summary}</p>
+          </header>
+
+          {cover && (
+            <figure class="journal-cover">
+              <a href={cover.src} data-gallery={gallery} data-gallery-index="0" data-astro-reload aria-label={journal.article.openImage} lang="en">
+                <PhosphorPicture src={cover.src} alt={cover.alt} decoding="async" />
+              </a>
+            </figure>
+          )}
+
+          {contents.length > 0 && (
+            <div class="journal-inline-contents" lang="en">
+              <Contents client:visible articleId={articleId} headings={contents} lang={lang} />
+            </div>
+          )}
+
+          <div class="prose"><Content /></div>
+
+          <div class="journal-inline-share" lang="en">
+            <ShareButtons client:visible title={title} url={canonical} />
+          </div>
+
+          {tags.length > 0 && (
+            <ul class="journal-article-tags" aria-label={journal.article.tags} lang="en">
+              {tags.map((tag) => (
+                <li><a class="journal-chip" href={`/journal?tag=${encodeURIComponent(tag)}`}><span aria-hidden="true">#</span>{tag}</a></li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </article>
+    {cover && <GalleryLightbox client:idle group={gallery} items={[cover]} />}
+  </WindowFrame>
+</DesktopLayout>

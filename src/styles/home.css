@@ -1,0 +1,125 @@
+.desktop-space {
+  --wallpaper-end: 84px;
+  --wallpaper-bottom: 124px;
+  --wallpaper-width: 820px;
+}
+
+.desktop-home {
+  --intro-width: 40ch;
+  --hint-start: 70px;
+  --hint-bottom: 84px;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.desktop-home-wallpaper,
+.desktop-wallpaper {
+  position: absolute;
+  inset-inline-end: var(--wallpaper-end);
+  inset-block-end: max(24px, calc(var(--wallpaper-bottom) - var(--taskbar-height)));
+  inline-size: min(var(--wallpaper-width), calc(100% - var(--wallpaper-end) - 24px));
+  text-align: end;
+}
+
+.desktop-wallpaper {
+  margin: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.desktop-home-wallpaper {
+  display: grid;
+  justify-items: end;
+  gap: 24px;
+}
+
+.desktop-home-wallpaper :is(.hero-title, .typed-text) {
+  margin: 0;
+  pointer-events: auto;
+}
+
+.desktop-home-wallpaper .hero-title {
+  white-space: nowrap;
+}
+
+.desktop-home-wallpaper .typed-text {
+  inline-size: min(var(--intro-width), 100%);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.desktop-home-footer {
+  position: absolute;
+  inset-inline-start: var(--hint-start);
+  inset-block-end: max(12px, calc(var(--hint-bottom) - var(--taskbar-height)));
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.desktop-home-hint {
+  margin: 0;
+}
+
+@media (max-width: 1199px) {
+  .desktop-space {
+    --wallpaper-end: 56px;
+    --wallpaper-bottom: 132px;
+    --wallpaper-width: 680px;
+  }
+  .desktop-home {
+    --intro-width: 39ch;
+    --hint-start: 54px;
+    --hint-bottom: 78px;
+  }
+  .desktop-home-wallpaper .hero-title,
+  .desktop-wallpaper {
+    font-size: min(var(--type-h1), 17cqw);
+  }
+}
+
+@media (max-width: 809px) {
+  .desktop-wallpaper {
+    inset: 432px 24px auto;
+    inline-size: auto;
+    text-align: start;
+    font-size: min(var(--type-h1), 22cqw);
+  }
+
+  .desktop-home-wallpaper {
+    inset: 416px 24px 72px;
+    align-content: start;
+    justify-items: stretch;
+    gap: 16px;
+    inline-size: auto;
+    overflow: auto;
+    pointer-events: auto;
+    text-align: start;
+  }
+
+  .desktop-home-wallpaper .typed-text {
+    inline-size: 100%;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .desktop-home-wallpaper .hero-title {
+    text-align: center;
+    font-size: min(var(--type-h1), 22cqw);
+  }
+
+  .desktop-home-footer {
+    inset-inline: 24px;
+    inset-block-end: 14px;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .desktop-home-hint {
+    font-size: 13px;
+  }
+}

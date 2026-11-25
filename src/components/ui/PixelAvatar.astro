@@ -1,0 +1,43 @@
+---
+interface Props {
+  size?: number;
+  class?: string;
+  label?: string;
+}
+
+const { size = 144, class: className = "", label = "Retro CRT pixel avatar" } = Astro.props;
+---
+
+<svg
+  class:list={["pixel-avatar", className]}
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  role="img"
+  aria-label={label}
+  shape-rendering="crispEdges"
+>
+  <rect width="24" height="24" fill="var(--ground)" />
+  <!-- Outer CRT chassis shadow -->
+  <rect x="4" y="4" width="17" height="14" fill="var(--side)" />
+  <rect x="6" y="18" width="13" height="3" fill="var(--side)" />
+  <!-- Main CRT monitor body -->
+  <rect x="3" y="3" width="17" height="14" fill="var(--lit)" />
+  <rect x="3" y="3" width="17" height="1" fill="var(--hi)" />
+  <rect x="3" y="3" width="1" height="14" fill="var(--hi)" />
+  <!-- Recessed dark CRT screen -->
+  <rect x="5" y="5" width="13" height="9" fill="var(--ground)" />
+  <!-- Happy phosphor eyes & smile -->
+  <rect x="8" y="8" width="2" height="2" fill="var(--hi)" />
+  <rect x="13" y="8" width="2" height="2" fill="var(--hi)" />
+  <rect x="8" y="11" width="1" height="1" fill="var(--lit)" />
+  <rect x="9" y="12" width="5" height="1" fill="var(--lit)" />
+  <rect x="14" y="11" width="1" height="1" fill="var(--lit)" />
+  <!-- Chin vents & power LED -->
+  <rect x="5" y="15" width="5" height="1" fill="var(--ground)" />
+  <rect x="16" y="15" width="2" height="1" fill="var(--hi)" />
+  <!-- Base stand & floppy slot -->
+  <rect x="5" y="17" width="13" height="3" fill="var(--lit)" />
+  <rect x="5" y="17" width="13" height="1" fill="var(--side)" />
+  <rect x="11" y="18" width="5" height="1" fill="var(--ground)" />
+</svg>

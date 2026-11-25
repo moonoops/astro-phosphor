@@ -1,0 +1,33 @@
+---
+import MinesweeperGame from "../../components/interactive/MinesweeperGame";
+import WindowFrame from "../../components/os/Window";
+import pageCopy from "../../data/page-copy.json";
+import DesktopLayout from "../../layouts/DesktopLayout.astro";
+import { formatCopy, SITE_NAME } from "../../site";
+import "../../styles/arcade-games.css";
+
+const { minesweeper, site } = pageCopy;
+const description = formatCopy(minesweeper.description, { siteName: SITE_NAME });
+---
+
+<DesktopLayout title={minesweeper.title} description={description} section="minesweeper">
+  <WindowFrame
+    client:load
+    windowId="minesweeper"
+    title={minesweeper.windowTitle}
+    icon="mine"
+    path={[
+      { label: site.desktopLabel, href: "/" },
+      { label: minesweeper.folderLabel, href: "/games" },
+      { label: minesweeper.title },
+    ]}
+    closeHref="/games"
+    statusLeft={minesweeper.windowTitle}
+    statusRight={minesweeper.initialStatus}
+  >
+    <MinesweeperGame client:load />
+    <noscript>
+      <p class="quiet arcade-noscript">{minesweeper.noScript}</p>
+    </noscript>
+  </WindowFrame>
+</DesktopLayout>

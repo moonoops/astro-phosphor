@@ -1,0 +1,47 @@
+---
+title: 在复古 CRT 单色屏幕上做好中文排版
+pubDate: 2026-10-12
+summary: 探讨如何在 1990 年代像素显示风与现代中英混排长文之间取得平衡：CJK 行高、字阶收敛、单色代码高亮与一键 Reading Mode。
+category: Engineering
+tags:
+  - cjk
+  - typography
+  - reading-mode
+lang: zh-CN
+---
+
+复古 CRT 网站常见的一个遗憾是：**英文像素标题很帅，一旦贴入中文长文就会显得拥挤刺眼**。Astro Phosphor 从设计令牌层开始，就把中英双语和 CJK 长文阅读当成一等公民来处理。
+
+## 中文长文的行高与行宽控制
+
+西文正文使用 `1.50` 行高已经很舒展，但方块汉字密度更高，在荧光管发光环境下更容易出现“行间粘连”。只要在文章 frontmatter 中声明 `lang: zh-CN`，样式层会自动激活中文排版覆盖：
+
+- **正文行高提升至 `1.75`**，字号稳定在 `16px–17px`；
+- **行宽收束在 `68ch` 以内**，即使将窗口最大化也不会拉成难以扫视的超长行；
+- **标题字阶收敛**：英文展示标题使用极高对比的 `Jersey 10`（最高 `180px`），而中文标题按比例收敛，避免折行成厚重文字墙。
+
+## 遵循单色相法则的代码块高亮
+
+普通的多彩代码主题（如 Dracula / One Dark）放进琥珀色或绿色荧光屏里会立刻破功。我们在 `astro.config.mjs` 中启用了 Shiki 的 `css-variables` 主题，并用 `--hi`、`--lit`、`--lit-72` 区分语法层级：
+
+```ts
+export function formatCopy(
+  template: string,
+  values: Readonly<Record<string, string | number>>,
+): string {
+  return template.replace(/\{(\w+)\}/g, (placeholder, key) =>
+    Object.hasOwn(values, key) ? String(values[key]) : placeholder,
+  );
+}
+```
+
+## 阅读模式（Reading Mode）
+
+当你准备静下心读完一篇技术长文时，可以随时点击左下角 **Menu → System → Reading Mode**，或者在宽屏按 `F` 进入全屏模式：
+
+| 模式 | 扫描线透明度 | 玻璃反光 | 荧光闪烁 | 适用场景 |
+| :--- | :---: | :---: | :---: | :--- |
+| **标准 CRT** | `0.16` | 开启 | 开启 | 桌面浏览、作品展示、复古小游戏 |
+| **Reading Mode** | `0.04` | 关闭 | 关闭 | 中英文技术长文、代码对照阅读 |
+
+> 你可以直接编辑 `src/content/journal/` 里的 `.mdx` 文件，用 `lang: en` 或 `lang: zh-CN` 自由混写双语内容。

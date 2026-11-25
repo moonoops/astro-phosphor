@@ -1,0 +1,72 @@
+---
+import type { CollectionEntry } from "astro:content";
+import copy from "../../data/page-copy.json";
+import PixelIcon from "../os/PixelIcon";
+import PhosphorPicture from "../ui/PhosphorPicture.astro";
+import { journalPostUrl } from "./posts";
+import "../../styles/journal.css";
+
+interface Props {
+  posts: CollectionEntry<"journal">[];
+  interactive?: boolean;
+}
+
+const { posts, interactive = true } = Astro.props;
+const { title, list } = copy.journal;
+const Heading = interactive ? "h1" : "h2";
+const CardTitle = interactive ? "h2" : "span";
+---
+
+<div class="window-content journal-index" data-journal-index>
+  <Heading class="sr-only">{title}</Heading>
+
+  {posts.length ? (
+    <ul class="article-grid" aria-label={list.label}>
+      {posts.map(({ id, data }, index) => {
+        const isoDate = data.pubDate.toISOString().slice(0, 10);
+        return (
+          <li
+            class="article-card-item"
+            data-journal-row
+            data-category={data.category}
+            data-tags={JSON.stringify(data.tags)}
+            data-search={[data.title, data.summary, data.category, ...data.tags].join(" ").normalize("NFKC").toLowerCase()}
+          >
+            <a
+              class="article-card journal-post-link"
+              href={journalPostUrl(id)}
+              aria-labelledby={`journal-title-${id}`}
+            >
+              <div class="article-card-media">
+                {data.coverImage ? (
+                  <PhosphorPicture
+                    class="article-card-image"
+                    src={data.coverImage}
+                    alt={data.coverAlt ?? data.title}
+                    loading={interactive && index < 3 ? "eager" : "lazy"}
+                  />
+                ) : (
+                  <div class="article-card-fallback" aria-hidden="true">
+                    <span class="article-card-fallback-tag">{data.category}</span>
+                    <PixelIcon name="article" size={32} />
+                  </div>
+                )}
+              </div>
+              <CardTitle id={`journal-title-${id}`} class="article-card-title journal-post-title" lang={data.lang}>{data.title}</CardTitle>
+              <time class="article-card-date journal-date quiet" datetime={isoDate}>{isoDate}</time>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  ) : (
+    <p class="journal-empty quiet">{list.empty}</p>
+  )}
+
+  {interactive && posts.length > 0 && (
+    <p class="journal-empty quiet" data-journal-empty hidden>
+      {list.noResults}
+      <button class="journal-clear" type="button" data-clear-journal>{list.clearFilters}</button>
+    </p>
+  )}
+</div>

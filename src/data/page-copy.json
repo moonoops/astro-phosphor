@@ -1,0 +1,336 @@
+{
+  "site": {
+    "name": "Phosphor",
+    "description": "A 1990s CRT monitor & monochrome phosphor desktop personal site built with Astro 5, React 19, and Tailwind CSS v4.",
+    "desktopLabel": "Desktop"
+  },
+  "home": {
+    "intro": "Welcome to Astro Phosphor. A lightweight retro CRT desktop template built for fast static sites, essays, case studies, and offline arcade games.",
+    "hint": "Press Menu to switch phosphor themes, toggle Reading Mode, or open a window.",
+    "ticker": "Astro Phosphor // 1990s CRT Desktop Theme"
+  },
+  "system": {
+    "title": "Design System",
+    "shortTitle": "Design",
+    "description": "Live single-hue phosphor tokens, responsive pixel type scale, 3D keycaps, and interactive component specimens."
+  },
+  "about": {
+    "title": "About",
+    "windowTitle": "About me",
+    "description": "About the maker behind {siteName} — profile, specifications, workflow, timeline, and FAQ.",
+    "handle": "phosphor",
+    "tags": [
+      "Product Builder",
+      "UI Systems",
+      "Open Source",
+      "Retro Computing"
+    ],
+    "contactAction": "Get in touch",
+    "workAction": "Browse work",
+    "story": {
+      "lead": "Independent product designer and engineer crafting tactile interfaces, calm documentation systems, and personal AI tooling.",
+      "paragraphs": [
+        "Astro Phosphor turns a static personal website into a responsive 1990s monochrome desktop inside a sunlit Macintosh LC monitor — with zero backend required."
+      ]
+    },
+    "specs": {
+      "label": "Desk profile",
+      "projectSingle": "{count} open-source project",
+      "projectMultiple": "{count} open-source projects",
+      "rows": [
+        {
+          "label": "Handle",
+          "value": "@phosphor"
+        },
+        {
+          "label": "Focus",
+          "value": "Agent Harness · Design Systems · Static Web"
+        },
+        {
+          "label": "Stack",
+          "value": "Astro 5 · React 19 · Tailwind CSS v4"
+        },
+        {
+          "label": "Open Source",
+          "value": "{projectCount}"
+        }
+      ]
+    },
+    "timelineTitle": "Timeline",
+    "timelineNote": "Edit src/data/page-copy.json to replace this sample profile with your own story.",
+    "timeline": [
+      {
+        "period": "2026",
+        "title": "Astro Phosphor v1.0",
+        "detail": "Released as a 100% static 1990s CRT desktop template with bilingual MDX and offline arcade games."
+      },
+      {
+        "period": "2025",
+        "title": "Single-Hue Design System",
+        "detail": "Built mathematical color-mix() token derivation, four phosphor themes, and Reading Mode."
+      },
+      {
+        "period": "2024",
+        "title": "Five-Scene Room Optics",
+        "detail": "Calibrated 1672×941 aperture geometry, curved glass shaders, and local-clock desk lighting."
+      },
+      {
+        "period": "2023",
+        "title": "Static Islands Architecture",
+        "detail": "Paired Astro static routes with persistent OS chrome and lightweight interactive islands."
+      }
+    ],
+    "practices": {
+      "title": "Principles",
+      "items": [
+        {
+          "title": "Single-Hue Clarity",
+          "text": "Every border, tint, bevel highlight, shadow, glow, and cursor derives mathematically from one CSS variable (--lit)."
+        },
+        {
+          "title": "Controlled Nostalgia",
+          "text": "Crisp 0px pixel chrome for atmosphere, paired with one-click Reading Mode for long-form Latin and CJK essays."
+        },
+        {
+          "title": "Static First",
+          "text": "Zero required server runtime. Deploy dist/ to Cloudflare Pages, Vercel, Netlify, or GitHub Pages in seconds."
+        },
+        {
+          "title": "AI-Ready Spec",
+          "text": "Ships with AGENTS.md, docs/DESIGN.md, and a custom room-artwork Agent Skill so AI assistants can customize safely."
+        }
+      ]
+    },
+    "wizard": {
+      "title": "Workflow",
+      "status": "Step {step} of {total}",
+      "progressLabel": "Workflow progress",
+      "back": "Back",
+      "next": "Next",
+      "steps": [
+        {
+          "label": "Scope",
+          "title": "Define clear boundaries first",
+          "text": "Map the real constraints and non-goals before writing a single line of code."
+        },
+        {
+          "label": "Prototype",
+          "title": "Build a working slice early",
+          "text": "A clickable screen resolves design debates faster than ten slides of speculation."
+        },
+        {
+          "label": "Verify",
+          "title": "Check every breakpoint and theme",
+          "text": "Test room framing, compact bezels, mobile layout, Reading Mode, and keyboard navigation."
+        },
+        {
+          "label": "Ship",
+          "title": "Publish clean static output",
+          "text": "Keep docs, content schemas, and assets tidy so future edits stay effortless."
+        }
+      ]
+    },
+    "faq": {
+      "title": "FAQ",
+      "items": [
+        {
+          "question": "Does Astro Phosphor require a backend server or database?",
+          "answer": "No. Every page, project showcase, MDX journal post, design specimen, and offline arcade game compiles to 100% static files in dist/."
+        },
+        {
+          "question": "Can I switch the phosphor color or tone down the CRT scanlines?",
+          "answer": "Open Menu -> System (or visit /design-system) to cycle between Amber, Green, Blue, and White phosphor presets, or enable Reading Mode for calm long-form reading."
+        },
+        {
+          "question": "How do I replace the desk background with my own retro monitor photo?",
+          "answer": "Follow the built-in crt-room-artwork Agent Skill in .agents/skills/crt-room-artwork/SKILL.md and run npm run art:room to generate responsive WebP plates."
+        }
+      ]
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "windowTitle": "New message",
+    "description": "Write a message to {siteName} using your mail client or save a local draft.",
+    "status": {
+      "mailApp": "Mail handoff",
+      "localDrafts": "Local drafts"
+    },
+    "form": {
+      "to": "To",
+      "from": {
+        "label": "From",
+        "placeholder": "Your name"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "you@example.com"
+      },
+      "topic": {
+        "label": "About",
+        "placeholder": "Select a topic",
+        "options": [
+          "Project collaboration",
+          "Open-source question",
+          "Design feedback",
+          "Just saying hello"
+        ]
+      },
+      "message": {
+        "label": "Message",
+        "placeholder": "Write your note here."
+      },
+      "send": "Send",
+      "saveDraft": "Save draft",
+      "subjectLabel": "Subject",
+      "noScript": {
+        "mailApp": "Use the email link on the right to open your mail app.",
+        "localDrafts": "Enable JavaScript to download a local draft, or reach out via GitHub."
+      },
+      "validation": {
+        "name": "Please enter your name.",
+        "message": "Please write a message before sending."
+      },
+      "feedback": {
+        "mailApp": "Opened your default mail client with this draft.",
+        "localDrafts": "Downloaded message-draft.txt."
+      }
+    },
+    "details": {
+      "label": "Contact details",
+      "writeTo": {
+        "label": "Email",
+        "pending": "Set PUBLIC_CONTACT_EMAIL in .env to enable direct mailto handoff."
+      },
+      "drafts": {
+        "label": "Note",
+        "mailApp": "Projects, open-source ideas, or a quick hello.",
+        "localDrafts": "No email configured yet — the form downloads a clean .txt draft locally."
+      },
+      "links": {
+        "title": "Elsewhere",
+        "github": "GitHub"
+      }
+    }
+  },
+  "journal": {
+    "title": "Journal",
+    "description": "Long-form MDX essays, engineering notes, and bilingual CJK typography specimens on {siteName}.",
+    "sortStatus": "Newest first",
+    "list": {
+      "label": "Journal entries",
+      "date": "Date",
+      "post": "Entry",
+      "category": "Category",
+      "empty": "No journal entries published yet.",
+      "noResults": "No entries match the current filters.",
+      "clearFilters": "Clear filters",
+      "filterCategory": "Filter by {category}"
+    },
+    "filter": {
+      "toggle": "Filter entries",
+      "panel": "Journal filters",
+      "searchLabel": "Search journal entries",
+      "placeholder": "Search titles, tags, or topics…",
+      "clearSearch": "Clear search",
+      "tagLabel": "Filter by tag",
+      "allTags": "All tags",
+      "categoryLabel": "Filter by category",
+      "allCategories": "All",
+      "postSingle": "{count} entry",
+      "postMultiple": "{count} entries",
+      "results": "{posts} found",
+      "filteredStatus": "{sort} · {posts}"
+    },
+    "article": {
+      "controls": "Article controls",
+      "allPosts": "All entries",
+      "contents": "Contents",
+      "openImage": "Open cover image",
+      "tags": "Entry tags"
+    }
+  },
+  "work": {
+    "title": "Work",
+    "description": "Selected open-source AI agent systems and engineering case studies on {siteName}.",
+    "sortStatus": "Featured",
+    "empty": "No projects added yet.",
+    "projectSingle": "{count} project",
+    "projectMultiple": "{count} projects",
+    "detail": {
+      "client": "License",
+      "year": "Year",
+      "work": "Type",
+      "role": "Role",
+      "gallery": "Screenshots",
+      "visit": "Live demo",
+      "source": "GitHub Repo",
+      "next": "Next project"
+    }
+  },
+  "games": {
+    "title": "Games",
+    "windowTitle": "Offline Arcade",
+    "menuAll": "All Games",
+    "description": "Five 100% offline retro CRT mini-games built with pure TypeScript, Canvas, Web Audio, and localStorage.",
+    "lead": "Five pure-frontend offline games running directly inside monochrome phosphor windows — zero backend, local high scores & saves.",
+    "status": "5 offline games"
+  },
+  "minesweeper": {
+    "title": "Minesweeper",
+    "menuTitle": "Minesweeper",
+    "windowTitle": "Minesweeper",
+    "folderLabel": "Games",
+    "cardSummary": "Beginner, Intermediate, and Expert boards with safe first click, flag mode, and chord reveal.",
+    "description": "Classic 1990s monochrome CRT Minesweeper with three board sizes and local best times on {siteName}.",
+    "initialStatus": "Beginner 9×9 · 10 mines left",
+    "noScript": "Enable JavaScript to play Minesweeper."
+  },
+  "tetris": {
+    "title": "Tetris",
+    "menuTitle": "Tetris",
+    "windowTitle": "Tetris",
+    "folderLabel": "Games",
+    "cardSummary": "10×20 monochrome falling blocks with distinct pixel patterns, ghost piece, hold slot, and 8-bit SFX.",
+    "description": "Classic monochrome phosphor Tetris with ghost piece, hold slot, and synthesized 8-bit sound on {siteName}.",
+    "initialStatus": "Ready · Lv.01 · 000000",
+    "noScript": "Enable JavaScript to play Tetris."
+  },
+  "snake": {
+    "title": "Snake",
+    "menuTitle": "Snake",
+    "windowTitle": "Snake",
+    "folderLabel": "Games",
+    "cardSummary": "Three speed tiers, optional wrap walls, timed bonus star fruit, and touch swipe support.",
+    "description": "Retro phosphor CRT Snake with speed modes, wrap walls, and bonus fruit on {siteName}.",
+    "initialStatus": "Ready · Score 000",
+    "noScript": "Enable JavaScript to play Snake."
+  },
+  "game2048": {
+    "title": "2048",
+    "menuTitle": "2048",
+    "windowTitle": "2048",
+    "folderLabel": "Games",
+    "cardSummary": "Monochrome sliding tile puzzle with keyboard/swipe controls and 20-step undo history.",
+    "description": "Monochrome phosphor 2048 puzzle with keyboard, touch swipe, and undo support on {siteName}.",
+    "initialStatus": "Score 0 · Best 0",
+    "noScript": "Enable JavaScript to play 2048."
+  },
+  "mota": {
+    "title": "Magic Tower",
+    "menuTitle": "Magic Tower · 魔塔 21F",
+    "windowTitle": "Magic Tower · 魔塔 21F",
+    "folderLabel": "Games",
+    "cardSummary": "21-floor tactical pixel RPG inspired by classic Chinese Magic Tower (魔塔), with 4 local save slots.",
+    "description": "21-floor monochrome phosphor Magic Tower (魔塔) tactical RPG with local save slots on {siteName}.",
+    "initialStatus": "0F · Local Save",
+    "noScript": "Enable JavaScript to play Magic Tower."
+  },
+  "error": {
+    "title": "Page not found",
+    "windowTitle": "Error",
+    "description": "The window or file you requested could not be found. Return to the desktop or browse Work instead.",
+    "desktopAction": "Go to desktop",
+    "workAction": "Open Work"
+  }
+}

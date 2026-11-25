@@ -1,0 +1,109 @@
+---
+import FAQPanel from "../components/interactive/FAQPanel";
+import SetupWizard from "../components/interactive/SetupWizard";
+import PixelIcon from "../components/os/PixelIcon";
+import WindowFrame from "../components/os/Window";
+import ButtonBase from "../components/ui/ButtonBase";
+import PixelAvatar from "../components/ui/PixelAvatar.astro";
+import { getProjects } from "../components/work/projects";
+import pageCopy from "../data/page-copy.json";
+import DesktopLayout from "../layouts/DesktopLayout.astro";
+import { CONTACT_EMAIL, formatCopy, SITE_NAME, SOCIAL_LINKS } from "../site";
+import "../styles/information.css";
+
+const projects = await getProjects();
+const { about, site } = pageCopy;
+const { specs } = about;
+const description = formatCopy(about.description, { siteName: SITE_NAME });
+const projectCount = formatCopy(
+  projects.length === 1 ? specs.projectSingle : specs.projectMultiple,
+  { count: projects.length },
+);
+---
+
+<DesktopLayout title={about.title} description={description} section="about">
+  <WindowFrame
+    client:load
+    windowId="about"
+    title={about.windowTitle}
+    icon="about"
+    path={[{ label: site.desktopLabel, href: "/" }, { label: about.windowTitle }]}
+    closeHref="/"
+    statusLeft={about.windowTitle}
+    statusRight={`@${about.handle} · ${SITE_NAME}`}
+  >
+    <div class="window-content information-page about-page">
+      <header class="about-identity">
+        <div class="about-avatar-frame">
+          <PixelAvatar size={136} label="Astro Phosphor pixel avatar" />
+        </div>
+        <div class="about-identity-copy">
+          <div class="about-heading-row">
+            <h1 class="page-title">{about.title}</h1>
+            <span class="about-handle-badge">@{about.handle}</span>
+          </div>
+          <ul class="about-tags" aria-label="Identity tags">
+            {about.tags.map((tag) => <li>{tag}</li>)}
+          </ul>
+          <div class="about-links-inline">
+            <a href={SOCIAL_LINKS.github.href} target="_blank" rel="noopener noreferrer">
+              <PixelIcon name="github" size={15} />
+              <span>{SOCIAL_LINKS.github.label}</span>
+            </a>
+            {CONTACT_EMAIL && (
+              <a href={`mailto:${CONTACT_EMAIL}`}>
+                <PixelIcon name="mail" size={15} />
+                <span>{CONTACT_EMAIL}</span>
+              </a>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <div class="about-story">
+        <div class="about-copy">
+          <p class="lead">{about.story.lead}</p>
+          {about.story.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+          <div class="about-actions">
+            <ButtonBase href="/work" variant="primary">{about.workAction}</ButtonBase>
+            <ButtonBase href="/contact" variant="secondary">{about.contactAction}</ButtonBase>
+          </div>
+        </div>
+        <table class="desk-specs" aria-label={specs.label}>
+          <tbody>
+            {specs.rows.map(({ label, value }) => (
+              <tr><th scope="row">{label}</th><td>{formatCopy(value, { projectCount })}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <section class="information-section" aria-labelledby="desk-practice">
+        <h2 class="section-title" id="desk-practice">{about.practices.title}</h2>
+        <ul class="desk-practice" role="list">
+          {about.practices.items.map(({ title, text }) => <li><strong>{title}</strong><span>{text}</span></li>)}
+        </ul>
+      </section>
+
+      <SetupWizard client:idle />
+
+      <section class="information-section" aria-labelledby="desk-timeline">
+        <h2 class="section-title" id="desk-timeline">{about.timelineTitle}</h2>
+        <ol class="desk-timeline" role="list">
+          {about.timeline.map(({ period, title, detail }) => (
+            <li>
+              <time>{period}</time>
+              <div>
+                <strong>{title}</strong>
+                <p class="quiet">{detail}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        {about.timelineNote && <p class="quiet">{about.timelineNote}</p>}
+      </section>
+
+      <FAQPanel client:idle />
+    </div>
+  </WindowFrame>
+</DesktopLayout>

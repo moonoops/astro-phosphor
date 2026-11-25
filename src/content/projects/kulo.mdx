@@ -1,0 +1,58 @@
+---
+title: Kulo
+year: 2026
+summary: A self-hosted cross-device personal agent harness built on the Pi ecosystem. Unifies Mac, Linux, NAS, and mobile nodes under one persistent control plane with reverse tunnels, external ACP orchestration, and physically isolated memory.
+client: Open Source · AGPL-3.0
+work: Cross-Device Agent Harness
+role: Product Architecture & Engineering
+thumbnail: /media/work/kulo-hero.webp
+thumbnailAlt: Kulo workbench with persistent control plane, generative UI approval cards, multi-device tasks, and live desktop handoff
+featuredOrder: 1
+repoUrl: https://github.com/moonoops/Kulo
+gallery:
+  - src: /media/work/kulo-hero.webp
+    alt: Kulo v0.1.5 main workbench interface
+    caption: Persistent control plane with parallel topics, json-render approval cards, and live desktop preview
+  - src: /media/work/kulo-devices.webp
+    alt: Kulo multi-device cluster and active-standby topology
+    caption: Hub/Env cluster connected over resumable outbound WebSocket tunnels with automatic failover
+  - src: /media/work/kulo-agents.webp
+    alt: Kulo unified ACP orchestration across built-in and external coding agents
+    caption: Unified ACP orchestration layer combining 6 built-in roles and 10+ external coding agents
+  - src: /media/work/kulo-handoff.webp
+    alt: Kulo live browser and desktop computer handoff
+    caption: Computer Handoff for seamless human login, 2FA, and interactive take-over
+---
+
+## Overview
+
+**Kulo** is an open-source, self-hosted **cross-device personal agent harness**. Instead of acting as yet another single-machine coding wrapper, it establishes one persistent control plane (`Hub`) across every device you own — laptops, Mac mini, home NAS, cloud servers, and phones — ending manual context juggling across disconnected windows.
+
+## Architecture Highlights
+
+```text
+Mac Desktop / Web / TUI / Mobile / Live Voice
+                     │
+        [ packages/hub · Persistent Control Plane ]
+         ├─ Pi Durable sessions + SQLite ledger + task board
+         ├─ Hindsight dual-bank memory (private core / shared engineering)
+         └─ Active-standby Hub sync with automatic failover
+                     │  /ws/env outbound resumable reverse tunnel
+     ┌───────────────┴───────────────┐
+     ▼                               ▼
+[ packages/env · Execution Nodes ]  [ Unified ACP Agent Layer ]
+ ├─ OS Sandbox (Seatbelt/Bubblewrap) ├─ Claude Code / Codex / Cursor /
+ ├─ Copy-on-Write staged worktrees   │  Antigravity / Gemini CLI / DSH
+ └─ agent-browser / agent-desktop    └─ Per-task incremental MCP injection
+```
+
+- **Decoupled Control & Execution (`Hub / Env`)**: `packages/hub` owns long-lived identity, state, memory, and scheduling; lightweight `packages/env` nodes connect outbound over `/ws/env`, working cleanly behind home NAT with zero public IP requirement.
+- **Parallel Copy-on-Write Staging**: Built-in roles (Scout, Architect, Coder, Checker, Designer, Writer) and external ACP agents work in isolated CoW staging worktrees so read-only roles never mutate the repo and final diffs are reviewed cleanly before merge.
+- **Deterministic Safety Boundaries**: Private memory (`kulo-core`) is physically separated from shared engineering notes (`kulo-shared`), paired with OS sandboxes, signed recovery rollback, and budget caps.
+- **Human-in-the-Loop Handoff**: Structured `json-render` approval cards and live `Computer Handoff` stream browser/desktop sessions whenever login, 2FA, or sensitive confirmation is required.
+
+## Key Trade-offs
+
+1. **Orchestrate rather than replace**: Wrap existing paid coding agents via standard ACP instead of rebuilding another closed model harness.
+2. **Self-hosted reverse tunnels over cloud relays**: Accept slightly higher initial setup in exchange for keeping private credentials and long-term memory strictly on hardware you control.
+3. **Explicit approval redlines over brittle full autonomy**: Routine tasks run quietly; high-impact merges, external permissions, and sensitive flows always pause for explicit confirmation.

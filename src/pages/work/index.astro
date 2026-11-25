@@ -1,0 +1,14 @@
+---
+import WorkIndex from "../../components/work/WorkIndex.astro";
+import { getProjects } from "../../components/work/projects";
+import { work } from "../../data/page-copy.json";
+import DesktopLayout from "../../layouts/DesktopLayout.astro";
+import { formatCopy, SITE_NAME } from "../../site";
+
+const projects = await getProjects();
+const description = formatCopy(work.description, { siteName: SITE_NAME });
+---
+
+<DesktopLayout title={work.title} description={description} section="work">
+  <WorkIndex projects={projects} />
+</DesktopLayout>

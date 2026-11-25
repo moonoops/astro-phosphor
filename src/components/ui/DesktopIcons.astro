@@ -1,0 +1,22 @@
+---
+import PixelIcon from '../os/PixelIcon';
+import { desktopShortcuts, type Section } from '../../navigation';
+
+interface Props {
+  section: Section;
+}
+const { section } = Astro.props;
+---
+
+<nav class="desktop-icons" aria-label="Desktop applications" inert={section === 'error'}>
+  {desktopShortcuts.map((application) => (
+    <a
+      class="desktop-icon"
+      href={application.href}
+      aria-current={section === application.section ? 'location' : undefined}
+    >
+      <PixelIcon name={application.icon} size={60} />
+      <span>{application.label}</span>
+    </a>
+  ))}
+</nav>

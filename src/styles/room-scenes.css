@@ -1,0 +1,119 @@
+/* The compact case picks up the direction and colour of the light in the room. */
+html[data-scene="morning"] {
+  --room-bg: #676a60;
+  --case-top: #686b64;
+  --case-base: #2b302f;
+  --case-bottom: #1d2224;
+  --case-lip: #444947;
+  --case-left-glint: rgb(255 239 202 / .32);
+  --case-right-glint: rgb(211 230 242 / .13);
+  --scene-glass: .62;
+}
+
+html[data-scene="noon"] {
+  --room-bg: #8a8475;
+  --case-top: #777570;
+  --case-base: #393936;
+  --case-bottom: #292928;
+  --case-lip: #51524f;
+  --case-left-glint: rgb(253 250 241 / .19);
+  --case-right-glint: rgb(255 251 232 / .30);
+  --scene-glass: .84;
+}
+
+html[data-scene="dusk"] {
+  --room-bg: #634a3e;
+  --case-top: #5d4c47;
+  --case-base: #2a2326;
+  --case-bottom: #1a161c;
+  --case-lip: #3c3033;
+  --case-left-glint: rgb(186 181 200 / .12);
+  --case-right-glint: rgb(255 174 107 / .32);
+  --scene-glass: .30;
+}
+
+html[data-scene="night"] {
+  --room-bg: #242732;
+  --case-top: #32313a;
+  --case-base: #191a21;
+  --case-bottom: #101219;
+  --case-lip: #282934;
+  --case-left-glint: rgb(250 184 117 / .18);
+  --case-right-glint: rgb(170 193 230 / .07);
+  --scene-glass: .35;
+}
+
+@media (min-width: 1000px) and (min-aspect-ratio: 6/5) {
+  html[data-scene] .room-artwork:not([data-photo-ready]) { visibility: hidden; }
+  /* Never show a detached CRT or aperture shadow over bare room-bg before the monitor photograph decodes. */
+  html[data-scene]:not([data-room-ready]):not([data-zoom="fullscreen"]) :is(.screen-plane, .camera, .bezel-power),
+  html[data-scene]:not([data-room-ready]):not([data-zoom="fullscreen"]) .crt-bezel::after {
+    opacity: 0;
+  }
+  html[data-scene][data-entry="booting"]:not([data-room-ready]):not([data-zoom="fullscreen"]) :is(.entry-veil, .crt-raster, .crt-optics, .crt-signal, .crt-start-glow, .crt-beam, .camera, .hardware-led) {
+    animation-play-state: paused;
+  }
+  .room-artwork {
+    isolation: isolate;
+  }
+  .room-artwork > picture {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+  }
+  .room-artwork > picture[data-scene-shown] {
+    opacity: 1;
+    visibility: visible;
+  }
+  .room-artwork > picture[data-scene-active] {
+    visibility: visible;
+  }
+  html:not([data-scene]) .room-artwork {
+    background: var(--daylight-photo) center / 100% 100% no-repeat;
+  }
+  html:not([data-scene]) .room-artwork > picture { display: none; }
+
+  html[data-scene] .crt-glass {
+    --scene-glass: 1;
+    background: none;
+  }
+  html[data-photo-scene="morning"] { --window-light: 212 224 230; --window-return: .085; }
+  html[data-photo-scene="noon"] { --window-light: 239 238 232; --window-return: .16; }
+  html[data-photo-scene="dusk"] { --window-light: 240 177 129; --window-return: .075; }
+  html[data-scene] .crt-glass::after {
+    inset: var(--tube-overscan);
+    background: rgb(var(--window-light, 234 228 213));
+    mask: center / 100% 100% url('../assets/macintosh-lc-window-reflection.webp') no-repeat;
+    opacity: var(--window-return, .145);
+  }
+  html[data-scene] .crt-glass::before {
+    content: "";
+    position: absolute;
+    inset: var(--tube-overscan);
+    background: radial-gradient(ellipse 28% 54% at -5% 48%, rgb(255 194 126 / .035), transparent);
+    opacity: 0;
+  }
+  html[data-photo-scene="night"] .crt-glass::after { opacity: 0; }
+  html[data-photo-scene="night"] .crt-glass::before { opacity: 1; }
+  /* Only the original afternoon plate has an unlit power lens. Cover the
+     other exposures' photographed LED, including its soft edge, in standby. */
+  html[data-photo-scene]:not([data-photo-scene="afternoon"])[data-power="on"] .bezel-power .hardware-led { opacity: 0; }
+  html[data-photo-scene]:not([data-photo-scene="afternoon"])[data-power="off"] .bezel-power .hardware-led {
+    width: calc(12.2 * var(--photo-unit));
+    height: calc(2.9 * var(--photo-unit));
+    border-radius: calc(1.45 * var(--photo-unit));
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .room-artwork[data-photo-ready] > picture[data-scene-fade][data-scene-shown] {
+      transition: opacity .65s cubic-bezier(.4, 0, .2, 1);
+    }
+    html[data-scene] .crt-glass::before,
+    html[data-scene] .crt-glass::after {
+      transition: opacity .65s cubic-bezier(.4, 0, .2, 1), background-color .65s cubic-bezier(.4, 0, .2, 1);
+    }
+    .bezel-power .hardware-led {
+      transition: background-color .5s, box-shadow .5s, opacity .65s cubic-bezier(.4, 0, .2, 1);
+    }
+  }
+}

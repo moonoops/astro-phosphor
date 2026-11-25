@@ -1,0 +1,186 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '@fontsource/jersey-10/latin-400.css';
+import '@fontsource-variable/chivo-mono/wght.css';
+import '@fontsource-variable/chivo-mono/wght-italic.css';
+import '../styles/global.css';
+import '../styles/home.css';
+import '../styles/tube-shape.css';
+import '../styles/room-scenes.css';
+import TubeGlass from '../components/ui/TubeGlass.astro';
+import RoomArtwork from '../components/ui/RoomArtwork.astro';
+import { aperture, indicator, overscan, rasterInset, virtualScreen } from '../geometry/tube';
+import { roomCoordinateSize } from '../geometry/room-crop.js';
+import room from '../assets/macintosh-lc-afternoon-desk-details.webp';
+import CRTScreen, { CRTScreenControls } from '../components/os/CRTScreen';
+import PixelCursors from '../components/os/PixelCursors';
+import Taskbar from '../components/os/Taskbar';
+import Clock from '../components/os/Clock';
+import AfternoonSound from '../components/os/AfternoonSound';
+import DesktopIcons from '../components/ui/DesktopIcons.astro';
+import { type Section } from '../navigation';
+import { SITE_DESCRIPTION, SITE_NAME } from '../site';
+import { entryKey, introKey, preferenceKey, roomScenes, themes, zoomModes } from '../stores/osStore';
+import { roomMedia, roomSources } from '../room-scenes';
+
+interface Props {
+  title: string;
+  description?: string;
+  section?: Section;
+  activeLabel?: string;
+  lang?: string;
+  image?: string;
+}
+
+const { title, description = SITE_DESCRIPTION, section = 'desktop', activeLabel, lang = 'en', image } = Astro.props;
+const pageTitle = section === 'desktop' ? SITE_NAME : `${title} · ${SITE_NAME}`;
+const hardwareGeometry = {
+  '--photo-width': roomCoordinateSize.width, '--photo-height': roomCoordinateSize.height,
+  '--aperture-x': aperture.x, '--aperture-y': aperture.y,
+  '--aperture-width': aperture.width, '--aperture-height': aperture.height,
+  '--raster-inset': rasterInset, '--raster-overscan': overscan,
+  '--stage-layout-width': `${virtualScreen.width}px`, '--stage-layout-height': `${virtualScreen.height}px`,
+  '--switch-photo-x': indicator.x, '--switch-photo-y': indicator.y,
+};
+const canonical = Astro.site && new URL(Astro.url.pathname, Astro.site);
+const socialImage = Astro.site && new URL(image ?? room.src, Astro.site);
+---
+
+<!doctype html>
+<html lang={lang} style={hardwareGeometry} data-theme="amber" data-reading="off" data-zoom="room" data-prev-zoom="room" data-power="on" data-sound-muted="false" transition:animate="none">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content={description} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content={section === 'journal' && activeLabel ? 'article' : 'website'} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {canonical && <meta property="og:url" content={canonical} />}
+    {socialImage && <meta property="og:image" content={socialImage} />}
+    {section === 'error' && <meta name="robots" content="noindex" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icon-512.png" type="image/png" sizes="512x512" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <title>{pageTitle}</title>
+    <script is:inline data-preference-key={preferenceKey} data-intro-key={introKey} data-entry-key={entryKey} data-themes={themes.join(' ')} data-zoom-modes={zoomModes.join(' ')} data-scenes={roomScenes.join(' ')} data-room-media={roomMedia} data-room-sources={JSON.stringify(roomSources)}>
+      const root = document.documentElement;
+      const settings = document.currentScript.dataset;
+      const params = new URLSearchParams(location.search);
+      const scenes = settings.scenes.split(' ');
+      const requested = params.get('scene');
+      const linkedScene = scenes.includes(requested) ? requested : null;
+      function localScene(hour) {
+        if (hour < 5 || hour >= 20) return 'night';
+        if (hour < 11) return 'morning';
+        if (hour < 14) return 'noon';
+        if (hour < 17) return 'afternoon';
+        return 'dusk';
+      }
+      const clockScene = localScene(new Date().getHours());
+      const clockDayScene = clockScene === 'night' ? 'afternoon' : clockScene;
+      root.dataset.scene = linkedScene || clockScene;
+      root.dataset.dayScene = linkedScene && linkedScene !== 'night' ? linkedScene : clockDayScene;
+      try {
+        const preferences = JSON.parse(localStorage.getItem(settings.preferenceKey) || '{}');
+        const validZoom = settings.zoomModes.split(' ');
+        const enterInRoom = location.pathname === '/' && params.get('view') === 'room';
+        const zoom = !enterInRoom && validZoom.includes(preferences?.zoom) ? preferences.zoom : 'room';
+        const prevZoom = zoom === 'close' || (zoom === 'fullscreen' && preferences?.previousZoom === 'close') ? 'close' : 'room';
+        const savedScene = scenes.includes(preferences?.scene) ? preferences.scene : null;
+        root.dataset.scene = linkedScene || savedScene || clockScene;
+        const savedDay = savedScene === 'night' ? preferences?.dayScene : savedScene;
+        const lastDay = savedDay && savedDay !== 'night' && scenes.includes(savedDay) ? savedDay : clockDayScene;
+        root.dataset.dayScene = root.dataset.scene === 'night' ? lastDay : root.dataset.scene;
+        root.dataset.theme = settings.themes.split(' ').includes(preferences?.theme) ? preferences.theme : 'amber';
+        root.dataset.reading = preferences?.reading === true ? 'on' : 'off';
+        root.dataset.zoom = zoom;
+        root.dataset.prevZoom = prevZoom;
+        if (zoom === 'fullscreen') root.dataset.crtFlat = 'on';
+        root.dataset.soundMuted = String(preferences?.soundMuted === true);
+        if (linkedScene && (linkedScene !== preferences?.scene || root.dataset.dayScene !== preferences?.dayScene)) {
+          localStorage.setItem(settings.preferenceKey, JSON.stringify({ ...preferences, scene: linkedScene, dayScene: root.dataset.dayScene }));
+        }
+      } catch {
+        // The attributes above already provide first-paint defaults.
+      }
+      root.dataset.photoScene = root.dataset.scene;
+
+      try {
+        if (root.dataset.zoom !== 'fullscreen' && matchMedia(settings.roomMedia).matches) {
+          const sources = JSON.parse(settings.roomSources || '{}');
+          const srcset = sources[root.dataset.scene];
+          if (srcset) {
+            const preload = document.createElement('link');
+            preload.rel = 'preload';
+            preload.as = 'image';
+            preload.imageSrcset = srcset;
+            preload.imageSizes = '100vw';
+            preload.fetchPriority = 'high';
+            document.head.append(preload);
+          }
+        }
+      } catch {
+        // Preload is a hint only; RoomArtwork still loads the active scene.
+      }
+
+      try {
+        const motion = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (motion && !sessionStorage.getItem(settings.introKey)) {
+          root.dataset.intro = 'pending';
+        }
+        if (motion && !sessionStorage.getItem(settings.entryKey)) {
+          root.dataset.entry = 'booting';
+          root.dataset.entryStart = String(Math.round(performance.now()));
+        }
+      } catch {
+        // Leave the introduction immediately readable when storage is blocked.
+      }
+
+      document.addEventListener('astro:before-swap', (event) => {
+        const next = event.newDocument.documentElement;
+        delete root.dataset.entry;
+        delete root.dataset.entryStart;
+        for (const attribute of ['theme', 'reading', 'zoom', 'prevZoom', 'crtFlat', 'power', 'soundMuted', 'intro', 'warming', 'cooling', 'scene', 'dayScene', 'photoScene', 'roomReady']) {
+          const value = root.dataset[attribute];
+          if (value === undefined) delete next.dataset[attribute];
+          else next.dataset[attribute] = value;
+        }
+      });
+    </script>
+    <ClientRouter fallback="swap" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="crt-bezel" aria-hidden="true" transition:persist="crt-shell">
+      <RoomArtwork />
+    </div>
+    <div class="tube-mount" aria-hidden="true" transition:persist="tube-glass"><TubeGlass /></div>
+    <CRTScreenControls client:load transition:persist="crt-controls" />
+    <div class="screen-plane">
+      <CRTScreen client:load transition:persist="crt-optics" />
+      <PixelCursors client:load transition:persist="pixel-cursors" />
+      <div class="crt-emission">
+        <div class="crt-raster">
+          <div class="screen-stage">
+            <div class="desktop-space">
+              {section !== 'desktop' && <p class="desktop-wallpaper hero-title" aria-hidden="true">{SITE_NAME}</p>}
+              <DesktopIcons section={section} />
+              <main class="workspace-content" id="main-content" tabindex="-1">
+                <slot />
+              </main>
+            </div>
+            <div class="taskbar" inert={section === 'error'}>
+              <Taskbar section={section} activeLabel={activeLabel} client:load transition:persist="taskbar" />
+              <AfternoonSound client:load transition:persist="audio" />
+              <Clock client:load transition:persist="clock" />
+            </div>
+          </div>
+          <span class="crt-scanlines" aria-hidden="true" transition:persist="crt-scanlines"></span>
+        </div>
+      </div>
+    </div>
+    <div class="entry-veil" aria-hidden="true" transition:persist="entry-veil"></div>
+  </body>
+</html>

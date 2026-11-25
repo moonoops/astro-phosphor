@@ -1,0 +1,33 @@
+---
+import Game2048 from "../../components/interactive/Game2048";
+import WindowFrame from "../../components/os/Window";
+import pageCopy from "../../data/page-copy.json";
+import DesktopLayout from "../../layouts/DesktopLayout.astro";
+import { formatCopy, SITE_NAME } from "../../site";
+import "../../styles/arcade-games.css";
+
+const { game2048, site } = pageCopy;
+const description = formatCopy(game2048.description, { siteName: SITE_NAME });
+---
+
+<DesktopLayout title={game2048.title} description={description} section="game2048">
+  <WindowFrame
+    client:load
+    windowId="game2048"
+    title={game2048.windowTitle}
+    icon="grid2048"
+    path={[
+      { label: site.desktopLabel, href: "/" },
+      { label: game2048.folderLabel, href: "/games" },
+      { label: game2048.title },
+    ]}
+    closeHref="/games"
+    statusLeft={game2048.windowTitle}
+    statusRight={game2048.initialStatus}
+  >
+    <Game2048 client:load />
+    <noscript>
+      <p class="quiet arcade-noscript">{game2048.noScript}</p>
+    </noscript>
+  </WindowFrame>
+</DesktopLayout>

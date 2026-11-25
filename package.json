@@ -1,0 +1,45 @@
+{
+  "name": "astro-phosphor",
+  "version": "1.0.0",
+  "description": "A lightweight 1990s beige CRT monitor & monochrome phosphor OS personal site template built with Astro 5, React 19, and Tailwind CSS v4.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moonoops/astro-phosphor.git"
+  },
+  "homepage": "https://github.com/moonoops/astro-phosphor#readme",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "check": "astro check && tsc --noEmit",
+    "build": "astro build",
+    "preview": "astro preview",
+    "art:room": "node scripts/prepare-room.mjs",
+    "test:browser": "playwright test"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.14",
+    "@astrojs/react": "^4.4.2",
+    "@fontsource-variable/chivo-mono": "^5.2.8",
+    "@fontsource/jersey-10": "^5.2.3",
+    "@nanostores/react": "^1.0.0",
+    "@tailwindcss/vite": "^4.1.0",
+    "astro": "^5.18.2",
+    "nanostores": "^1.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tailwindcss": "^4.1.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "sharp": "^0.34.5",
+    "typescript": "~5.9.3"
+  }
+}

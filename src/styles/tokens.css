@@ -1,0 +1,150 @@
+@property --crt-zoom {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --crt-full {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --ground {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #020b14;
+}
+
+:root,
+[data-theme="amber"] {
+  --lit: #ffb648;
+  --ground: #020b14;
+}
+
+[data-theme="green"] { --lit: #4af626; }
+[data-theme="blue"] { --lit: #5cc8ff; }
+[data-theme="white"] { --lit: #e8ecf2; }
+
+:root {
+  --ground-fullscreen: #121418;
+  --lit-28: color-mix(in srgb, var(--lit) 28%, transparent);
+  --lit-10: color-mix(in srgb, var(--lit) 10%, transparent);
+  --lit-72: color-mix(in srgb, var(--lit) 72%, transparent);
+  --hi: color-mix(in srgb, var(--lit) 50%, white);
+  --side: color-mix(in srgb, var(--lit) 45%, var(--ground));
+
+  --room-bg: #6b5846;
+  --hardware-base: #bbae96;
+  --hardware-hi: #e7dbc4;
+  --hardware-shadow: #504738;
+  --case-base: #121215;
+  --case-top: #454548;
+  --case-bottom: #0d0d0f;
+  --case-lip: #2f2f32;
+  --crt-off: #010306;
+  --entry-veil: #060607;
+  --crt-wake: rgba(255, 255, 255, 0.32);
+  --crt-led: rgb(93, 255, 155);
+  --crt-led-standby: rgb(255, 171, 61);
+  --zoom-bg: rgba(2, 11, 20, 0.72);
+
+  --scanline-alpha: 0.16;
+  --vignette-alpha: 0.6;
+  --flicker-display: block;
+  --glass-glare-opacity: 1;
+  --text-glow-body:
+    0 0 3px color-mix(in srgb, currentColor 60%, transparent),
+    0 0 14px color-mix(in srgb, currentColor 40%, transparent);
+  --text-glow-heading:
+    0 0 2px color-mix(in srgb, currentColor 90%, white),
+    0 0 16px color-mix(in srgb, currentColor 72%, transparent),
+    0 0 52px color-mix(in srgb, currentColor 38%, transparent);
+
+  --font-display: "Jersey 10", "PingFang SC", "Noto Sans SC", sans-serif;
+  --font-mono: "Chivo Mono Variable", "Sarasa Mono SC", "LXGW WenKai Mono", "PingFang SC", "Noto Sans SC", monospace;
+  --type-h1: 180px;
+  --type-h2: 100px;
+  --type-h3: 52px;
+  --type-article-h2: 46px;
+  --type-article-h3: 32px;
+  --type-article-h4: 24px;
+  --type-lead: 20px;
+  --type-body: 17px;
+  --type-label: 15px;
+  --type-quote: 19px;
+  --type-nav: 15px;
+  --type-quiet: 15px;
+  --type-table: 16px;
+  --hero-line: 0.8;
+  --body-line: 1.5;
+
+  --crt-bz: 30px;
+  --crt-safe: calc(var(--crt-bz) + 6px);
+  --wmax-bottom: 80px;
+  --taskbar-height: 60px;
+
+  --astro-code-color-text: var(--lit);
+  --astro-code-color-background: var(--lit-10);
+  --astro-code-token-constant: var(--hi);
+  --astro-code-token-string: var(--lit);
+  --astro-code-token-comment: var(--lit-72);
+  --astro-code-token-keyword: var(--hi);
+  --astro-code-token-parameter: var(--lit);
+  --astro-code-token-function: var(--lit);
+  --astro-code-token-string-expression: var(--lit-72);
+  --astro-code-token-punctuation: color-mix(in srgb, var(--lit) 55%, transparent);
+  --astro-code-token-link: var(--hi);
+}
+
+html[data-zoom="fullscreen"] {
+  --ground: var(--ground-fullscreen);
+}
+
+[data-reading="on"] {
+  --scanline-alpha: 0.04;
+  --vignette-alpha: 0.28;
+  --flicker-display: none;
+  --glass-glare-opacity: 0;
+  --text-glow-body: 0 0 2px color-mix(in srgb, currentColor 25%, transparent);
+  --text-glow-heading: var(--text-glow-body);
+}
+
+@media (max-width: 1199px) {
+  :root {
+    --type-h1: 190px;
+    --type-h2: 76px;
+    --type-h3: 44px;
+    --type-article-h2: 40px;
+    --type-article-h3: 30px;
+    --type-lead: 19px;
+    --type-quote: 18px;
+    --type-table: 15px;
+    --body-line: 1.45;
+  }
+}
+
+@media (max-width: 809px) {
+  :root {
+    --crt-bz: 12px;
+    --taskbar-height: 56px;
+    --type-h1: 100px;
+    --type-h2: 60px;
+    --type-h3: 38px;
+    --type-article-h2: 34px;
+    --type-article-h3: 26px;
+    --type-article-h4: 22px;
+    --type-lead: 17px;
+    --type-body: 16px;
+    --type-label: 14px;
+    --type-quote: 17px;
+    --type-nav: 14px;
+    --type-quiet: 14px;
+    --type-table: 14px;
+    --hero-line: 0.82;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --flicker-display: none; }
+}

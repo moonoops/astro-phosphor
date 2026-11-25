@@ -1,0 +1,30 @@
+---
+import JournalFilter from "../../components/interactive/JournalFilter";
+import JournalIndex from "../../components/journal/JournalIndex.astro";
+import { getJournalPosts } from "../../components/journal/posts";
+import { site, journal } from "../../data/page-copy.json";
+import WindowFrame from "../../components/os/Window";
+import DesktopLayout from "../../layouts/DesktopLayout.astro";
+import { formatCopy, SITE_NAME } from "../../site";
+
+const posts = await getJournalPosts();
+const categories = [...new Set(posts.map(({ data }) => data.category))].sort();
+const tags = [...new Set(posts.flatMap(({ data }) => data.tags))].sort();
+const description = formatCopy(journal.description, { siteName: SITE_NAME });
+---
+
+<DesktopLayout title={journal.title} description={description} section="journal">
+  <WindowFrame
+    client:load
+    windowId="journal"
+    title={journal.title}
+    icon="journal"
+    path={[{ label: site.desktopLabel, href: "/" }, { label: journal.title }]}
+    closeHref="/"
+    statusLeft={journal.title}
+    statusRight={journal.sortStatus}
+  >
+    <JournalFilter slot="pathEnd" categories={categories} tags={tags} client:idle />
+    <JournalIndex posts={posts} />
+  </WindowFrame>
+</DesktopLayout>

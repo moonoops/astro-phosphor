@@ -1,0 +1,34 @@
+---
+import MagicTowerGame from "../../components/interactive/MagicTowerGame";
+import WindowFrame from "../../components/os/Window";
+import pageCopy from "../../data/page-copy.json";
+import DesktopLayout from "../../layouts/DesktopLayout.astro";
+import { formatCopy, SITE_NAME } from "../../site";
+import "../../styles/mota.css";
+import "../../styles/arcade-games.css";
+
+const { mota, site } = pageCopy;
+const description = formatCopy(mota.description, { siteName: SITE_NAME });
+---
+
+<DesktopLayout title={mota.title} description={description} section="mota" lang="zh-CN">
+  <WindowFrame
+    client:load
+    windowId="mota"
+    title={mota.windowTitle}
+    icon="tower"
+    path={[
+      { label: site.desktopLabel, href: "/" },
+      { label: mota.folderLabel, href: "/games" },
+      { label: mota.title },
+    ]}
+    closeHref="/games"
+    statusLeft={mota.windowTitle}
+    statusRight={mota.initialStatus}
+  >
+    <MagicTowerGame client:load />
+    <noscript>
+      <p class="quiet mota-noscript">{mota.noScript}</p>
+    </noscript>
+  </WindowFrame>
+</DesktopLayout>

@@ -1,0 +1,38 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+type Props = Omit<HTMLAttributes<"img">, "alt" | "src"> & {
+  src: string;
+  alt: string;
+};
+
+const { class: className, loading = "lazy", decoding = "async", ...attributes } = Astro.props;
+---
+
+<img class:list={["phosphor-picture", className]} loading={loading} decoding={decoding} {...attributes} />
+
+<style>
+  .phosphor-picture {
+    display: block;
+    max-inline-size: 100%;
+  }
+
+  @media (hover: hover) and (pointer: fine) and (min-width: 810px) {
+    .phosphor-picture {
+      filter: brightness(1.05) contrast(1.15);
+      transition: filter 120ms linear;
+    }
+
+    .phosphor-picture:hover,
+    :global(a:hover) .phosphor-picture,
+    :global(a:focus-visible) .phosphor-picture {
+      filter: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .phosphor-picture {
+      transition: none;
+    }
+  }
+</style>

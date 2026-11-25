@@ -1,0 +1,94 @@
+.specimen-page { gap: 36px; }
+.specimen-header,
+.specimen-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+}
+
+.specimen-section { border-top: 1px solid var(--lit-28); padding-top: 20px; }
+.display-preferences,
+.theme-presets,
+.specimen-keys { display: flex; flex-wrap: wrap; gap: 12px; align-items: start; }
+
+.display-preferences { justify-content: space-between; padding-bottom: 4px; }
+.theme-presets .pixel-key { text-transform: capitalize; }
+
+.specimen-colors,
+.specimen-icons { display: grid; grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)); gap: 8px; }
+
+.specimen-colors li,
+.specimen-icons li {
+  display: grid;
+  min-width: 0;
+  border: 1px solid var(--lit-28);
+}
+
+.specimen-color {
+  height: 36px;
+  background: var(--swatch);
+  border-bottom: 1px solid var(--lit-28);
+}
+
+.specimen-colors code,
+.specimen-icons li {
+  padding: 7px 6px;
+  font-size: var(--type-quiet);
+  overflow-wrap: anywhere;
+}
+
+.specimen-icons li { justify-items: center; gap: 8px; text-align: center; }
+
+.specimen-type > div {
+  display: grid;
+  grid-template-columns: minmax(72px, 23%) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding-block: 10px;
+  border-block-end: 1px solid var(--lit-28);
+}
+
+.specimen-type :is(.hero-title, .page-title) { overflow-wrap: normal; }
+.specimen-ah2, .specimen-ah3, .specimen-ah4 { font-family: var(--font-display); }
+.specimen-ah2 { font-size: var(--type-article-h2); line-height: 0.95; }
+.specimen-ah3 { font-size: var(--type-article-h3); line-height: 1; }
+.specimen-ah4 { font-size: var(--type-article-h4); line-height: 1.05; }
+.specimen-label { font-size: var(--type-label); font-weight: 500; line-height: 1.25; }
+.specimen-quote { font-size: var(--type-quote); line-height: 1.45; }
+.specimen-nav { font-size: var(--type-nav); font-weight: 500; line-height: 1.25; }
+.specimen-table { font-size: var(--type-table); line-height: 1.4; font-variant-numeric: tabular-nums; }
+
+.specimen-key--pressed {
+  transform: translate(4px, 4px);
+  box-shadow: inset 2px 2px 0 var(--hi), inset 0 0 0 2px var(--lit);
+}
+
+.specimen-key--focus { outline: 2px dashed var(--lit); outline-offset: 2px; }
+
+.specimen-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.specimen-fields label { display: grid; gap: 4px; }
+.specimen-fields label > span { position: relative; }
+.specimen-fields :is(input, select) {
+  max-width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--lit-28);
+  padding: 7px 9px;
+  background: var(--lit-10);
+}
+
+.specimen-fields select { appearance: none; min-width: 124px; padding-inline-end: 32px; }
+.specimen-fields select + svg { position: absolute; top: 12px; right: 8px; pointer-events: none; }
+.specimen-fields select option { color: var(--lit); background: var(--ground); }
+
+.specimen-picture { display: grid; gap: 8px; max-width: 360px; }
+
+@media (max-width: 809px) {
+  .specimen-type > div { grid-template-columns: minmax(0, 1fr); }
+  .specimen-type .hero-title { overflow-wrap: anywhere; }
+}
