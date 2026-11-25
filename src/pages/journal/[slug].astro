@@ -9,7 +9,7 @@ import WindowFrame from "../../components/os/Window";
 import ButtonBase from "../../components/ui/ButtonBase";
 import PhosphorPicture from "../../components/ui/PhosphorPicture.astro";
 import DesktopLayout from "../../layouts/DesktopLayout.astro";
-import { SITE_NAME } from "../../site";
+import { SITE_NAME, withBase } from "../../site";
 import { site, journal } from "../../data/page-copy.json";
 import "../../styles/journal.css";
 
@@ -29,7 +29,7 @@ const { Content, headings } = await render(entry);
 const contents = headings.filter(({ depth }) => depth === 2);
 const date = journalDate(pubDate, "long");
 const canonical = Astro.site && new URL(Astro.url.pathname, Astro.site).href;
-const cover = coverImage ? { src: coverImage, alt: coverAlt ?? "" } : undefined;
+const cover = coverImage ? { src: withBase(coverImage), alt: coverAlt ?? "" } : undefined;
 const gallery = "journal-cover";
 const articleId = `journal-${entry.id}`;
 ---
@@ -75,7 +75,7 @@ const articleId = `journal-${entry.id}`;
             <div class="journal-article-meta" lang="en">
               <time class="journal-chip" datetime={pubDate.toISOString().slice(0, 10)}>{journalDate(pubDate)}</time>
               <span class="journal-chip">{SITE_NAME}</span>
-              <a class="journal-chip" href={`/journal?category=${encodeURIComponent(category)}`}>{category}</a>
+              <a class="journal-chip" href={withBase(`/journal?category=${encodeURIComponent(category)}`)}>{category}</a>
             </div>
             <h1 class="page-title">{title}</h1>
             <p class="lead">{summary}</p>
@@ -104,7 +104,7 @@ const articleId = `journal-${entry.id}`;
           {tags.length > 0 && (
             <ul class="journal-article-tags" aria-label={journal.article.tags} lang="en">
               {tags.map((tag) => (
-                <li><a class="journal-chip" href={`/journal?tag=${encodeURIComponent(tag)}`}><span aria-hidden="true">#</span>{tag}</a></li>
+                <li><a class="journal-chip" href={withBase(`/journal?tag=${encodeURIComponent(tag)}`)}><span aria-hidden="true">#</span>{tag}</a></li>
               ))}
             </ul>
           )}

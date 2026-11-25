@@ -9,6 +9,7 @@ import { getProjects } from "../../components/work/projects";
 import PhosphorPicture from "../../components/ui/PhosphorPicture.astro";
 import GalleryLightbox, { type GalleryItem } from "../../components/interactive/GalleryLightbox";
 import { site, work } from "../../data/page-copy.json";
+import { withBase } from "../../site";
 
 export async function getStaticPaths() {
   const projects = await getProjects();
@@ -26,7 +27,8 @@ export async function getStaticPaths() {
 const { project, projects, nextProject } = Astro.props as InferGetStaticPropsType<typeof getStaticPaths>;
 const { data } = project;
 const { Content } = await render(project);
-const media: GalleryItem[] = data.gallery?.length ? data.gallery : [{ src: data.thumbnail, alt: data.thumbnailAlt }];
+const rawMedia: GalleryItem[] = data.gallery?.length ? data.gallery : [{ src: data.thumbnail, alt: data.thumbnailAlt }];
+const media: GalleryItem[] = rawMedia.map((item) => ({ ...item, src: withBase(item.src) }));
 const galleryGroup = "project-media";
 ---
 
@@ -108,7 +110,7 @@ const galleryGroup = "project-media";
       {nextProject && (
         <nav class="next-project" aria-label={work.detail.next}>
           <p class="quiet">{work.detail.next}</p>
-          <a href={`/work/${nextProject.id}`} class="section-title">
+          <a href={withBase(`/work/${nextProject.id}`)} class="section-title">
             {nextProject.data.title}<PixelIcon name="next" size={28} />
           </a>
         </nav>

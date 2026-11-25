@@ -3,7 +3,7 @@ import type { CollectionEntry } from "astro:content";
 import WindowFrame from "../os/Window";
 import PhosphorPicture from "../ui/PhosphorPicture.astro";
 import { site, work } from "../../data/page-copy.json";
-import { formatCopy } from "../../site";
+import { formatCopy, withBase } from "../../site";
 import "../../styles/work.css";
 
 interface Props {
@@ -35,7 +35,7 @@ const count = formatCopy(projects.length === 1 ? work.projectSingle : work.proje
       <ul class="work-grid">
         {projects.map(({ id, data }, index) => (
           <li>
-            <a class="work-card" href={`/work/${id}`} aria-labelledby={`project-title-${id}`}>
+            <a class="work-card" href={withBase(`/work/${id}`)} aria-labelledby={`project-title-${id}`}>
               <PhosphorPicture
                 class="work-card-image"
                 src={data.thumbnail}

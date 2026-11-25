@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import { useStore } from '@nanostores/react';
 import { pointerThroughGlass } from '../../geometry/signal-lens';
+import { withBase } from '../../site';
 import { $maximizedWindows, $windowGeometry } from '../../stores/osStore';
 import ButtonBase from '../ui/ButtonBase';
 import PixelIcon, { type PixelIconName } from './PixelIcon';
@@ -290,7 +291,7 @@ export default function WindowFrame({
             {path.map(({ label, href }, index) => (
               <li key={`${label}-${index}`}>
                 {index > 0 && <span aria-hidden="true" className="window-path-slash">/</span>}
-                {href ? <a href={href}>{label}</a> : <span aria-current="page">{label}</span>}
+                {href ? <a href={withBase(href)}>{label}</a> : <span aria-current="page">{label}</span>}
               </li>
             ))}
           </ol>

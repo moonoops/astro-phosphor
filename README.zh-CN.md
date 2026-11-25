@@ -4,19 +4,37 @@
 
 一个轻量、**100% 纯静态**的 1990 年代米色 CRT 显示器 × 单色荧光管复古桌面个人站模板，基于 **Astro 5**、**React 19** 与 **Tailwind CSS v4** 构建。
 
-零后端依赖、零数据库、零外部图标库——完整内置单色相数学衍生设计系统、交互式 Design System 标本页、支持中英 CJK 排版的 MDX 博客、5 款纯前端离线复古小游戏，以及面向 AI 编程的 `AGENTS.md`、`docs/DESIGN.md` 和**自定义桌面背景图 Agent Skill**。
+> **纯净模板在线 Demo**：[moonoops.github.io/astro-phosphor](https://moonoops.github.io/astro-phosphor/)（本仓库自动构建的纯静态预览）
+>
+> **线上实景扩展站**：[xox.pub](https://xox.pub)（基于本模板扩展的个人站点。注意：`xox.pub` 额外接入了 Chat 聊天室、留言板、音视频播放器等需要后端服务的功能，本轻量纯静态模板暂不提供这些后端能力；如有需要，可直接结合仓库内置的 `AGENTS.md` 与 `docs/DESIGN.md` 用 AI 快速搭建扩展。）
+
+![Astro Phosphor — 1990 年代日光 CRT 桌面全景（琥珀荧光）](./docs/screenshots/desktop-afternoon.webp)
+
+<table>
+  <tr>
+    <td width="33.3%">
+      <img src="./docs/screenshots/night-design-system.webp" alt="夜间台灯光影、翠绿荧光主题与实时 Design System 标本窗口" />
+      <br /><sub><b>夜间台灯光影 · 翠绿荧光 · Design System</b></sub>
+    </td>
+    <td width="33.3%">
+      <img src="./docs/screenshots/journal-reading.webp" alt="近景缩放、Reading Mode 阅读模式与中文 CJK 排版文章" />
+      <br /><sub><b>近景缩放 · 阅读模式 · 中英双语 MDX</b></sub>
+    </td>
+    <td width="33.3%">
+      <img src="./docs/screenshots/offline-arcade.webp" alt="冰蓝荧光主题下运行的纯前端离线 21 层魔塔小游戏" />
+      <br /><sub><b>冰蓝荧光 · 5 款纯前端离线复古小游戏</b></sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
 ## 核心特性
 
-- **1990 年代复古书桌 + 五时段自然光影**：根据访客本地时间自动切换 5 套 Macintosh LC 书桌光影（`morning` / `noon` / `afternoon` / `dusk` / `night`），支持平滑淡入过渡，窄屏与移动端自动降级为同色系氛围窄边框。
-- **三态镜头控制与真实 CRT 光学层**：基于 CSS `@property` 的丝滑过渡，支持 **Room（远景）**、**Close（近景）** 和无边框 **Fullscreen（全屏）**（快捷键 `+` / `-` / `F`），内置渐进式曲屏滤镜与指针反投影、扫描线、暗角、荧光泛光、窗光反射以及开关机显像管点火/坍缩动画。
-- **单色相数学衍生设计系统**：只需更改一个 `--lit` 变量，即可同步重绘全站文字、边框、3D 像素按键、荧光晕、Shiki 代码块、Canvas 小游戏与动态 SVG 像素光标。内置 4 套主题（琥珀 `amber` / 翠绿 `green` / 冰蓝 `blue` / 纸白 `white`）与一键 **Reading Mode（阅读模式）**。
-- **Astro 静态核心 + 持久化 OS 外壳**：使用 `<ClientRouter />` 与 `transition:persist`，切换窗口路由时绝不重播暖机模糊或丢失缩放状态。
-- **中英双语 MDX 博客与 CJK 排版优化**：内置分类/标签/关键词实时检索、左侧吸顶目录（Scrollspy TOC）、单色 Shiki 代码块；在文章 frontmatter 设置 `lang: zh-CN` 自动启用 `1.75` 中文行高与收敛标题字阶。
+- **AI 友好、规范驱动、开箱即二开**：专为 AI 编程助手（Antigravity / Claude Code / Codex / Cursor 等）深度适配。项目用 [`AGENTS.md`](./AGENTS.md) 明确规定了技术栈、Astro/React Islands 边界、路由结构与零后端规范；用 [`docs/DESIGN.md`](./docs/DESIGN.md) 完整约束了单色相荧光令牌（4 套主题 + Reading Mode）、响应式像素字阶与 0px 复古组件风格；并内置可复用 **Agent Skills**（例如 [`crt-room-artwork`](./.agents/skills/crt-room-artwork/SKILL.md) 专门指导 AI 生成、重打五时段光影并校准自定义 CRT 桌面背景图），让 AI 扩展新页面、新窗口或自行补齐后端能力都不跑偏。
+- **Astro 静态核心 + 持久化 OS 外壳**：100% 纯静态输出（`dist/`），零后端、零数据库。通过 `<ClientRouter />` 与 `transition:persist` 持久化桌面与 CRT 外壳，切换窗口路由时绝不重播暖机模糊或丢失镜头缩放状态（`Room` / `Close` / `Fullscreen`）。
+- **中英双语 MDX 博客与 CJK 排版优化**：内置分类/标签/关键词实时检索、左侧吸顶目录（Scrollspy TOC）、单色 Shiki 代码块与一键 **Reading Mode**；中文长文（`lang: zh-CN`）自动启用 `1.75` 行高与收敛标题字阶。
 - **5 款 100% 离线复古小游戏**：扫雷、俄罗斯方块、贪吃蛇、2048、21 层魔塔（`Magic Tower · 魔塔 21F`）——纯 TypeScript + Canvas + Web Audio 合成 8-bit 音效 + `localStorage` 本地纪录与多槽位存档。
-- **AI 友好、开箱即二开**：随仓附带精炼版 [`AGENTS.md`](./AGENTS.md)、[`docs/DESIGN.md`](./docs/DESIGN.md) 与 [`crt-room-artwork`](./.agents/skills/crt-room-artwork/SKILL.md) Agent Skill，交给任何 AI 编程助手都能严格遵循像素与单色相规范扩展新窗口或更换定制机箱背景。
 
 ---
 
@@ -58,37 +76,23 @@ npm run test:browser  # 运行 Playwright 浏览器自动化测试（需本机�
 
 ---
 
-## 个性化定制指南
+## 个性化定制与 AI 二开
 
 1. **站点名称与社交链接**：修改 [`src/site.ts`](./src/site.ts) 与 [`src/data/page-copy.json`](./src/data/page-copy.json)。
 2. **作品集内容**：编辑或替换 [`src/content/projects/`](./src/content/projects/) 中的 `.mdx` 文件，配图放在 `public/media/work/`。
-3. **撰写文章**：在 [`src/content/journal/`](./src/content/journal/) 新建 `.mdx` 文件；中文长文在 frontmatter 中填写 `lang: zh-CN`，草稿可设 `draft: true`。
-4. **邮箱与线上域名**：复制 `.env.example` 为 `.env`：
+3. **撰写文章**：在 [`src/content/journal/`](./src/content/journal/) 新建 `.mdx` 文件；中文长文在 frontmatter 填写 `lang: zh-CN`，草稿可设 `draft: true`。
+4. **邮箱与域名配置**：复制 `.env.example` 为 `.env`：
    - 填写 `PUBLIC_CONTACT_EMAIL` 开启联系页 `mailto:` 唤起（留空则自动切换为本地草稿下载）。
-   - 构建前设置 `SITE_URL` 以生成规范的 Canonical 与 OpenGraph 社交预览链接。
-5. **预览五时段光影**：在任意页面 URL 后加上 `?scene=morning` / `noon` / `afternoon` / `dusk` / `night` 即可切换场景。
+   - 构建前可设置 `SITE_URL`（以及子路径部署时的 `SITE_BASE`）。
+5. **用内置 Skill 更换自定义桌面背景图**：直接让你的 AI 编程助手读取并执行 [`.agents/skills/crt-room-artwork/SKILL.md`](./.agents/skills/crt-room-artwork/SKILL.md)，按规范生成 16:9 正视角复古主机底图、五时段光影变体，运行 `npm run art:room` 压图并校准 `src/geometry/tube.ts`。
+6. **预览五时段光影**：在任意页面 URL 后加上 `?scene=morning` / `noon` / `afternoon` / `dusk` / `night` 即可切换。
 
 ---
 
-## 自定义 CRT 桌面背景图（内置 Agent Skill）
+## 一键静态部署
 
-想把默认的 Macintosh LC 换成你喜欢的 Sony Trinitron、IBM PS/2、复古 ThinkPad 或自定义书桌场景？
-
-项目内置了标准化的 Agent Skill：[`.agents/skills/crt-room-artwork/SKILL.md`](./.agents/skills/crt-room-artwork/SKILL.md)。直接让你的 AI 助手（Antigravity / Claude Code / Codex / Cursor 等）读取该 Skill，即可按标准流程完成：
-
-1. 生成严格 16:9 正视角、带纯黑 4:3 玻璃开口的复古显示器底图
-2. 生成像素级对齐的五时段光照变体（晨/午/下午/黄昏/夜）
-3. 执行 `npm run art:room` 自动导出轻量化响应式 WebP
-4. 精确校准 `src/geometry/tube.ts`、`src/geometry/room-crop.js` 中的屏幕开口、指示灯坐标与 `src/styles/room-scenes.css` 氛围色
-
----
-
-## 静态部署
-
-项目默认输出纯静态文件（`dist/`），零服务器成本：
-
-- **Cloudflare Pages / Vercel / Netlify**：直接关联仓库，构建命令填 `npm run build`，输出目录填 `dist`。
-- **GitHub Pages**：通过 GitHub Actions 发布 `dist/`，并在构建环境变量中传入 `SITE_URL`。
+- **GitHub Pages（已内置自动工作流）**：点击仓库右上角 **Use this template**，在 **Settings → Pages → Source** 选择 **GitHub Actions**，推送到 `main` 即通过 [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml) 自动构建部署（自动适配子路径 `SITE_BASE`）。
+- **Cloudflare Pages / Vercel / Netlify**：关联仓库，构建命令填 `npm run build`，输出目录填 `dist`。
 
 将托管平台的 404 页面指向 `dist/404.html`，即可自动展示复古报错弹窗。
 

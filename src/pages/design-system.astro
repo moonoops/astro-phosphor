@@ -11,6 +11,7 @@ import FAQPanel from '../components/interactive/FAQPanel';
 import GalleryLightbox from '../components/interactive/GalleryLightbox';
 import ShareButtons from '../components/interactive/ShareButtons';
 import pageCopy from '../data/page-copy.json';
+import { withBase } from '../site';
 import '../styles/design-system.css';
 import '../styles/information.css';
 import '../styles/journal.css';
@@ -34,7 +35,7 @@ const typeSamples = [
 ];
 
 const photo = {
-  src: '/media/work/kulo-hero.webp',
+  src: withBase('/media/work/kulo-hero.webp'),
   alt: 'Kulo cross-device agent workbench preview',
   caption: 'PhosphorPicture thumbnail — select to inspect in true-color lightbox',
 };

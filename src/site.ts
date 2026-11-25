@@ -20,3 +20,13 @@ export function formatCopy(template: string, values: Readonly<Record<string, str
     Object.hasOwn(values, key) ? String(values[key]) : placeholder
   );
 }
+
+const BASE_PREFIX = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '');
+
+export function withBase(path: string): string {
+  if (!path || /^(?:[a-z]+:|\/\/|#)/i.test(path)) return path;
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  if (!BASE_PREFIX) return normalized;
+  if (normalized === BASE_PREFIX || normalized.startsWith(`${BASE_PREFIX}/`)) return normalized;
+  return normalized === '/' ? `${BASE_PREFIX}/` : `${BASE_PREFIX}${normalized}`;
+}

@@ -1,4 +1,5 @@
 import { getCollection } from "astro:content";
+import { withBase } from "../../site";
 
 const shortDate = new Intl.DateTimeFormat("en", {
   month: "short",
@@ -18,7 +19,7 @@ export async function getJournalPosts() {
 }
 
 export function journalPostUrl(id: string) {
-  return `/journal/${encodeURIComponent(id)}`;
+  return withBase(`/journal/${encodeURIComponent(id)}`);
 }
 
 export function journalDate(date: Date, style: "short" | "long" = "short") {

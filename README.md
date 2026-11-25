@@ -4,19 +4,37 @@
 
 A lightweight, **100% static** 1990s beige CRT monitor & monochrome phosphor desktop personal site template built with **Astro 5**, **React 19**, and **Tailwind CSS v4**.
 
-Zero backend, zero database, zero external icon packs — ships with a full single-hue design system, live specimen sheet, bilingual MDX journal with CJK typography rules, 5 offline retro arcade games, and an AI-ready `AGENTS.md` + `DESIGN.md` + custom room-artwork Agent Skill.
+> **Live Template Demo**: [moonoops.github.io/astro-phosphor](https://moonoops.github.io/astro-phosphor/) *(pure static build of this repository)*
+>
+> **Extended Live Showcase**: [xox.pub](https://xox.pub) *(a personal site built on top of this template — includes extra self-hosted backend features like Chat, Message Board, and Media Decks that are intentionally excluded from this lightweight static template; if you need backend features, you can spin them up quickly with any AI coding assistant using the included specs).*
+
+![Astro Phosphor — Sunlit 1990s CRT Desktop (Amber Phosphor)](./docs/screenshots/desktop-afternoon.webp)
+
+<table>
+  <tr>
+    <td width="33.3%">
+      <img src="./docs/screenshots/night-design-system.webp" alt="Night desk lighting with Green phosphor theme and live Design System window" />
+      <br /><sub><b>Night Lighting · Green Phosphor · Design System</b></sub>
+    </td>
+    <td width="33.3%">
+      <img src="./docs/screenshots/journal-reading.webp" alt="Close zoom with Reading Mode and bilingual CJK MDX journal article" />
+      <br /><sub><b>Close Zoom · Reading Mode · Bilingual CJK MDX</b></sub>
+    </td>
+    <td width="33.3%">
+      <img src="./docs/screenshots/offline-arcade.webp" alt="Blue phosphor CRT running offline 21-floor Magic Tower pixel RPG" />
+      <br /><sub><b>Blue Phosphor · 5 Offline Retro Arcade Games</b></sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## Highlights
+## Core Highlights
 
-- **Photorealistic 1990s CRT Desk + 5 Time-of-Day Lighting Scenes**: Automatically adapts the Macintosh LC room photography to the visitor's local clock (`morning`, `noon`, `afternoon`, `dusk`, `night`) with smooth cross-fades and compact-bezel ambient fallback on smaller screens.
-- **3 Camera States & Authentic CRT Optics**: Smooth CSS `@property` transitions between **Room**, **Close**, and bezel-free **Fullscreen** (`+`, `-`, `F` shortcuts), progressive curved glass mask with inverse pointer projection, scanlines, vignette, phosphor bloom, and hardware power-on/off collapse animations.
-- **Single-Hue Derivation Design System**: Change one CSS token (`--lit`) to recolor text, rules, 3D tactile pixel keycaps, glows, Shiki code syntax, Canvas games, and SVG data-URI cursors simultaneously. Includes 4 presets (`amber`, `green`, `blue`, `white`) and one-click **Reading Mode** for calm long-form reading.
-- **Astro Static Core + Persistent OS Chrome**: Built with `<ClientRouter />` and `transition:persist` so navigating between windows never replays the CRT warm-up blur or resets camera zoom.
-- **Bilingual MDX Journal & CJK Typography**: Filterable by category, tag, and keyword; sticky scrollspy Table of Contents; monochrome Shiki code blocks; automatic `lang: zh-CN` CJK line-height (`1.75`) and heading scale tuning.
-- **5 Pure-Frontend Offline Retro Games**: Minesweeper, Tetris, Snake, 2048, and 21-floor Magic Tower (`魔塔 21F`) — pure TypeScript, Canvas, synthesized 8-bit Web Audio cues, and `localStorage` records/saves.
-- **AI-Native Customization Ready**: Includes [`AGENTS.md`](./AGENTS.md), [`docs/DESIGN.md`](./docs/DESIGN.md), and the reusable [`crt-room-artwork`](./.agents/skills/crt-room-artwork/SKILL.md) Agent Skill so any AI coding assistant can customize pages, windows, or desk artwork without breaking the retro aesthetic.
+- **AI-Friendly, Spec-Driven Architecture**: Built to be customized effortlessly with AI coding assistants (Antigravity, Claude Code, Codex, Cursor, etc.). [`AGENTS.md`](./AGENTS.md) defines the tech stack, Astro/React Island boundaries, route map, and zero-backend constraints; [`docs/DESIGN.md`](./docs/DESIGN.md) locks down the single-hue phosphor tokens, responsive pixel type scale, 0px chrome rules, and Do's/Don'ts; and built-in **Agent Skills** (starting with [`crt-room-artwork`](./.agents/skills/crt-room-artwork/SKILL.md) for generating, relighting, and calibrating custom CRT desk backgrounds) let AI extend pages, windows, or even custom backends cleanly without breaking the retro aesthetic.
+- **Astro Static Core + Persistent OS Chrome**: Compiles to 100% static files (`dist/`) with zero backend or database required. Uses `<ClientRouter />` and `transition:persist` so switching windows never replays the CRT warm-up blur or resets camera zoom (`Room` / `Close` / `Fullscreen`).
+- **Bilingual MDX Journal & CJK Typography**: Filterable by category, tag, and keyword; sticky scrollspy Table of Contents; monochrome Shiki code blocks; one-click **Reading Mode**; and automatic `lang: zh-CN` CJK line-height (`1.75`) and heading scale tuning.
+- **5 Pure-Frontend Offline Retro Games**: Minesweeper, Tetris, Snake, 2048, and 21-floor Magic Tower (`魔塔 21F`) — pure TypeScript, Canvas, synthesized 8-bit Web Audio cues, and `localStorage` high scores & save slots.
 
 ---
 
@@ -58,37 +76,23 @@ npm run test:browser  # Run Playwright E2E checks (requires Chrome)
 
 ---
 
-## Personalize Your Site
+## Personalize & Customize with AI
 
 1. **Site Identity & Links**: Edit [`src/site.ts`](./src/site.ts) and [`src/data/page-copy.json`](./src/data/page-copy.json).
 2. **Portfolio Projects**: Edit or replace the sample `.mdx` entries in [`src/content/projects/`](./src/content/projects/) and place screenshots in `public/media/work/`.
 3. **Journal Essays**: Add `.mdx` posts in [`src/content/journal/`](./src/content/journal/). Set `lang: zh-CN` for Chinese articles or `draft: true` to hide unfinished drafts.
-4. **Contact Email & Canonical URL**: Copy `.env.example` to `.env`:
+4. **Contact Email & Site Origin**: Copy `.env.example` to `.env`:
    - Set `PUBLIC_CONTACT_EMAIL` to enable `mailto:` handoff from `/contact` (leave blank to let visitors download `.txt` drafts locally).
-   - Set `SITE_URL` before `npm run build` to generate canonical and OpenGraph URLs.
-5. **Preview Time-of-Day Scenes**: Append `?scene=morning`, `?scene=noon`, `?scene=afternoon`, `?scene=dusk`, or `?scene=night` to any URL.
-
----
-
-## Custom CRT Room Backgrounds (Agent Skill)
-
-Want to swap the Macintosh LC desk for your own favorite vintage computer (Sony Trinitron, IBM PS/2, ThinkPad, Amiga, etc.)?
-
-This repository includes a dedicated **Agent Skill** at [`.agents/skills/crt-room-artwork/SKILL.md`](./.agents/skills/crt-room-artwork/SKILL.md) that teaches AI coding agents (Antigravity, Claude Code, Codex, Cursor, etc.) how to:
-
-1. Generate straight-on 16:9 CRT desk plates with a clean dark 4:3 glass opening
-2. Create pixel-aligned 5-scene lighting variants (`morning`, `noon`, `afternoon`, `dusk`, `night`)
-3. Run `npm run art:room` to build lightweight responsive WebP pairs
-4. Measure and calibrate `src/geometry/tube.ts`, `src/geometry/room-crop.js`, and `src/styles/room-scenes.css`
+   - Set `SITE_URL` (and optionally `SITE_BASE` for subpath hosting) before `npm run build`.
+5. **Custom CRT Desk Backgrounds (Built-in Agent Skill)**: Ask your AI coding agent to follow [`.agents/skills/crt-room-artwork/SKILL.md`](./.agents/skills/crt-room-artwork/SKILL.md) to generate a custom 1990s computer desk plate, create 5 pixel-aligned time-of-day lighting scenes (`morning` / `noon` / `afternoon` / `dusk` / `night`), compress them with `npm run art:room`, and calibrate `src/geometry/tube.ts`.
+6. **Preview Time-of-Day Scenes**: Append `?scene=morning`, `?scene=noon`, `?scene=afternoon`, `?scene=dusk`, or `?scene=night` to any URL.
 
 ---
 
 ## Deploy Anywhere (Static Hosting)
 
-Because `astro.config.mjs` outputs pure static files (`dist/`), you can deploy with zero server configuration:
-
+- **GitHub Pages (Included Workflow)**: Click **Use this template**, enable **Settings → Pages → Source: GitHub Actions**, and every push to `main` automatically deploys via [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml) (subpath `SITE_BASE` is configured automatically).
 - **Cloudflare Pages / Vercel / Netlify**: Connect the repository, set build command `npm run build` and output directory `dist`.
-- **GitHub Pages**: Publish `dist/` via GitHub Actions with `SITE_URL` configured for your domain.
 
 Make sure your host serves `dist/404.html` for missing routes so the retro error dialog appears automatically.
 

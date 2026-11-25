@@ -8,6 +8,7 @@ import {
   type StartMenuFolder,
 } from '../../navigation';
 import pageCopy from '../../data/page-copy.json';
+import { withBase } from '../../site';
 import { $preferences, setPower, setPreference, themes } from '../../stores/osStore';
 import PixelIcon from './PixelIcon';
 
@@ -239,7 +240,7 @@ export default function StartMenu({ section }: Props) {
           </li>
           <li>
             <a
-              href="/design-system"
+              href={withBase('/design-system')}
               className="start-menu-item"
               aria-current={section === 'system' ? 'page' : undefined}
               onClick={closeAll}
@@ -432,7 +433,7 @@ export default function StartMenu({ section }: Props) {
 
           <footer className="start-menu-footer" onPointerEnter={event => handleNonFolderHover(event.pointerType)}>
             <a
-              href="/"
+              href={withBase('/')}
               className="start-menu-item start-menu-top-item start-menu-item--utility"
               aria-current={section === 'desktop' ? 'page' : undefined}
               onClick={closeAll}

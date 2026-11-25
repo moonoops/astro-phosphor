@@ -1,4 +1,5 @@
 import type { ComponentPropsWithoutRef } from 'react';
+import { withBase } from '../../site';
 
 type Variant = 'primary' | 'secondary' | 'icon';
 type Common = { variant?: Variant };
@@ -11,7 +12,7 @@ export default function ButtonBase(props: Props) {
   const classes = ['pixel-key', `pixel-key--${variant}`, className].filter(Boolean).join(' ');
 
   if (attributes.href !== undefined) {
-    return <a {...attributes} className={classes} />;
+    return <a {...attributes} href={withBase(attributes.href)} className={classes} />;
   }
 
   const { href, type = 'button', ...button } = attributes;

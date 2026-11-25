@@ -1,18 +1,18 @@
 import type { PixelIconName } from './components/os/PixelIcon';
 import copy from './data/page-copy.json';
-import { SOCIAL_LINKS } from './site';
+import { SOCIAL_LINKS, withBase } from './site';
 
 /**
  * Six symmetrical desktop shortcuts (2×3 on desktop, 3×2 centered on phone)
  * also mirrored in the Taskbar Quick Launch rail.
  */
 export const applications = [
-  { section: 'work', href: '/work', label: copy.work.title, icon: 'work' },
-  { section: 'journal', href: '/journal', label: copy.journal.title, icon: 'journal' },
-  { section: 'about', href: '/about', label: copy.about.windowTitle, icon: 'about' },
-  { section: 'contact', href: '/contact', label: copy.contact.title, icon: 'contact' },
-  { section: 'games', href: '/games', label: copy.games.title, icon: 'games' },
-  { section: 'system', href: '/design-system', label: copy.system.shortTitle, icon: 'system' },
+  { section: 'work', href: withBase('/work'), label: copy.work.title, icon: 'work' },
+  { section: 'journal', href: withBase('/journal'), label: copy.journal.title, icon: 'journal' },
+  { section: 'about', href: withBase('/about'), label: copy.about.windowTitle, icon: 'about' },
+  { section: 'contact', href: withBase('/contact'), label: copy.contact.title, icon: 'contact' },
+  { section: 'games', href: withBase('/games'), label: copy.games.title, icon: 'games' },
+  { section: 'system', href: withBase('/design-system'), label: copy.system.shortTitle, icon: 'system' },
 ] as const satisfies ReadonlyArray<{ section: string; href: string; label: string; icon: PixelIconName }>;
 
 export const desktopShortcuts = applications;
@@ -48,7 +48,7 @@ export const offlineGames = [
   {
     id: 'minesweeper',
     section: 'minesweeper' as const,
-    href: '/games/minesweeper',
+    href: withBase('/games/minesweeper'),
     title: copy.minesweeper.title,
     menuTitle: copy.minesweeper.menuTitle,
     summary: copy.minesweeper.cardSummary,
@@ -57,7 +57,7 @@ export const offlineGames = [
   {
     id: 'tetris',
     section: 'tetris' as const,
-    href: '/games/tetris',
+    href: withBase('/games/tetris'),
     title: copy.tetris.title,
     menuTitle: copy.tetris.menuTitle,
     summary: copy.tetris.cardSummary,
@@ -66,7 +66,7 @@ export const offlineGames = [
   {
     id: 'snake',
     section: 'snake' as const,
-    href: '/games/snake',
+    href: withBase('/games/snake'),
     title: copy.snake.title,
     menuTitle: copy.snake.menuTitle,
     summary: copy.snake.cardSummary,
@@ -75,7 +75,7 @@ export const offlineGames = [
   {
     id: 'game2048',
     section: 'game2048' as const,
-    href: '/games/2048',
+    href: withBase('/games/2048'),
     title: copy.game2048.title,
     menuTitle: copy.game2048.menuTitle,
     summary: copy.game2048.cardSummary,
@@ -84,7 +84,7 @@ export const offlineGames = [
   {
     id: 'mota',
     section: 'mota' as const,
-    href: '/games/mota',
+    href: withBase('/games/mota'),
     title: copy.mota.title,
     menuTitle: copy.mota.menuTitle,
     summary: copy.mota.cardSummary,
@@ -103,8 +103,8 @@ export const startMenuFolders: ReadonlyArray<StartMenuFolder> = [
     label: 'Documents',
     icon: 'work',
     items: [
-      { id: 'work', section: 'work', href: '/work', label: copy.work.title, icon: 'work' },
-      { id: 'journal', section: 'journal', href: '/journal', label: copy.journal.title, icon: 'journal' },
+      { id: 'work', section: 'work', href: withBase('/work'), label: copy.work.title, icon: 'work' },
+      { id: 'journal', section: 'journal', href: withBase('/journal'), label: copy.journal.title, icon: 'journal' },
     ],
   },
   {
@@ -112,7 +112,7 @@ export const startMenuFolders: ReadonlyArray<StartMenuFolder> = [
     label: 'Games',
     icon: 'games',
     items: [
-      { id: 'all-games', section: 'games', href: '/games', label: copy.games.menuAll, icon: 'games' },
+      { id: 'all-games', section: 'games', href: withBase('/games'), label: copy.games.menuAll, icon: 'games' },
       ...offlineGames.map((game) => ({
         id: game.id,
         section: game.section,
@@ -125,8 +125,8 @@ export const startMenuFolders: ReadonlyArray<StartMenuFolder> = [
 ];
 
 export const startMenuDirectLinks: ReadonlyArray<StartMenuLinkItem> = [
-  { id: 'about', section: 'about', href: '/about', label: copy.about.windowTitle, icon: 'about' },
-  { id: 'contact', section: 'contact', href: '/contact', label: copy.contact.title, icon: 'contact' },
+  { id: 'about', section: 'about', href: withBase('/about'), label: copy.about.windowTitle, icon: 'about' },
+  { id: 'contact', section: 'contact', href: withBase('/contact'), label: copy.contact.title, icon: 'contact' },
 ];
 
 export const startMenuExternalLinks: ReadonlyArray<StartMenuLinkItem> = [

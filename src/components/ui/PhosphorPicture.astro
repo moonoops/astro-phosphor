@@ -1,15 +1,16 @@
 ---
 import type { HTMLAttributes } from "astro/types";
+import { withBase } from "../../site";
 
 type Props = Omit<HTMLAttributes<"img">, "alt" | "src"> & {
   src: string;
   alt: string;
 };
 
-const { class: className, loading = "lazy", decoding = "async", ...attributes } = Astro.props;
+const { src, class: className, loading = "lazy", decoding = "async", ...attributes } = Astro.props;
 ---
 
-<img class:list={["phosphor-picture", className]} loading={loading} decoding={decoding} {...attributes} />
+<img src={withBase(src)} class:list={["phosphor-picture", className]} loading={loading} decoding={decoding} {...attributes} />
 
 <style>
   .phosphor-picture {

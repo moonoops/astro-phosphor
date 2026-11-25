@@ -5,6 +5,7 @@ import tailwind from '@tailwindcss/vite';
 
 export default defineConfig({
   site: process.env.SITE_URL,
+  base: process.env.SITE_BASE || '/',
   output: 'static',
   integrations: [mdx(), react()],
   markdown: {
