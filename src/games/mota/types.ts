@@ -1,14 +1,22 @@
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
+export type Difficulty = 'standard' | 'hard';
+
+export type ColorMode = 'hybrid' | 'color';
+
 /**
  * Monster special abilities modeled after ckcz123/mota-js (BSD-3-Clause).
  */
 export type MonsterSpecial =
   | 'firstStrike' // 先攻: monster hits once before hero's first strike
-  | 'magic'       // 魔攻: ignores hero's DEF
+  | 'magic'       // 魔攻: ignores hero's DEF completely
   | 'solid'       // 坚固: monster DEF is at least hero ATK - 1
   | 'doubleHit'   // 2连击: monster hits twice per round
-  | 'vampire';    // 吸血: drains a fraction of hero's current HP before battle
+  | 'tripleHit'   // 3连击: monster hits 3 times per round
+  | 'vampire'     // 吸血: drains a fraction of hero's current HP before battle
+  | 'armorBreak'  // 破甲: ignores a fraction of hero's DEF (default 40%)
+  | 'berserk'     // 狂暴: monster ATK escalates each round (default +12%/round)
+  | 'thorns';     // 反伤: reflects a fraction of monster ATK as true damage on each non-lethal hit
 
 export interface MonsterDef {
   id: string;
@@ -21,6 +29,9 @@ export interface MonsterDef {
   exp: number;
   special?: ReadonlyArray<MonsterSpecial>;
   vampireRatio?: number;
+  armorBreakRatio?: number;
+  berserkRate?: number;
+  thornsRatio?: number;
   sprite: string;
   tier: 1 | 2 | 3 | 4;
 }
@@ -81,6 +92,8 @@ export interface ShopOption {
   costText: string;
   currency: 'gold' | 'exp' | 'yellowKey' | 'blueKey' | 'redKey';
   cost: number;
+  /** Optional per-purchase price escalation (classic 50F / mota4 style). */
+  costStep?: number;
   effect: {
     hp?: number;
     atk?: number;
@@ -100,6 +113,7 @@ export interface ShopDef {
   speaker: string;
   sprite: string;
   greeting: string;
+  escalating?: boolean;
   options: ReadonlyArray<ShopOption>;
 }
 
@@ -132,7 +146,7 @@ export type TileKind =
 export interface FloorDef {
   floor: number;
   name: string;
-  act: 1 | 2 | 3;
+  act: 1 | 2 | 3 | 4;
   grid: ReadonlyArray<ReadonlyArray<TileKind>>;
   /** Spawn point when arriving from floor - 1 (going up). */
   fromBelow: { x: number; y: number; dir?: Direction };
@@ -193,6 +207,7 @@ export interface GameFlags {
 }
 
 export interface GameState {
+  difficulty: Difficulty;
   floor: number;
   maxFloor: number;
   visitedFloors: number[];
@@ -204,6 +219,8 @@ export interface GameState {
   steps: number;
   battlesWon: number;
   playSeconds: number;
+  /** Purchase counts per escalating shop. */
+  shopPurchases: Partial<Record<ShopId, number>>;
   /** Cleared tile keys per floor ("x,y") — removed monsters, picked items, opened doors. */
   cleared: Record<number, string[]>;
   flags: GameFlags;
@@ -242,6 +259,7 @@ export type SaveSlotId = 'auto' | 'slot-1' | 'slot-2' | 'slot-3';
 
 export interface SerializedSavePayload {
   v: 1;
+  difficulty?: Difficulty;
   floor: number;
   maxFloor: number;
   visitedFloors: number[];
@@ -253,6 +271,7 @@ export interface SerializedSavePayload {
   steps: number;
   battlesWon: number;
   playSeconds: number;
+  shopPurchases?: Partial<Record<ShopId, number>>;
   cleared: Record<string, string[]>;
   flags: GameFlags;
 }
@@ -266,6 +285,7 @@ export interface SaveSlotSummary {
   def: number;
   steps: number;
   victory: boolean;
+  difficulty?: Difficulty;
 }
 
 export interface StoredSaveRecord {

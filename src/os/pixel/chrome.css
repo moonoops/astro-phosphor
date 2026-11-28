@@ -1,0 +1,1300 @@
+/* ==========================================================================
+   PIXEL OS (data-os="pixel") — Classic Macintosh System 7 × AgencyOS Chrome
+   Strictly scoped to html[data-os="pixel"] — zero cross-OS CSS leakage.
+   ========================================================================== */
+
+/* 1. Stage Geometry & 1-Bit Pixel Dot Desktop Canvas (TOP-ONLY Macintosh System 7) */
+html[data-os="pixel"] .taskbar {
+  display: none !important;
+}
+
+html[data-os="pixel"] .screen-plane {
+  --taskbar-height: 0px;
+  --wmax-bottom: 18px;
+  --window-left: 32px;
+  --window-top: 16px;
+  --window-right: 232px;
+  --window-bottom: 18px;
+  --rail-left: auto;
+  --rail-top: 16px;
+}
+
+html[data-os="pixel"][data-zoom="fullscreen"] .screen-plane {
+  --taskbar-height: 0px;
+  --wmax-bottom: 18px;
+  --window-left: 64px;
+  --window-bottom: 18px;
+}
+
+html[data-os="pixel"] .screen-stage {
+  /* Crisp 2×2px 1-bit pixel dot at (0..2, 0..2) in every 8×8px cell */
+  background-color: var(--os-desktop-bg);
+  background-image: conic-gradient(
+    from 270deg at 2px 2px,
+    var(--px-dot-ink) 90deg,
+    transparent 0
+  );
+  background-size: 8px 8px;
+  background-position: 0 0;
+}
+
+html[data-os="pixel"] .crt-raster {
+  background: var(--os-desktop-bg);
+}
+
+/* Remove phosphor-style bloom filters across Pixel chrome & apps */
+html[data-os="pixel"] .desktop-icon svg,
+html[data-os="pixel"] .desktop-like-btn svg,
+html[data-os="pixel"] .desktop-like-btn:is(:hover, :focus-visible) svg,
+html[data-os="pixel"] .desktop-like-btn[aria-pressed="true"] svg {
+  filter: none;
+}
+
+/* Full-color media inside Pixel windows (no monochrome phosphor tinting) */
+html[data-os="pixel"] .phosphor-picture,
+html[data-os="pixel"] .work-card-image,
+html[data-os="pixel"] .work-media-image,
+html[data-os="pixel"] .article-card-image {
+  filter: none !important;
+}
+
+/* 2. Classic Macintosh / AgencyOS Top Menu Bar (.os-topbar) */
+html[data-os="pixel"] .os-topbar {
+  display: flex;
+  height: var(--topbar-height);
+  padding: 0 16px;
+  gap: 10px;
+  background: var(--os-topbar-bg);
+  color: var(--px-ink);
+  border-bottom: 2px solid var(--px-ink);
+  font-family: var(--font-ui);
+  font-size: var(--type-ui);
+  line-height: 1.2;
+}
+
+@media (min-width: 1000px) and (min-aspect-ratio: 6/5) {
+  html[data-os="pixel"]:not([data-zoom="fullscreen"]) {
+    --topbar-height: 40px;
+  }
+
+  html[data-os="pixel"]:not([data-zoom="fullscreen"]) .screen-plane {
+    --taskbar-height: 0px;
+    --window-left: 36px;
+    --window-bottom: 28px;
+    --wmax-bottom: 28px;
+  }
+
+  html[data-os="pixel"]:not([data-zoom="fullscreen"]) .os-topbar {
+    padding: 8px 54px 0;
+  }
+
+  html[data-os="pixel"]:not([data-zoom="fullscreen"]) .desktop-home-footer {
+    inset-inline-start: 44px;
+    inset-block-end: 22px;
+  }
+}
+
+html[data-os="pixel"][data-zoom="fullscreen"] {
+  --topbar-height: 32px;
+}
+
+html[data-os="pixel"][data-zoom="fullscreen"] .os-topbar {
+  padding: 0 16px;
+}
+
+html[data-os="pixel"] .os-topbar-left {
+  gap: 8px;
+}
+
+html[data-os="pixel"] .os-topbar-brand {
+  gap: 7px;
+  padding: 2px 4px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+html[data-os="pixel"] .os-topbar-brand:hover {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+/* Classic 5-stripe Apple retro rainbow pixel mark */
+html[data-os="pixel"] .os-topbar-mark {
+  width: 14px;
+  height: 15px;
+  border: 1px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-rainbow-stripe);
+}
+
+html[data-os="pixel"] .os-topbar-site::after {
+  content: "OS";
+  display: inline-block;
+  margin-left: 5px;
+  padding: 0 4px;
+  border: 1px solid currentColor;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.35;
+  vertical-align: 1px;
+  transform: skewX(-10deg);
+}
+
+/* Menu trigger styled as clean Mac menu-bar item + vertical hairline divider */
+html[data-os="pixel"] .os-topbar-menu-btn {
+  height: 22px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--px-ink);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+html[data-os="pixel"] .os-topbar-menu-btn:is(:hover, :focus-visible) {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+html[data-os="pixel"] .os-topbar-menu-btn[aria-expanded="true"] {
+  background: var(--px-ink);
+  color: var(--px-paper);
+}
+
+/* Show AgencyOS Quick Nav links directly in top menu bar on desktop */
+html[data-os="pixel"] .os-topbar-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding-left: 8px;
+  border-left: 1px solid var(--px-ink);
+}
+
+html[data-os="pixel"] .os-topbar-links a {
+  padding: 2px 7px;
+  color: var(--px-ink);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+html[data-os="pixel"] .os-topbar-links a:is(:hover, :focus-visible) {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+html[data-os="pixel"] .os-topbar-links a[aria-current="page"] {
+  background: var(--px-ink);
+  color: var(--px-paper);
+}
+
+/* Keep desktop topbar airy like AgencyOS; show active window label ONLY when not already covered by the 5 nav links */
+html[data-os="pixel"] .os-topbar-center {
+  justify-content: flex-end;
+  padding-inline: 8px;
+}
+
+html[data-os="pixel"] .screen-stage[data-section="desktop"] .os-topbar-center {
+  visibility: hidden;
+}
+
+@media (min-width: 810px) {
+  html[data-os="pixel"] .screen-stage:not([data-active-label]) .os-topbar-tab:is(
+    [data-section="work"],
+    [data-section="journal"],
+    [data-section="about"],
+    [data-section="contact"],
+    [data-section="games"]
+  ) {
+    display: none;
+  }
+}
+
+html[data-os="pixel"] .os-topbar-path {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--px-mute);
+}
+
+html[data-os="pixel"] .os-topbar-right {
+  gap: 8px;
+}
+
+/* Top-only OS: hide redundant status chip next to OS switcher */
+html[data-os="pixel"] .os-topbar-status {
+  display: none;
+}
+
+html[data-os="pixel"] .os-topbar-music {
+  height: 22px;
+  max-width: 142px;
+  border: 1px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-surface-alt);
+  color: var(--px-ink);
+  box-shadow: 2px 2px 0 var(--px-shadow);
+  font-family: var(--font-ui);
+}
+
+html[data-os="pixel"] .os-topbar-music[data-playing="true"] {
+  background: var(--px-paper);
+}
+
+html[data-os="pixel"] .os-topbar-music-toggle {
+  width: 22px;
+  border-right: 1px solid var(--px-ink);
+}
+
+html[data-os="pixel"] .os-topbar-music-link {
+  padding: 0 6px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+}
+
+html[data-os="pixel"] .os-topbar-music-toggle:hover,
+html[data-os="pixel"] .os-topbar-music-link:hover {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+html[data-os="pixel"] .os-topbar-sound {
+  width: 24px;
+  height: 22px;
+  border: 1px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-paper);
+  color: var(--px-ink);
+  box-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+html[data-os="pixel"] .os-topbar-sound[aria-pressed="false"] {
+  background: var(--px-surface-alt);
+  color: var(--px-mute);
+}
+
+html[data-os="pixel"] .os-topbar-sound:hover {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+html[data-os="pixel"] .os-topbar-sound:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+html[data-os="pixel"] .os-topbar-sound-toast {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-paper);
+  color: var(--px-ink);
+  box-shadow: 3px 3px 0 var(--px-shadow);
+  font-family: var(--font-ui);
+  font-size: 14px;
+}
+
+html[data-os="pixel"] .os-topbar-os-btn {
+  height: 22px;
+  padding: 0 7px;
+  border: 1px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-paper);
+  color: var(--px-ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  box-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+html[data-os="pixel"] .os-topbar-os-btn:hover {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+html[data-os="pixel"] .os-topbar-os-btn[aria-expanded="true"] {
+  background: var(--px-ink);
+  color: var(--px-paper);
+  box-shadow: none;
+  transform: translate(1px, 1px);
+}
+
+html[data-os="pixel"] .os-topbar-os-menu {
+  top: calc(100% + 4px);
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-paper);
+  box-shadow: 3px 3px 0 var(--px-shadow);
+  font-family: var(--font-ui);
+}
+
+html[data-os="pixel"] .os-topbar-os-option {
+  padding: 5px 8px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+}
+
+html[data-os="pixel"] .os-topbar-os-option[aria-checked="true"] {
+  background: var(--px-surface-alt);
+  font-weight: 500;
+}
+
+html[data-os="pixel"] .os-topbar-os-option:is(:hover, :focus-visible) {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+html[data-os="pixel"] .os-topbar-clock {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--px-ink);
+}
+
+/* 3. Right-Aligned Classic Macintosh Desktop Icon Rail */
+html[data-os="pixel"] .desktop-icons {
+  left: auto;
+  right: 20px;
+  top: 18px;
+  grid-template-columns: repeat(2, 88px);
+  gap: 8px 6px;
+}
+
+html[data-os="pixel"] .desktop-icon {
+  gap: 5px;
+  padding: 4px 2px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--px-ink);
+  text-decoration: none;
+}
+
+/* 1-Bit framed pixel app icon badge with 5-color rainbow top stripe */
+html[data-os="pixel"] .desktop-icon svg {
+  width: 48px;
+  height: 48px;
+  padding: 8px;
+  border: 2px solid var(--px-ink);
+  background: var(--px-paper);
+  color: var(--px-ink);
+  box-shadow:
+    inset 0 4px 0 0 var(--icon-stripe, var(--px-rainbow-blue)),
+    3px 3px 0 0 var(--px-shadow);
+  transition: transform 40ms linear, box-shadow 40ms linear;
+}
+
+html[data-os="pixel"] .desktop-icon:nth-child(5n + 1) svg { --icon-stripe: var(--px-rainbow-blue); }
+html[data-os="pixel"] .desktop-icon:nth-child(5n + 2) svg { --icon-stripe: var(--px-rainbow-green); }
+html[data-os="pixel"] .desktop-icon:nth-child(5n + 3) svg { --icon-stripe: var(--px-rainbow-yellow); }
+html[data-os="pixel"] .desktop-icon:nth-child(5n + 4) svg { --icon-stripe: var(--px-rainbow-red); }
+html[data-os="pixel"] .desktop-icon:nth-child(5n + 5) svg { --icon-stripe: var(--px-rainbow-purple); }
+
+/* Opaque white/paper label pill with 1px ink border — razor legible over dot pattern */
+html[data-os="pixel"] .desktop-icon span {
+  padding: 2px 6px;
+  border: 1px solid var(--px-ink);
+  background: var(--px-paper);
+  color: var(--px-ink);
+  box-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+html[data-os="pixel"] .desktop-icon:is(:hover, :focus-visible) svg {
+  transform: translate(-1px, -1px);
+  box-shadow:
+    inset 0 4px 0 0 var(--px-accent),
+    4px 4px 0 0 var(--px-shadow);
+}
+
+html[data-os="pixel"] .desktop-icon:is(:hover, :focus-visible) span,
+html[data-os="pixel"] .desktop-icon[aria-current="location"] span {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+  border-color: var(--px-ink);
+}
+
+/* 4. Desktop Status Widget (.os-desktop-widget — AgencyOS Top-Left Info Card) */
+html[data-os="pixel"] .os-desktop-widget {
+  display: flex;
+  inset-block-start: 20px;
+  inset-inline-start: 24px;
+  inset-inline-end: auto;
+  width: 256px;
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-paper);
+  color: var(--px-ink);
+  box-shadow: 3px 3px 0 var(--px-shadow);
+}
+
+html[data-os="pixel"] .os-widget-header {
+  height: 24px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--px-ink);
+  background: var(--px-paper);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--px-mute);
+}
+
+html[data-os="pixel"] .os-widget-badge {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--px-ink);
+  background: var(--px-cta);
+  color: transparent;
+  overflow: hidden;
+}
+
+html[data-os="pixel"] .os-widget-body {
+  gap: 8px;
+  padding: 14px;
+}
+
+html[data-os="pixel"] .os-widget-kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--px-mute);
+}
+
+html[data-os="pixel"] .os-widget-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--px-ink);
+}
+
+html[data-os="pixel"] .os-widget-note {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.48;
+  color: var(--px-mute);
+}
+
+html[data-os="pixel"] .os-widget-tags {
+  gap: 4px;
+}
+
+html[data-os="pixel"] .os-widget-tags li {
+  padding: 2px 6px;
+  border: 1px solid var(--px-ink);
+  background: var(--px-surface-alt);
+  color: var(--px-ink);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+html[data-os="pixel"] .os-widget-footer {
+  padding: 9px 14px;
+  border-top: 1px solid var(--px-ink);
+  background: var(--px-paper);
+  font-family: var(--font-ui);
+  font-size: 14px;
+}
+
+html[data-os="pixel"] .os-widget-link {
+  padding: 1px 4px;
+  color: var(--px-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+html[data-os="pixel"] .os-widget-link:is(:hover, :focus-visible) {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+  text-decoration: none;
+}
+
+/* 5. Desktop Center Hero Lockup with Iconic 5-Stripe Retro Rainbow Band */
+html[data-os="pixel"] .desktop-home-wallpaper,
+html[data-os="pixel"] .desktop-wallpaper {
+  inset-inline-start: 304px;
+  inset-inline-end: 222px;
+  inset-block-start: 46%;
+  inset-block-end: auto;
+  transform: translateY(-50%);
+  inline-size: auto;
+  justify-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+html[data-os="pixel"] .desktop-home-wallpaper .hero-title,
+html[data-os="pixel"] .desktop-wallpaper {
+  order: -1;
+  position: relative;
+  display: inline-block;
+  padding: 4px 14px 20px;
+  font-family: var(--font-display);
+  font-size: clamp(54px, 7.6cqw, var(--type-h1));
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  color: var(--px-ink);
+  text-shadow: none;
+}
+
+/* Iconic 5-color slanted Apple retro rainbow stripe directly under the desktop hero wordmark */
+html[data-os="pixel"] .desktop-home-wallpaper .hero-title::after,
+html[data-os="pixel"] .desktop-wallpaper::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 2px;
+  height: 15px;
+  background: var(--px-rainbow-stripe);
+  border: 1px solid var(--px-ink);
+  transform: skewX(-16deg);
+}
+
+html[data-os="pixel"] .desktop-home-wallpaper .typed-text {
+  inline-size: min(44ch, 100%);
+  padding: 10px 14px;
+  border: 1px solid var(--px-ink);
+  background: var(--px-paper);
+  box-shadow: 3px 3px 0 var(--px-shadow);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--px-ink);
+  text-align: center;
+}
+
+html[data-os="pixel"] .typed-marker::after {
+  box-shadow: none;
+  background: var(--px-accent);
+}
+
+/* Bottom-left AgencyOS studio tagline + desktop like counter */
+html[data-os="pixel"] .desktop-home-footer {
+  inset-inline-start: 24px;
+  inset-block-end: 16px;
+  padding: 4px 10px;
+  border: 1px solid var(--px-ink);
+  background: var(--px-paper);
+  box-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+html[data-os="pixel"] .desktop-home-hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--px-mute);
+}
+
+html[data-os="pixel"] .desktop-like-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--px-ink);
+}
+
+html[data-os="pixel"] .desktop-like-btn:is(:hover, :focus-visible) .desktop-like-count {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+/* 6. Classic Macintosh Window Chrome (.os-window, 6-Line Pinstripe Titlebar) */
+html[data-os="pixel"] .os-window {
+  border-radius: 0;
+  background: var(--px-paper);
+  box-shadow: var(--os-window-shadow);
+}
+
+html[data-os="pixel"] .os-window::after {
+  border: 2px solid var(--px-ink);
+}
+
+html[data-os="pixel"] .os-window--child {
+  --frame-x: 68px;
+  --frame-y: 44px;
+  --frame-right: 204px;
+  --frame-bottom: 24px;
+}
+
+html[data-os="pixel"][data-zoom="fullscreen"] .os-window--child {
+  --frame-x: 84px;
+}
+
+html[data-os="pixel"] .os-window[data-wfocus="off"] {
+  --frame-ink: var(--px-ink);
+  box-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+html[data-os="pixel"] .os-window[data-wfocus="off"]::after {
+  border: 1px solid var(--px-ink);
+}
+
+html[data-os="pixel"] .os-window[data-wmax="on"] {
+  inset: 12px 18px var(--wmax-bottom) 18px;
+}
+
+html[data-os="pixel"][data-zoom="fullscreen"] .os-window[data-wmax="on"] {
+  inset: 12px 14px 18px 64px;
+}
+
+html[data-os="pixel"][data-zoom="fullscreen"] .desktop-home-footer {
+  inset-inline-start: 64px;
+  inset-block-end: 16px;
+}
+
+/* Active Titlebar: Close [×] LEFT, 6-line pinstripes + centered Pixelify title, Maximize [□] RIGHT */
+html[data-os="pixel"] .window-titlebar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: var(--titlebar-height);
+  padding: 0 8px;
+  background-color: var(--os-titlebar-bg);
+  background-image: none;
+  color: var(--os-titlebar-ink);
+  border-bottom: 1px solid var(--px-ink);
+  font-family: var(--font-ui);
+}
+
+html[data-os="pixel"] .os-window[data-wfocus="on"] .window-titlebar {
+  background-image: var(--os-titlebar-pattern);
+  background-size: calc(100% - 16px) 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+html[data-os="pixel"] .os-window[data-wfocus="off"] .window-titlebar {
+  background-color: var(--os-titlebar-inactive-bg);
+  background-image: none;
+  color: var(--os-titlebar-inactive-ink);
+  box-shadow: none;
+}
+
+/* Reorder Close Box to LEFT (order: 1) and Maximize Box to RIGHT (order: 3) */
+html[data-os="pixel"] .window-actions {
+  display: contents;
+}
+
+html[data-os="pixel"] .window-title {
+  order: 2;
+  flex: 0 1 auto;
+  margin-inline: auto;
+  padding: 1px 10px;
+  background: var(--px-paper);
+  font-family: var(--font-ui);
+  font-size: var(--type-ui);
+  font-weight: 400;
+  line-height: 1.2;
+  text-align: center;
+}
+
+html[data-os="pixel"] .window-actions .window-close {
+  order: 1;
+}
+
+html[data-os="pixel"] .window-actions .window-maximize {
+  order: 3;
+}
+
+/* Balance error dialog (which omits maximize) so title remains optically centered */
+html[data-os="pixel"] .os-window--error .window-titlebar::after {
+  content: "";
+  order: 3;
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+/* Crisp 18×18 square Macintosh titlebar boxes (strip Phosphor 3D keycap ::before) */
+html[data-os="pixel"] .window-actions .pixel-key {
+  --key-size: 18px;
+  width: var(--key-size);
+  height: var(--key-size);
+  min-width: var(--key-size);
+  min-height: var(--key-size);
+  padding: 0;
+  border: 1px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-paper);
+  color: var(--px-ink);
+  box-shadow: 0 0 0 2px var(--px-paper);
+  transform: none;
+}
+
+html[data-os="pixel"] .window-actions .pixel-key::before {
+  display: none;
+}
+
+html[data-os="pixel"] .window-actions .pixel-key svg {
+  width: 10px;
+  height: 10px;
+  transform: none;
+}
+
+html[data-os="pixel"] .window-actions .pixel-key:hover {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+html[data-os="pixel"] .window-actions .pixel-key:active {
+  background: var(--px-ink);
+  color: var(--px-paper);
+  transform: none;
+  box-shadow: 0 0 0 2px var(--px-paper);
+}
+
+html[data-os="pixel"] .window-actions .pixel-key:active svg {
+  transform: none;
+}
+
+html[data-os="pixel"] .os-window[data-wfocus="off"] .window-actions .pixel-key {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Breadcrumb & Status Strips (AgencyOS #EDEDED + Geist Mono 11px Uppercase) */
+html[data-os="pixel"] .window-path,
+html[data-os="pixel"] .window-status {
+  padding: 5px 14px;
+  background: var(--px-surface-alt);
+  color: var(--px-mute);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+html[data-os="pixel"] .window-path {
+  box-shadow: none;
+  border-bottom: 1px solid var(--px-ink);
+}
+
+html[data-os="pixel"] .window-path a {
+  opacity: 1;
+  color: var(--px-ink);
+}
+
+html[data-os="pixel"] .window-path a:hover {
+  color: var(--px-accent);
+  text-decoration: underline;
+}
+
+html[data-os="pixel"] .window-status {
+  box-shadow: none;
+  border-top: 1px solid var(--px-ink);
+}
+
+html[data-os="pixel"] .window-status > * {
+  opacity: 1;
+}
+
+/* Classic Macintosh Crisp Square Scrollbar */
+html[data-os="pixel"] .window-scroll {
+  scrollbar-width: auto;
+  scrollbar-color: var(--px-ink) var(--px-surface-alt);
+}
+
+html[data-os="pixel"] .window-scroll::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background: var(--px-surface-alt);
+  border-left: 1px solid var(--px-ink);
+}
+
+html[data-os="pixel"] .window-scroll::-webkit-scrollbar-thumb {
+  background: var(--px-paper);
+  border: 1px solid var(--px-ink);
+}
+
+html[data-os="pixel"] .window-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--px-accent);
+}
+
+/* 7. AgencyOS 2px-Rimmed Beveled Buttons (.pixel-key) */
+html[data-os="pixel"] .pixel-key {
+  min-height: 36px;
+  padding: 7px 15px;
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-paper);
+  color: var(--px-ink);
+  font-family: var(--font-ui);
+  font-size: var(--type-ui);
+  font-weight: 400;
+  line-height: 1.2;
+  box-shadow: var(--button-shadow);
+  transition: transform 35ms linear, box-shadow 35ms linear, background-color 45ms linear, color 45ms linear;
+}
+
+html[data-os="pixel"] .pixel-key:hover {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+html[data-os="pixel"] .pixel-key--primary {
+  background: var(--px-cta);
+  color: var(--px-cta-ink);
+}
+
+html[data-os="pixel"] .pixel-key--primary:hover {
+  background: var(--px-ink);
+  color: var(--px-cta);
+}
+
+html[data-os="pixel"][data-theme="slate"] .pixel-key--primary:hover {
+  background: #000000;
+  color: var(--px-cta);
+}
+
+html[data-os="pixel"] .pixel-key:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--button-shadow-pressed);
+}
+
+/* 8. Classic Macintosh Top-Anchored Pull-Down StartMenu (No Win95 Side Spine) */
+html[data-os="pixel"] .start-menu {
+  top: calc(100% + 5px);
+  bottom: auto;
+  z-index: 40;
+  border: 2px solid var(--px-ink);
+  background: var(--px-paper);
+  box-shadow: 3px 3px 0 var(--px-shadow);
+  font-family: var(--font-ui);
+}
+
+html[data-os="pixel"] .start-menu-spine {
+  display: none;
+}
+
+html[data-os="pixel"] .start-menu-group,
+html[data-os="pixel"] .start-menu-footer {
+  border-top: 1px solid var(--px-ink);
+}
+
+html[data-os="pixel"] .start-menu-footer {
+  background: var(--px-surface-alt);
+}
+
+html[data-os="pixel"] .start-menu-item {
+  min-height: 32px;
+  padding: 4px 10px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--px-ink);
+}
+
+html[data-os="pixel"] .start-menu-folder[data-open="true"] > .start-menu-folder-trigger,
+html[data-os="pixel"] .start-menu-item:not(:disabled):is(:hover, :focus-visible) {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+html[data-os="pixel"] .start-submenu {
+  border: 2px solid var(--px-ink);
+  background: var(--px-paper);
+  box-shadow: 3px 3px 0 var(--px-shadow);
+  font-family: var(--font-ui);
+}
+
+/* 9. Classic Mac System Error /404 Bomb Dialog & App Content Polish */
+html[data-os="pixel"] .screen-stage[data-section="error"] .desktop-wallpaper {
+  display: none;
+}
+
+html[data-os="pixel"] .os-window--error {
+  width: min(496px, calc(100% - 24px));
+  height: auto;
+  min-height: 236px;
+  box-shadow: 4px 4px 0 var(--px-shadow);
+}
+
+html[data-os="pixel"] .os-window--error:focus:not(:focus-visible) {
+  outline: none;
+}
+
+html[data-os="pixel"] .os-window--error .error-message {
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+}
+
+html[data-os="pixel"] .os-window--error .error-message > svg {
+  padding: 8px;
+  border: 2px solid var(--px-ink);
+  background: var(--px-paper);
+  box-shadow:
+    inset 0 4px 0 0 var(--px-cta),
+    3px 3px 0 0 var(--px-shadow);
+}
+
+html[data-os="pixel"] .os-window--error .error-copy h1 {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+html[data-os="pixel"] .os-window--error .error-copy p {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--px-mute);
+}
+
+/* Crisp AgencyOS Typography & Card Polish Across All Shared Apps */
+html[data-os="pixel"] .page-title {
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+html[data-os="pixel"] .section-title {
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+html[data-os="pixel"] .prose :is(h2, h3, h4) {
+  line-height: 1.15;
+}
+
+html[data-os="pixel"] .prose h3,
+html[data-os="pixel"] .prose h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+html[data-os="pixel"] .prose a:not(.pixel-key) {
+  color: var(--px-accent);
+  text-decoration-color: var(--px-accent);
+}
+
+html[data-os="pixel"] .prose pre {
+  border: 1px solid var(--px-ink);
+  background: var(--px-surface-alt);
+}
+
+html[data-os="pixel"] :is(input, textarea, select):not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+  border-color: var(--px-ink);
+  background: var(--px-paper);
+  color: var(--px-ink);
+  font-family: var(--font-sans);
+}
+
+html[data-os="pixel"] :is(input, textarea, select):focus {
+  outline: none;
+  border-color: var(--px-accent);
+  box-shadow: 0 0 0 2px var(--px-accent);
+}
+
+/* Signal Orange live LED indicators on Music & Video decks */
+html[data-os="pixel"] .music-signal-dot[data-live="on"],
+html[data-os="pixel"] .video-signal-dot[data-live="on"] {
+  background: var(--px-cta);
+  border-color: var(--px-ink);
+  box-shadow: none;
+}
+
+html[data-os="pixel"] .work-card-image,
+html[data-os="pixel"] .article-card-media,
+html[data-os="pixel"] .music-deck-bar,
+html[data-os="pixel"] .video-monitor-bar,
+html[data-os="pixel"] .arcade-toolbar,
+html[data-os="pixel"] .gb-composer,
+html[data-os="pixel"] .chat-gate {
+  border-color: var(--px-ink);
+}
+
+html[data-os="pixel"] .work-card:is(:hover, :focus-visible) h2,
+html[data-os="pixel"] .article-card:is(:hover, :focus-visible) .article-card-title {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+html[data-os="pixel"] .work-card h2,
+html[data-os="pixel"] .article-card-title {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  text-shadow: none;
+}
+
+/* Room, close, and fullscreen floating monitor controls pill matches Pixel crisp 1-bit frame */
+html[data-os="pixel"] .camera,
+html[data-os="pixel"][data-zoom="fullscreen"] .camera {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-paper);
+  box-shadow: 3px 3px 0 var(--px-shadow);
+}
+
+html[data-os="pixel"][data-zoom="fullscreen"] .camera {
+  bottom: 12px;
+  left: 12px;
+  padding: 3px;
+  box-shadow: 2px 2px 0 var(--px-shadow);
+}
+
+html[data-os="pixel"] .camera button,
+html[data-os="pixel"][data-zoom="fullscreen"] .camera button {
+  border-radius: 0;
+  color: var(--px-ink);
+}
+
+html[data-os="pixel"][data-zoom="fullscreen"] .camera button {
+  width: 32px;
+  height: 32px;
+}
+
+html[data-os="pixel"] .camera svg,
+html[data-os="pixel"][data-zoom="fullscreen"] .camera svg {
+  filter: none;
+}
+
+html[data-os="pixel"] .camera button:hover:enabled,
+html[data-os="pixel"][data-zoom="fullscreen"] .camera button:hover:enabled {
+  background: var(--px-accent);
+  color: var(--px-accent-ink);
+}
+
+/* 10. Tablet Breakpoint (810px – 1199px) */
+@media (min-width: 810px) and (max-width: 1199.98px) {
+  html[data-os="pixel"] .screen-plane {
+    --taskbar-height: 0px;
+    --wmax-bottom: 18px;
+    --window-left: 20px;
+    --window-top: 14px;
+    --window-right: 204px;
+    --window-bottom: 18px;
+  }
+
+  html[data-os="pixel"][data-zoom="fullscreen"] .screen-plane {
+    --window-left: 64px;
+  }
+
+  html[data-os="pixel"] .desktop-icons {
+    right: 12px;
+    top: 14px;
+    grid-template-columns: repeat(2, 84px);
+    gap: 6px 4px;
+  }
+
+  html[data-os="pixel"] .os-desktop-widget {
+    width: 228px;
+    inset-inline-start: 16px;
+    inset-block-start: 16px;
+  }
+
+  html[data-os="pixel"] .desktop-home-wallpaper,
+  html[data-os="pixel"] .desktop-wallpaper {
+    inset-inline-start: 260px;
+    inset-inline-end: 200px;
+  }
+
+  html[data-os="pixel"] .os-window--child {
+    --frame-x: 42px;
+    --frame-y: 34px;
+    --frame-right: 194px;
+    --frame-bottom: 20px;
+  }
+}
+
+/* 11. Mobile Breakpoint (<= 809px — Verified at 390×844 with Zero Overflow) */
+@media (max-width: 809px) {
+  html[data-os="pixel"] .screen-plane {
+    --taskbar-height: 0px;
+  }
+
+  html[data-os="pixel"] .os-topbar {
+    height: var(--topbar-height);
+    padding: 0 10px;
+    gap: 6px;
+  }
+
+  html[data-os="pixel"][data-zoom="fullscreen"] .os-topbar {
+    padding: 0 10px;
+  }
+
+  html[data-os="pixel"] .os-topbar-left,
+  html[data-os="pixel"] .os-topbar-right {
+    gap: 6px;
+  }
+
+  html[data-os="pixel"] .os-topbar-links,
+  html[data-os="pixel"] .os-topbar-center,
+  html[data-os="pixel"] .os-topbar-status {
+    display: none;
+  }
+
+  html[data-os="pixel"] .os-topbar-brand {
+    font-size: 14px;
+    padding: 2px;
+  }
+
+  html[data-os="pixel"] .os-topbar-menu-btn {
+    border: 1px solid var(--px-ink);
+    padding: 0 8px;
+    height: 30px;
+    font-size: 14px;
+    box-shadow: 2px 2px 0 var(--px-shadow);
+  }
+
+  html[data-os="pixel"] .os-topbar-menu-btn[aria-expanded="true"] {
+    box-shadow: none;
+  }
+
+  html[data-os="pixel"] .os-topbar-sound {
+    width: 30px;
+    height: 30px;
+  }
+
+  html[data-os="pixel"] .os-topbar-music {
+    height: 30px;
+  }
+
+  html[data-os="pixel"] .os-topbar-music-toggle {
+    width: 28px;
+  }
+
+  html[data-os="pixel"] .os-topbar-os-btn {
+    height: 30px;
+    font-size: 13px;
+  }
+
+  html[data-os="pixel"] .os-topbar-clock {
+    font-size: 13.5px;
+  }
+
+  /* Clean 3×3 mobile desktop icon grid matching AgencyOS mobile layout */
+  html[data-os="pixel"] .desktop-icons {
+    top: 12px;
+    left: 10px;
+    right: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px 6px;
+  }
+
+  html[data-os="pixel"] .desktop-icon {
+    gap: 4px;
+    padding: 2px 0;
+    font-size: 13px;
+  }
+
+  html[data-os="pixel"] .desktop-icon svg {
+    width: 44px;
+    height: 44px;
+    padding: 7px;
+  }
+
+  html[data-os="pixel"] .desktop-icon span {
+    padding: 1px 5px;
+    font-size: 12px;
+  }
+
+  /* Keep mobile home uncluttered: hide floating NOW.txt card so 3×3 icons + Hero + Intro breathe */
+  html[data-os="pixel"] .os-desktop-widget {
+    display: none;
+  }
+
+  html[data-os="pixel"] .desktop-home-wallpaper,
+  html[data-os="pixel"] .desktop-wallpaper {
+    inset: 274px 14px 54px;
+    transform: none;
+    align-content: start;
+    justify-items: center;
+    gap: 12px;
+    overflow: auto;
+    pointer-events: auto;
+  }
+
+  html[data-os="pixel"] .desktop-home-wallpaper .hero-title,
+  html[data-os="pixel"] .desktop-wallpaper {
+    font-size: min(46px, 14cqw);
+    padding: 2px 10px 16px;
+  }
+
+  html[data-os="pixel"] .desktop-home-wallpaper .hero-title::after,
+  html[data-os="pixel"] .desktop-wallpaper::after {
+    height: 11px;
+  }
+
+  html[data-os="pixel"] .desktop-home-wallpaper .typed-text {
+    font-size: 13px;
+    padding: 8px 10px;
+    text-align: start;
+  }
+
+  html[data-os="pixel"] .desktop-home-footer {
+    inset-inline: 14px;
+    inset-block-end: 12px;
+    justify-content: center;
+  }
+
+  /* Mobile Windows: crisp full-width frame with 44px pinstripe titlebar and 28px Close box */
+  html[data-os="pixel"] .os-window:not(.os-window--error) {
+    inset: 8px 8px 10px !important;
+    width: auto;
+    height: auto;
+  }
+
+  html[data-os="pixel"] .window-titlebar {
+    height: 44px;
+    padding: 0 10px;
+  }
+
+  /* Optically center mobile window title when maximize button is hidden */
+  html[data-os="pixel"] .os-window .window-titlebar::after {
+    content: "";
+    order: 3;
+    width: 28px;
+    height: 28px;
+    flex: none;
+  }
+
+  html[data-os="pixel"] .window-actions .pixel-key {
+    --key-size: 28px;
+  }
+
+  html[data-os="pixel"] .window-actions .pixel-key svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  html[data-os="pixel"] .window-path {
+    right: 10px;
+    height: 44px;
+    background: transparent;
+    border-bottom: 0;
+    color: var(--px-ink);
+  }
+}
+
+@media (max-width: 420px) {
+  html[data-os="pixel"] .os-topbar-site::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-os="pixel"] .desktop-icon svg,
+  html[data-os="pixel"] .pixel-key,
+  html[data-os="pixel"] .os-topbar-os-btn {
+    transition: none;
+  }
+}

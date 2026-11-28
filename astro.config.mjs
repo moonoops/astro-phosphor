@@ -4,8 +4,8 @@ import react from '@astrojs/react';
 import tailwind from '@tailwindcss/vite';
 
 export default defineConfig({
-  site: process.env.SITE_URL,
-  base: process.env.SITE_BASE || '/',
+  site: process.env.SITE_URL?.trim() || undefined,
+  base: process.env.SITE_BASE?.trim() || '/',
   output: 'static',
   integrations: [mdx(), react()],
   markdown: {

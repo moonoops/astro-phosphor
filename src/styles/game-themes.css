@@ -1,0 +1,930 @@
+/* ==========================================================================
+   Astro Phosphor — Polarity-Aware & Per-OS Game / Modal / HUD Palette Contract
+   Imported by mota.css and arcade-games.css.
+
+   - Preserves Phosphor CRT OS (data-os="phosphor") 100% visually unchanged.
+   - Provides recessed dark arcade/dungeon stages on Coffee, Rainbow, CLI, Pixel
+     so pixel-art canvases never wash out into blinding white/zebra stripes or
+     murky low-contrast gray.
+   - Guarantees WCAG AA/AAA (>= 5.5:1) legibility on ALL keys, damage tiers,
+     monster special tags, difficulty badges, Minesweeper cells/numbers,
+     2048 tiles, leaderboard modals, and disabled OAuth buttons across all 5 OSes
+     and both light & dark sub-themes.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Phosphor CRT OS (Default — 100% original single-hue phosphor behavior)
+   -------------------------------------------------------------------------- */
+:root,
+html[data-os="phosphor"] {
+  /* Recessed Game Stage (tracks active phosphor amber/green/blue/white) */
+  --game-stage-bg: var(--ground);
+  --game-stage-grid: var(--lit-10);
+  --game-stage-border: var(--lit);
+  --game-stage-shadow: inset 0 0 0 1px var(--lit-28);
+  --game-floor-dot: var(--side);
+  --game-wall-mortar: var(--ground);
+  --game-wall-brick: var(--side);
+  --game-wall-hi: var(--hi);
+  --game-entity-outline: var(--ground);
+  --game-entity-shadow: var(--side);
+  --game-entity-ink: var(--lit);
+  --game-entity-hi: var(--hi);
+  --game-badge-bg: var(--ground);
+  --game-path-dot: var(--lit);
+  --game-reticle: var(--hi);
+  --game-stage-overlay-bg: color-mix(in srgb, var(--ground) 84%, transparent);
+  --game-stage-overlay-ink: var(--lit);
+  --game-stage-overlay-muted: var(--lit-72);
+
+  /* HUD Surfaces, Accents, Modals & Disabled States */
+  --game-accent-ink: var(--hi);
+  --game-panel-bg: var(--ground);
+  --game-panel-alt-bg: var(--lit-10);
+  --game-backdrop-bg: color-mix(in srgb, var(--ground) 84%, transparent);
+  --game-modal-bg: var(--ground);
+  --game-modal-border: var(--lit);
+  --game-modal-shadow: 4px 4px 0 var(--side);
+  --game-modal-head-bg: var(--lit);
+  --game-modal-head-ink: var(--ground);
+  --game-modal-head-border: transparent;
+  --game-modal-close-bg: var(--ground);
+  --game-modal-close-ink: var(--lit);
+  --game-modal-close-border: var(--ground);
+  --game-modal-close-hover-bg: color-mix(in srgb, var(--lit) 18%, var(--ground));
+  --game-disabled-bg: var(--ground);
+  --game-disabled-ink: var(--lit-72);
+  --game-disabled-border: var(--lit-28);
+
+  /* Magic Tower Semantic Keys, Difficulty, Color Mode, Damage & Special Tags (Dark Tube) */
+  --game-key-y-ink: #ffd24a;
+  --game-key-y-bg: var(--lit-10);
+  --game-key-y-border: #b37d14;
+  --game-key-b-ink: #4ed8ff;
+  --game-key-b-bg: var(--lit-10);
+  --game-key-b-border: #1d75a8;
+  --game-key-r-ink: #ff6b7d;
+  --game-key-r-bg: var(--lit-10);
+  --game-key-r-border: #a82034;
+
+  --game-hard-ink: #ff7a8a;
+  --game-hard-bg: color-mix(in srgb, #ff5268 14%, var(--ground));
+  --game-hard-border: #ff5268;
+  --game-hard-shadow: #7a1c28;
+
+  --game-colormode-ink: #8ee8ff;
+  --game-colormode-bg: color-mix(in srgb, #4ed8ff 14%, var(--ground));
+  --game-colormode-border: #4ed8ff;
+
+  --game-dmg-safe-ink: #42f288;
+  --game-dmg-safe-bg: transparent;
+  --game-dmg-safe-border: #42f288;
+  --game-dmg-warn-ink: #ffd24a;
+  --game-dmg-warn-bg: transparent;
+  --game-dmg-warn-border: #ffd24a;
+  --game-dmg-high-ink: #ff8a3d;
+  --game-dmg-high-bg: transparent;
+  --game-dmg-high-border: #ff8a3d;
+  --game-dmg-lethal-ink: #090e17;
+  --game-dmg-lethal-bg: #ff4757;
+  --game-dmg-lethal-border: #ff4757;
+
+  --game-sp-firstStrike-ink: #ffd24a;
+  --game-sp-firstStrike-bg: transparent;
+  --game-sp-firstStrike-border: #ffd24a;
+  --game-sp-magic-ink: #df9eff;
+  --game-sp-magic-bg: transparent;
+  --game-sp-magic-border: #cf75ff;
+  --game-sp-solid-ink: #7ce4ff;
+  --game-sp-solid-bg: transparent;
+  --game-sp-solid-border: #4ed8ff;
+  --game-sp-doubleHit-ink: #ffa666;
+  --game-sp-doubleHit-bg: transparent;
+  --game-sp-doubleHit-border: #ff8a3d;
+  --game-sp-tripleHit-ink: #ff927a;
+  --game-sp-tripleHit-bg: transparent;
+  --game-sp-tripleHit-border: #ff6b4a;
+  --game-sp-vampire-ink: #ff7a8a;
+  --game-sp-vampire-bg: transparent;
+  --game-sp-vampire-border: #ff5268;
+  --game-sp-armorBreak-ink: #ffbc78;
+  --game-sp-armorBreak-bg: transparent;
+  --game-sp-armorBreak-border: #ff9f43;
+  --game-sp-berserk-ink: #ff7380;
+  --game-sp-berserk-bg: transparent;
+  --game-sp-berserk-border: #ff4757;
+  --game-sp-thorns-ink: #9eff91;
+  --game-sp-thorns-bg: transparent;
+  --game-sp-thorns-border: #7cf56c;
+
+  /* Minesweeper (Original Monochrome Phosphor) */
+  --mine-board-bg: var(--ground);
+  --mine-board-border: var(--lit);
+  --mine-cell-closed-bg: color-mix(in srgb, var(--lit) 18%, var(--ground));
+  --mine-cell-closed-hover: color-mix(in srgb, var(--lit) 28%, var(--ground));
+  --mine-cell-bevel-hi: color-mix(in srgb, var(--hi) 85%, transparent);
+  --mine-cell-bevel-lo: var(--side);
+  --mine-cell-open-bg: var(--ground);
+  --mine-cell-open-border: color-mix(in srgb, var(--lit) 18%, transparent);
+  --mine-flag-ink: var(--hi);
+  --mine-flag-bg: var(--mine-cell-closed-bg);
+  --mine-bomb-bg: var(--lit-10);
+  --mine-bomb-ink: var(--lit);
+  --mine-exploded-bg: var(--lit);
+  --mine-exploded-ink: var(--ground);
+  --mine-wrong-bg: var(--lit-10);
+  --mine-wrong-ink: var(--hi);
+  --mine-wrong-border: var(--lit);
+  --mine-num-1: var(--lit-72);
+  --mine-num-2: var(--lit);
+  --mine-num-3: var(--hi);
+  --mine-num-4: var(--hi);
+  --mine-num-5: var(--hi);
+  --mine-num-6: var(--hi);
+  --mine-num-7: var(--hi);
+  --mine-num-8: var(--hi);
+  --mine-num-high-shadow: 0 0 6px var(--lit);
+
+  /* 2048 (Original Monochrome Phosphor) */
+  --g2048-board-bg: var(--ground);
+  --g2048-board-border: var(--lit);
+  --g2048-empty-bg: color-mix(in srgb, var(--lit) 4%, var(--ground));
+  --g2048-empty-border: var(--lit-28);
+  --g2048-t2-bg: var(--lit-10);
+  --g2048-t2-ink: var(--lit-72);
+  --g2048-t2-border: var(--lit-28);
+  --g2048-t4-bg: color-mix(in srgb, var(--lit) 18%, var(--ground));
+  --g2048-t4-ink: var(--lit);
+  --g2048-t4-border: var(--lit-28);
+  --g2048-t8-bg: color-mix(in srgb, var(--lit) 28%, var(--ground));
+  --g2048-t8-ink: var(--hi);
+  --g2048-t8-border: var(--lit);
+  --g2048-t16-bg: color-mix(in srgb, var(--lit) 40%, var(--ground));
+  --g2048-t16-ink: var(--hi);
+  --g2048-t16-border: var(--lit);
+  --g2048-t32-bg: color-mix(in srgb, var(--lit) 58%, var(--ground));
+  --g2048-t32-ink: var(--ground);
+  --g2048-t32-border: var(--lit);
+  --g2048-t64-bg: color-mix(in srgb, var(--lit) 76%, var(--ground));
+  --g2048-t64-ink: var(--ground);
+  --g2048-t64-border: var(--hi);
+  --g2048-t128-bg: var(--lit);
+  --g2048-t128-ink: var(--ground);
+  --g2048-t256-bg: var(--lit);
+  --g2048-t256-ink: var(--ground);
+  --g2048-t512-bg: var(--lit);
+  --g2048-t512-ink: var(--ground);
+  --g2048-t1024-bg: var(--hi);
+  --g2048-t1024-ink: var(--ground);
+  --g2048-t2048-bg: var(--hi);
+  --g2048-t2048-ink: var(--ground);
+  --g2048-tsuper-bg: var(--hi);
+  --g2048-tsuper-ink: var(--ground);
+  --g2048-high-shadow: inset 2px 2px 0 var(--hi), inset -2px -2px 0 var(--lit), 0 0 12px var(--lit);
+}
+
+/* --------------------------------------------------------------------------
+   2. Shared Light-Surface Semantic Badges & Classic Color Game Defaults
+      Applies to Coffee, Rainbow, Pixel (Paper/Mint/Sky), and CLI (Light).
+      Every pill/badge pair verified >= 6.5:1 contrast.
+   -------------------------------------------------------------------------- */
+html[data-os="coffee"],
+html[data-os="rainbow"],
+html[data-os="pixel"],
+html[data-os="cli"][data-theme="light"] {
+  --game-backdrop-bg: rgba(10, 12, 18, 0.68);
+
+  /* High-Contrast Pastel-Tint Key Pills (>= 7.2:1 text contrast on light paper) */
+  --game-key-y-ink: #734700;
+  --game-key-y-bg: #fff3c7;
+  --game-key-y-border: #b87b08;
+  --game-key-b-ink: #094a7a;
+  --game-key-b-bg: #dff0ff;
+  --game-key-b-border: #2274b3;
+  --game-key-r-ink: #941325;
+  --game-key-r-bg: #ffe3e7;
+  --game-key-r-border: #c42b40;
+
+  --game-hard-ink: #9e1427;
+  --game-hard-bg: #ffe2e6;
+  --game-hard-border: #c7293e;
+  --game-hard-shadow: rgba(158, 20, 39, 0.35);
+
+  --game-colormode-ink: #0a4c78;
+  --game-colormode-bg: #dff2ff;
+  --game-colormode-border: #1c76b5;
+
+  /* Damage Tiers (>= 6.6:1 contrast on light paper) */
+  --game-dmg-safe-ink: #0c612e;
+  --game-dmg-safe-bg: #defae8;
+  --game-dmg-safe-border: #1e8c49;
+  --game-dmg-warn-ink: #784900;
+  --game-dmg-warn-bg: #fff2c4;
+  --game-dmg-warn-border: #b87a08;
+  --game-dmg-high-ink: #943800;
+  --game-dmg-high-bg: #ffe8d4;
+  --game-dmg-high-border: #cc5712;
+  --game-dmg-lethal-ink: #ffffff;
+  --game-dmg-lethal-bg: #bd192d;
+  --game-dmg-lethal-border: #8f0f1f;
+
+  /* 9 Monster Special Trait Tags (>= 6.5:1 contrast on light paper) */
+  --game-sp-firstStrike-ink: #754800;
+  --game-sp-firstStrike-bg: #fff3c7;
+  --game-sp-firstStrike-border: #b87b08;
+  --game-sp-magic-ink: #61188a;
+  --game-sp-magic-bg: #f3e6ff;
+  --game-sp-magic-border: #8a3cb8;
+  --game-sp-solid-ink: #094e78;
+  --game-sp-solid-bg: #e0f4ff;
+  --game-sp-solid-border: #1f7db5;
+  --game-sp-doubleHit-ink: #8c3700;
+  --game-sp-doubleHit-bg: #ffead9;
+  --game-sp-doubleHit-border: #c75914;
+  --game-sp-tripleHit-ink: #942212;
+  --game-sp-tripleHit-bg: #ffe5e0;
+  --game-sp-tripleHit-border: #c73a28;
+  --game-sp-vampire-ink: #941329;
+  --game-sp-vampire-bg: #ffe3e8;
+  --game-sp-vampire-border: #c42b44;
+  --game-sp-armorBreak-ink: #804100;
+  --game-sp-armorBreak-bg: #ffeed6;
+  --game-sp-armorBreak-border: #ba650d;
+  --game-sp-berserk-ink: #991224;
+  --game-sp-berserk-bg: #ffe0e4;
+  --game-sp-berserk-border: #cc243a;
+  --game-sp-thorns-ink: #175e1c;
+  --game-sp-thorns-bg: #e2fae0;
+  --game-sp-thorns-border: #2e8c33;
+
+  /* Classic High-Contrast Color Minesweeper Numbers (>= 6:1 on light cells) */
+  --mine-flag-ink: #c61c2e;
+  --mine-flag-bg: #ffe8eb;
+  --mine-bomb-bg: #efe8dc;
+  --mine-bomb-ink: #1a1d24;
+  --mine-exploded-bg: #c61c2e;
+  --mine-exploded-ink: #ffffff;
+  --mine-wrong-bg: #ffe0e4;
+  --mine-wrong-ink: #9e1427;
+  --mine-wrong-border: #c61c2e;
+  --mine-num-1: #1450c8;
+  --mine-num-2: #17732e;
+  --mine-num-3: #c6202e;
+  --mine-num-4: #2d228a;
+  --mine-num-5: #8a1c28;
+  --mine-num-6: #0d6e73;
+  --mine-num-7: #1d2028;
+  --mine-num-8: #505664;
+  --mine-num-high-shadow: none;
+
+  /* High-Contrast Classic Jewel 2048 Tile Progression (every tier >= 5.3:1) */
+  --g2048-t2-bg: #f4ede1;
+  --g2048-t2-ink: #231f1a;
+  --g2048-t2-border: #d8cebd;
+  --g2048-t4-bg: #ecdcb8;
+  --g2048-t4-ink: #231f1a;
+  --g2048-t4-border: #ceb98d;
+  --g2048-t8-bg: #f2a65a;
+  --g2048-t8-ink: #1c140c;
+  --g2048-t8-border: #c97d32;
+  --g2048-t16-bg: #f07c3e;
+  --g2048-t16-ink: #1a0e06;
+  --g2048-t16-border: #bf541b;
+  --g2048-t32-bg: #d63d2e;
+  --g2048-t32-ink: #ffffff;
+  --g2048-t32-border: #a62519;
+  --g2048-t64-bg: #c42330;
+  --g2048-t64-ink: #ffffff;
+  --g2048-t64-border: #8f141e;
+  --g2048-t128-bg: #e8bc2c;
+  --g2048-t128-ink: #1a1404;
+  --g2048-t128-border: #b58c0d;
+  --g2048-t256-bg: #f2cb38;
+  --g2048-t256-ink: #1a1404;
+  --g2048-t256-border: #c29b10;
+  --g2048-t512-bg: #147548;
+  --g2048-t512-ink: #ffffff;
+  --g2048-t512-border: #0d5232;
+  --g2048-t1024-bg: #1e60c8;
+  --g2048-t1024-ink: #ffffff;
+  --g2048-t1024-border: #12408a;
+  --g2048-t2048-bg: #7c2ae8;
+  --g2048-t2048-ink: #ffffff;
+  --g2048-tsuper-bg: #171a26;
+  --g2048-tsuper-ink: #ffd859;
+  --g2048-high-shadow: inset 0 0 0 2px #ffd859, 0 0 10px rgba(255, 210, 74, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   3. Coffee OS (data-os="coffee") — Warm Archival Paper × Roasted Obsidian Stage
+   -------------------------------------------------------------------------- */
+html[data-os="coffee"] {
+  --game-stage-bg: #171310;
+  --game-stage-grid: rgba(235, 211, 162, 0.11);
+  --game-stage-border: var(--coffee-ink);
+  --game-stage-shadow: 4px 4px 0 var(--coffee-ink);
+  --game-floor-dot: #3a3026;
+  --game-wall-mortar: #0d0a08;
+  --game-wall-brick: #594735;
+  --game-wall-hi: #a98965;
+  --game-entity-outline: #0c0907;
+  --game-entity-shadow: #9b8266;
+  --game-entity-ink: #f3e6ce;
+  --game-entity-hi: #ffd482;
+  --game-badge-bg: #0c0a08;
+  --game-path-dot: #e8b86d;
+  --game-reticle: #ffd482;
+  --game-stage-overlay-bg: rgba(20, 16, 13, 0.90);
+  --game-stage-overlay-ink: #f7f0e1;
+  --game-stage-overlay-muted: #d6c8b0;
+
+  --game-accent-ink: var(--coffee-accent-deep);
+  --game-panel-bg: var(--coffee-ivory);
+  --game-panel-alt-bg: var(--coffee-latte);
+  --game-modal-bg: var(--coffee-ivory);
+  --game-modal-border: var(--coffee-ink);
+  --game-modal-shadow: 6px 6px 0 var(--coffee-ink);
+  --game-modal-head-bg: var(--coffee-ink);
+  --game-modal-head-ink: var(--coffee-cream);
+  --game-modal-head-border: var(--coffee-ink);
+  --game-modal-close-bg: var(--coffee-cream);
+  --game-modal-close-ink: var(--coffee-ink);
+  --game-modal-close-border: var(--coffee-cream);
+  --game-modal-close-hover-bg: var(--coffee-sand);
+
+  --game-disabled-bg: #e7decb;
+  --game-disabled-ink: #4d453b;
+  --game-disabled-border: #8c8270;
+
+  /* Coffee Minesweeper (Warm Latte Raised Tiles vs Cream Open Cells) */
+  --mine-board-bg: #cbbda2;
+  --mine-board-border: var(--coffee-ink);
+  --mine-cell-closed-bg: #e4d8be;
+  --mine-cell-closed-hover: #ebd3a2;
+  --mine-cell-bevel-hi: #fffdf7;
+  --mine-cell-bevel-lo: #8a7c64;
+  --mine-cell-open-bg: #f8f2e4;
+  --mine-cell-open-border: #d2c5ab;
+
+  /* Coffee 2048 Tray */
+  --g2048-board-bg: #2a241f;
+  --g2048-board-border: var(--coffee-ink);
+  --g2048-empty-bg: #3b332c;
+  --g2048-empty-border: #4e433a;
+}
+
+html[data-os="coffee"][data-theme="matcha"] {
+  --game-stage-bg: #121914;
+  --game-floor-dot: #2b3c30;
+  --game-wall-mortar: #090e0b;
+  --game-wall-brick: #425745;
+  --game-wall-hi: #80a383;
+}
+
+html[data-os="coffee"][data-theme="indigo"] {
+  --game-stage-bg: #111621;
+  --game-floor-dot: #29354d;
+  --game-wall-mortar: #080b12;
+  --game-wall-brick: #3f4f6e;
+  --game-wall-hi: #7c94bf;
+}
+
+html[data-os="coffee"][data-theme="oat"] {
+  --game-stage-bg: #191511;
+  --game-floor-dot: #3d342b;
+  --game-wall-brick: #5e4f3e;
+}
+
+/* --------------------------------------------------------------------------
+   4. Rainbow OS (data-os="rainbow") — Daylight CMY Studio × Midnight Jewel Stage
+   -------------------------------------------------------------------------- */
+html[data-os="rainbow"] {
+  --game-stage-bg: #161a29;
+  --game-stage-grid: rgba(173, 198, 255, 0.11);
+  --game-stage-border: var(--rb-ink);
+  --game-stage-shadow: 0 3px 0 var(--rb-ink);
+  --game-floor-dot: #2e3652;
+  --game-wall-mortar: #0d101a;
+  --game-wall-brick: #465378;
+  --game-wall-hi: #8093c4;
+  --game-entity-outline: #0a0c14;
+  --game-entity-shadow: #7f8fb8;
+  --game-entity-ink: #eef3ff;
+  --game-entity-hi: #ffdf66;
+  --game-badge-bg: #0a0d16;
+  --game-path-dot: #8cbcff;
+  --game-reticle: #ffcb2e;
+  --game-stage-overlay-bg: rgba(16, 20, 34, 0.91);
+  --game-stage-overlay-ink: #faf4e3;
+  --game-stage-overlay-muted: #c9d2eb;
+
+  --game-accent-ink: var(--rb-cobalt-ink);
+  --game-panel-bg: var(--rb-white);
+  --game-panel-alt-bg: var(--rb-cream-deep);
+  --game-modal-bg: var(--rb-white);
+  --game-modal-border: var(--rb-ink);
+  --game-modal-shadow: 0 18px 40px rgba(14, 16, 28, 0.36), 0 3px 0 var(--rb-ink);
+  --game-modal-head-bg: var(--rb-yellow);
+  --game-modal-head-ink: var(--rb-ink);
+  --game-modal-head-border: var(--rb-ink);
+  --game-modal-close-bg: var(--rb-white);
+  --game-modal-close-ink: var(--rb-ink);
+  --game-modal-close-border: var(--rb-ink);
+  --game-modal-close-hover-bg: var(--rb-pink);
+
+  --game-disabled-bg: #ebe6d7;
+  --game-disabled-ink: #47433b;
+  --game-disabled-border: #8d877a;
+
+  /* Rainbow Minesweeper (Crisp Studio Tiles vs Pure Ivory Open Cells) */
+  --mine-board-bg: #c9c3b3;
+  --mine-board-border: var(--rb-ink);
+  --mine-cell-closed-bg: #e4dfd0;
+  --mine-cell-closed-hover: #ffefad;
+  --mine-cell-bevel-hi: #ffffff;
+  --mine-cell-bevel-lo: #8d8676;
+  --mine-cell-open-bg: #fffdf7;
+  --mine-cell-open-border: #d4cebe;
+
+  /* Rainbow 2048 Tray */
+  --g2048-board-bg: #222638;
+  --g2048-board-border: var(--rb-ink);
+  --g2048-empty-bg: #323850;
+  --g2048-empty-border: #464e6b;
+}
+
+/* --------------------------------------------------------------------------
+   5. CLI OS (data-os="cli") — Crisp Terminal Charcoal / Light / Dark / Matrix
+   -------------------------------------------------------------------------- */
+html[data-os="cli"],
+html[data-os="cli"][data-theme="claude"] {
+  --game-stage-bg: #100f0c;
+  --game-stage-grid: rgba(233, 230, 220, 0.09);
+  --game-stage-border: var(--cli-border);
+  --game-stage-shadow: none;
+  --game-floor-dot: #333028;
+  --game-wall-mortar: #080806;
+  --game-wall-brick: #534d41;
+  --game-wall-hi: #948a77;
+  --game-entity-outline: #090807;
+  --game-entity-shadow: #958e7f;
+  --game-entity-ink: #f0ede3;
+  --game-entity-hi: #ffaa88;
+  --game-badge-bg: #090806;
+  --game-path-dot: #e4896b;
+  --game-reticle: #ffaa88;
+  --game-stage-overlay-bg: rgba(14, 13, 10, 0.91);
+  --game-stage-overlay-ink: #f0ede3;
+  --game-stage-overlay-muted: #c4beaf;
+
+  --game-accent-ink: #ee9272;
+  --game-panel-bg: var(--cli-surface);
+  --game-panel-alt-bg: #211f1b;
+  --game-backdrop-bg: rgba(6, 6, 5, 0.74);
+  --game-modal-bg: #22201c;
+  --game-modal-border: var(--cli-accent);
+  --game-modal-shadow: 0 16px 40px rgba(0, 0, 0, 0.62);
+  --game-modal-head-bg: #2f2c26;
+  --game-modal-head-ink: #f2efe6;
+  --game-modal-head-border: var(--cli-border);
+  --game-modal-close-bg: #1b1a17;
+  --game-modal-close-ink: #f2efe6;
+  --game-modal-close-border: var(--cli-border);
+  --game-modal-close-hover-bg: var(--cli-accent);
+
+  /* Legible Disabled Buttons (replaces murky opacity: 0.4 terracotta-on-charcoal!) */
+  --game-disabled-bg: #2f2c27;
+  --game-disabled-ink: #bfb9aa;
+  --game-disabled-border: #787161;
+
+  /* Dark-Surface Semantic Keys, Badges, Damage & 9 Monster Specials (>= 6.8:1) */
+  --game-key-y-ink: #ffd859;
+  --game-key-y-bg: rgba(255, 210, 74, 0.14);
+  --game-key-y-border: #c7921e;
+  --game-key-b-ink: #6be0ff;
+  --game-key-b-bg: rgba(78, 216, 255, 0.14);
+  --game-key-b-border: #2686ba;
+  --game-key-r-ink: #ff8291;
+  --game-key-r-bg: rgba(255, 82, 104, 0.15);
+  --game-key-r-border: #c73a4c;
+
+  --game-hard-ink: #ff8594;
+  --game-hard-bg: rgba(255, 82, 104, 0.16);
+  --game-hard-border: #ff5c70;
+  --game-hard-shadow: rgba(255, 82, 104, 0.32);
+
+  --game-colormode-ink: #8eeaff;
+  --game-colormode-bg: rgba(78, 216, 255, 0.16);
+  --game-colormode-border: #4ed8ff;
+
+  --game-dmg-safe-ink: #5cf298;
+  --game-dmg-safe-bg: rgba(66, 242, 136, 0.13);
+  --game-dmg-safe-border: #38c971;
+  --game-dmg-warn-ink: #ffd859;
+  --game-dmg-warn-bg: rgba(255, 210, 74, 0.13);
+  --game-dmg-warn-border: #c99c1d;
+  --game-dmg-high-ink: #ffa35c;
+  --game-dmg-high-bg: rgba(255, 138, 61, 0.15);
+  --game-dmg-high-border: #e6782e;
+  --game-dmg-lethal-ink: #ffffff;
+  --game-dmg-lethal-bg: #c92235;
+  --game-dmg-lethal-border: #ff5c6e;
+
+  --game-sp-firstStrike-ink: #ffd859;
+  --game-sp-firstStrike-bg: rgba(255, 210, 74, 0.12);
+  --game-sp-firstStrike-border: #c99b1e;
+  --game-sp-magic-ink: #e2a8ff;
+  --game-sp-magic-bg: rgba(207, 117, 255, 0.14);
+  --game-sp-magic-border: #a652d9;
+  --game-sp-solid-ink: #7ae6ff;
+  --game-sp-solid-bg: rgba(78, 216, 255, 0.13);
+  --game-sp-solid-border: #2e9cc4;
+  --game-sp-doubleHit-ink: #ffad6b;
+  --game-sp-doubleHit-bg: rgba(255, 138, 61, 0.14);
+  --game-sp-doubleHit-border: #d97228;
+  --game-sp-tripleHit-ink: #ff947d;
+  --game-sp-tripleHit-bg: rgba(255, 107, 74, 0.14);
+  --game-sp-tripleHit-border: #d9543b;
+  --game-sp-vampire-ink: #ff8291;
+  --game-sp-vampire-bg: rgba(255, 82, 104, 0.14);
+  --game-sp-vampire-border: #d13b4f;
+  --game-sp-armorBreak-ink: #ffbf75;
+  --game-sp-armorBreak-bg: rgba(255, 159, 67, 0.14);
+  --game-sp-armorBreak-border: #d9872b;
+  --game-sp-berserk-ink: #ff7a86;
+  --game-sp-berserk-bg: rgba(255, 71, 87, 0.15);
+  --game-sp-berserk-border: #d93848;
+  --game-sp-thorns-ink: #96fa89;
+  --game-sp-thorns-bg: rgba(124, 245, 108, 0.13);
+  --game-sp-thorns-border: #49b83d;
+
+  /* Dark-Surface Minesweeper (Raised Warm-Charcoal Tiles vs Sunken Deep Floor) */
+  --mine-board-bg: #11100d;
+  --mine-board-border: var(--cli-border);
+  --mine-cell-closed-bg: #3b3730;
+  --mine-cell-closed-hover: #4a453c;
+  --mine-cell-bevel-hi: rgba(255, 250, 238, 0.24);
+  --mine-cell-bevel-lo: rgba(0, 0, 0, 0.65);
+  --mine-cell-open-bg: #171612;
+  --mine-cell-open-border: #2c2923;
+  --mine-flag-ink: #ff6e7c;
+  --mine-flag-bg: #3d2828;
+  --mine-bomb-bg: #2e2624;
+  --mine-bomb-ink: #f0ede3;
+  --mine-exploded-bg: #d12a3a;
+  --mine-exploded-ink: #ffffff;
+  --mine-wrong-bg: #3d2226;
+  --mine-wrong-ink: #ff8291;
+  --mine-wrong-border: #ff5c6e;
+  --mine-num-1: #68b5ff;
+  --mine-num-2: #5fe380;
+  --mine-num-3: #ff6e7c;
+  --mine-num-4: #b29eff;
+  --mine-num-5: #ffa15c;
+  --mine-num-6: #4de3e0;
+  --mine-num-7: #f2f4f8;
+  --mine-num-8: #b8bfcc;
+  --mine-num-high-shadow: none;
+
+  /* CLI 2048 Tray & High-Contrast Jewel Tiles */
+  --g2048-board-bg: #141310;
+  --g2048-board-border: var(--cli-border);
+  --g2048-empty-bg: #262420;
+  --g2048-empty-border: #3a362e;
+  --g2048-t2-bg: #f4ede1;
+  --g2048-t2-ink: #231f1a;
+  --g2048-t2-border: #d8cebd;
+  --g2048-t4-bg: #ecdcb8;
+  --g2048-t4-ink: #231f1a;
+  --g2048-t4-border: #ceb98d;
+  --g2048-t8-bg: #f2a65a;
+  --g2048-t8-ink: #1c140c;
+  --g2048-t8-border: #c97d32;
+  --g2048-t16-bg: #f07c3e;
+  --g2048-t16-ink: #1a0e06;
+  --g2048-t16-border: #bf541b;
+  --g2048-t32-bg: #d63d2e;
+  --g2048-t32-ink: #ffffff;
+  --g2048-t32-border: #a62519;
+  --g2048-t64-bg: #c42330;
+  --g2048-t64-ink: #ffffff;
+  --g2048-t64-border: #8f141e;
+  --g2048-t128-bg: #e8bc2c;
+  --g2048-t128-ink: #1a1404;
+  --g2048-t128-border: #b58c0d;
+  --g2048-t256-bg: #f2cb38;
+  --g2048-t256-ink: #1a1404;
+  --g2048-t256-border: #c29b10;
+  --g2048-t512-bg: #147548;
+  --g2048-t512-ink: #ffffff;
+  --g2048-t512-border: #0d5232;
+  --g2048-t1024-bg: #1e60c8;
+  --g2048-t1024-ink: #ffffff;
+  --g2048-t1024-border: #12408a;
+  --g2048-t2048-bg: #7c2ae8;
+  --g2048-t2048-ink: #ffffff;
+  --g2048-tsuper-bg: #171a26;
+  --g2048-tsuper-ink: #ffd859;
+  --g2048-high-shadow: inset 0 0 0 2px #ffd859, 0 0 10px rgba(255, 210, 74, 0.35);
+}
+
+/* CLI Light (Warm Parchment Paper) — overrides dark CLI defaults for light surface polarity */
+html[data-os="cli"][data-theme="light"] {
+  --game-stage-bg: #171612;
+  --game-floor-dot: #38352c;
+  --game-wall-mortar: #0b0a08;
+  --game-wall-brick: #585143;
+  --game-wall-hi: #9c917d;
+  --game-entity-ink: #f5f2ea;
+  --game-entity-hi: #ffbe85;
+
+  --game-accent-ink: #a63d20;
+  --game-panel-bg: #ffffff;
+  --game-panel-alt-bg: var(--cli-surface);
+  --game-modal-bg: #faf9f5;
+  --game-modal-border: #2b2822;
+  --game-modal-shadow: 0 14px 36px rgba(43, 40, 34, 0.28);
+  --game-modal-head-bg: #2b2822;
+  --game-modal-head-ink: #faf9f5;
+  --game-modal-head-border: #2b2822;
+  --game-modal-close-bg: #faf9f5;
+  --game-modal-close-ink: #2b2822;
+  --game-modal-close-border: #faf9f5;
+  --game-modal-close-hover-bg: #e5dfd1;
+
+  --game-disabled-bg: #ece7db;
+  --game-disabled-ink: #4a453c;
+  --game-disabled-border: #8f8778;
+
+  --mine-board-bg: #ccc5b6;
+  --mine-board-border: #2b2822;
+  --mine-cell-closed-bg: #e2ddd0;
+  --mine-cell-closed-hover: #d8d1c0;
+  --mine-cell-bevel-hi: #ffffff;
+  --mine-cell-bevel-lo: #8c8475;
+  --mine-cell-open-bg: #faf9f5;
+  --mine-cell-open-border: #d5cfc1;
+
+  --g2048-board-bg: #2b2822;
+  --g2048-board-border: #2b2822;
+  --g2048-empty-bg: #3e3a32;
+  --g2048-empty-border: #524d42;
+}
+
+/* CLI Dark (Jet Black) */
+html[data-os="cli"][data-theme="dark"] {
+  --game-stage-bg: #08090c;
+  --game-floor-dot: #232733;
+  --game-wall-mortar: #020305;
+  --game-wall-brick: #444a59;
+  --game-wall-hi: #808ba3;
+  --game-entity-ink: #f2f4f8;
+  --game-entity-hi: #ff9c80;
+
+  --game-accent-ink: #ff8b6c;
+  --game-modal-bg: #141417;
+  --game-modal-head-bg: #1f2026;
+  --game-modal-head-ink: #f4f4f6;
+  --game-modal-close-bg: #0d0d10;
+  --game-modal-close-ink: #f4f4f6;
+  --game-disabled-bg: #1f2024;
+  --game-disabled-ink: #b8bac2;
+  --game-disabled-border: #5f616b;
+
+  --mine-board-bg: #08090c;
+  --mine-cell-closed-bg: #292c34;
+  --mine-cell-closed-hover: #363a45;
+  --mine-cell-open-bg: #101116;
+  --mine-cell-open-border: #23252d;
+
+  --g2048-board-bg: #0b0c10;
+  --g2048-empty-bg: #1b1d24;
+  --g2048-empty-border: #2e313d;
+}
+
+/* CLI Matrix (CRT Phosphor Green) */
+html[data-os="cli"][data-theme="matrix"] {
+  --game-stage-bg: #020b05;
+  --game-stage-grid: rgba(61, 255, 110, 0.13);
+  --game-floor-dot: #0d3b1c;
+  --game-wall-mortar: #010603;
+  --game-wall-brick: #185e30;
+  --game-wall-hi: #4aff82;
+  --game-entity-outline: #010803;
+  --game-entity-shadow: #22b04f;
+  --game-entity-ink: #4dff7a;
+  --game-entity-hi: #c4ffd6;
+  --game-badge-bg: #010803;
+  --game-path-dot: #3dff6e;
+  --game-reticle: #c4ffd6;
+  --game-stage-overlay-bg: rgba(2, 12, 6, 0.92);
+  --game-stage-overlay-ink: #52ff82;
+  --game-stage-overlay-muted: #28bf58;
+
+  --game-accent-ink: #8dffa9;
+  --game-modal-bg: #04140a;
+  --game-modal-border: #3dff6e;
+  --game-modal-head-bg: #082914;
+  --game-modal-head-ink: #8dffa9;
+  --game-modal-head-border: #1e8f44;
+  --game-modal-close-bg: #020b05;
+  --game-modal-close-ink: #8dffa9;
+  --game-modal-close-border: #27a852;
+  --game-disabled-bg: #072011;
+  --game-disabled-ink: #57d67e;
+  --game-disabled-border: #1d753b;
+
+  --mine-board-bg: #020b05;
+  --mine-board-border: #27a852;
+  --mine-cell-closed-bg: #0e381c;
+  --mine-cell-closed-hover: #154f28;
+  --mine-cell-bevel-hi: rgba(141, 255, 169, 0.35);
+  --mine-cell-bevel-lo: rgba(0, 0, 0, 0.72);
+  --mine-cell-open-bg: #031208;
+  --mine-cell-open-border: #124022;
+
+  --g2048-board-bg: #031208;
+  --g2048-board-border: #27a852;
+  --g2048-empty-bg: #092613;
+  --g2048-empty-border: #164f2a;
+}
+
+/* --------------------------------------------------------------------------
+   6. Pixel OS (data-os="pixel") — Crisp 1-Bit Mac Paper / Mint / Sky & Dark Slate
+   -------------------------------------------------------------------------- */
+html[data-os="pixel"] {
+  --game-stage-bg: #131622;
+  --game-stage-grid: rgba(164, 184, 255, 0.11);
+  --game-stage-border: var(--px-ink);
+  --game-stage-shadow: 3px 3px 0 var(--px-shadow);
+  --game-floor-dot: #2b324c;
+  --game-wall-mortar: #0a0c14;
+  --game-wall-brick: #445073;
+  --game-wall-hi: #7a8ec2;
+  --game-entity-outline: #080a10;
+  --game-entity-shadow: #7c89ad;
+  --game-entity-ink: #f2f5ff;
+  --game-entity-hi: #7ce2ff;
+  --game-badge-bg: #090b12;
+  --game-path-dot: #7680ff;
+  --game-reticle: #ffcb3d;
+  --game-stage-overlay-bg: rgba(14, 17, 28, 0.91);
+  --game-stage-overlay-ink: #ffffff;
+  --game-stage-overlay-muted: #c8d0e8;
+
+  --game-accent-ink: var(--px-accent);
+  --game-panel-bg: var(--px-paper);
+  --game-panel-alt-bg: var(--px-surface-alt);
+  --game-modal-bg: var(--px-paper);
+  --game-modal-border: var(--px-ink);
+  --game-modal-shadow: 4px 4px 0 var(--px-shadow);
+  --game-modal-head-bg: var(--px-ink);
+  --game-modal-head-ink: var(--px-paper);
+  --game-modal-head-border: var(--px-ink);
+  --game-modal-close-bg: var(--px-paper);
+  --game-modal-close-ink: var(--px-ink);
+  --game-modal-close-border: var(--px-paper);
+  --game-modal-close-hover-bg: var(--px-cta);
+
+  --game-disabled-bg: #e8e8ee;
+  --game-disabled-ink: #474752;
+  --game-disabled-border: #7e7e8c;
+
+  /* Classic System 7 / Win95 Raised Crisp Tiles vs Flat Paper Open Cells */
+  --mine-board-bg: #b8bac4;
+  --mine-board-border: var(--px-ink);
+  --mine-cell-closed-bg: #d7d9e0;
+  --mine-cell-closed-hover: #c9cde0;
+  --mine-cell-bevel-hi: #ffffff;
+  --mine-cell-bevel-lo: #6c7080;
+  --mine-cell-open-bg: #f7f8fa;
+  --mine-cell-open-border: #c3c6d1;
+
+  --g2048-board-bg: #1d2130;
+  --g2048-board-border: var(--px-ink);
+  --g2048-empty-bg: #2e3347;
+  --g2048-empty-border: #434a66;
+}
+
+html[data-os="pixel"][data-theme="mint"] {
+  --game-accent-ink: #2c6111;
+}
+
+html[data-os="pixel"][data-theme="sky"] {
+  --game-accent-ink: #1b548f;
+}
+
+/* Pixel Dark Preset ("Slate") — switches HUD & semantic badges to dark polarity */
+html[data-os="pixel"][data-theme="slate"] {
+  --game-stage-bg: #0c0e16;
+  --game-floor-dot: #242a40;
+  --game-wall-mortar: #06070c;
+  --game-wall-brick: #454f70;
+  --game-wall-hi: #8093c4;
+
+  --game-accent-ink: #8e97ff;
+  --game-backdrop-bg: rgba(5, 6, 10, 0.76);
+  --game-modal-bg: #18181d;
+  --game-modal-border: var(--px-ink);
+  --game-modal-head-bg: #ececec;
+  --game-modal-head-ink: #111115;
+  --game-modal-close-bg: #151518;
+  --game-modal-close-ink: #ececec;
+  --game-modal-close-border: #151518;
+  --game-modal-close-hover-bg: var(--px-cta);
+
+  --game-disabled-bg: #25252e;
+  --game-disabled-ink: #b6b6c4;
+  --game-disabled-border: #636373;
+
+  --game-key-y-ink: #ffd859;
+  --game-key-y-bg: rgba(255, 210, 74, 0.14);
+  --game-key-y-border: #c7921e;
+  --game-key-b-ink: #6be0ff;
+  --game-key-b-bg: rgba(78, 216, 255, 0.14);
+  --game-key-b-border: #2686ba;
+  --game-key-r-ink: #ff8291;
+  --game-key-r-bg: rgba(255, 82, 104, 0.15);
+  --game-key-r-border: #c73a4c;
+
+  --game-hard-ink: #ff8594;
+  --game-hard-bg: rgba(255, 82, 104, 0.16);
+  --game-hard-border: #ff5c70;
+  --game-hard-shadow: rgba(255, 82, 104, 0.35);
+
+  --game-colormode-ink: #8eeaff;
+  --game-colormode-bg: rgba(78, 216, 255, 0.16);
+  --game-colormode-border: #4ed8ff;
+
+  --game-dmg-safe-ink: #5cf298;
+  --game-dmg-safe-bg: rgba(66, 242, 136, 0.13);
+  --game-dmg-safe-border: #38c971;
+  --game-dmg-warn-ink: #ffd859;
+  --game-dmg-warn-bg: rgba(255, 210, 74, 0.13);
+  --game-dmg-warn-border: #c99c1d;
+  --game-dmg-high-ink: #ffa35c;
+  --game-dmg-high-bg: rgba(255, 138, 61, 0.15);
+  --game-dmg-high-border: #e6782e;
+  --game-dmg-lethal-ink: #ffffff;
+  --game-dmg-lethal-bg: #c92235;
+  --game-dmg-lethal-border: #ff5c6e;
+
+  --game-sp-firstStrike-ink: #ffd859;
+  --game-sp-firstStrike-bg: rgba(255, 210, 74, 0.12);
+  --game-sp-firstStrike-border: #c99b1e;
+  --game-sp-magic-ink: #e2a8ff;
+  --game-sp-magic-bg: rgba(207, 117, 255, 0.14);
+  --game-sp-magic-border: #a652d9;
+  --game-sp-solid-ink: #7ae6ff;
+  --game-sp-solid-bg: rgba(78, 216, 255, 0.13);
+  --game-sp-solid-border: #2e9cc4;
+  --game-sp-doubleHit-ink: #ffad6b;
+  --game-sp-doubleHit-bg: rgba(255, 138, 61, 0.14);
+  --game-sp-doubleHit-border: #d97228;
+  --game-sp-tripleHit-ink: #ff947d;
+  --game-sp-tripleHit-bg: rgba(255, 107, 74, 0.14);
+  --game-sp-tripleHit-border: #d9543b;
+  --game-sp-vampire-ink: #ff8291;
+  --game-sp-vampire-bg: rgba(255, 82, 104, 0.14);
+  --game-sp-vampire-border: #d13b4f;
+  --game-sp-armorBreak-ink: #ffbf75;
+  --game-sp-armorBreak-bg: rgba(255, 159, 67, 0.14);
+  --game-sp-armorBreak-border: #d9872b;
+  --game-sp-berserk-ink: #ff7a86;
+  --game-sp-berserk-bg: rgba(255, 71, 87, 0.15);
+  --game-sp-berserk-border: #d93848;
+  --game-sp-thorns-ink: #96fa89;
+  --game-sp-thorns-bg: rgba(124, 245, 108, 0.13);
+  --game-sp-thorns-border: #49b83d;
+
+  --mine-board-bg: #0f1016;
+  --mine-board-border: var(--px-ink);
+  --mine-cell-closed-bg: #2c2d38;
+  --mine-cell-closed-hover: #3a3c4a;
+  --mine-cell-bevel-hi: rgba(255, 255, 255, 0.22);
+  --mine-cell-bevel-lo: rgba(0, 0, 0, 0.72);
+  --mine-cell-open-bg: #15161e;
+  --mine-cell-open-border: #272936;
+  --mine-flag-ink: #ff6e7c;
+  --mine-flag-bg: #3b242a;
+  --mine-bomb-bg: #2a2428;
+  --mine-bomb-ink: #ececec;
+  --mine-exploded-bg: #d12a3a;
+  --mine-exploded-ink: #ffffff;
+  --mine-wrong-bg: #3d2226;
+  --mine-wrong-ink: #ff8291;
+  --mine-wrong-border: #ff5c6e;
+  --mine-num-1: #68b5ff;
+  --mine-num-2: #5fe380;
+  --mine-num-3: #ff6e7c;
+  --mine-num-4: #b29eff;
+  --mine-num-5: #ffa15c;
+  --mine-num-6: #4de3e0;
+  --mine-num-7: #f2f4f8;
+  --mine-num-8: #b8bfcc;
+
+  --g2048-board-bg: #0f1017;
+  --g2048-board-border: var(--px-ink);
+  --g2048-empty-bg: #20222e;
+  --g2048-empty-border: #33374a;
+}

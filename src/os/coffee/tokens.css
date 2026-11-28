@@ -1,0 +1,217 @@
+/* Coffee OS (data-os="coffee") — Vintage OS / 1933 Japanese Color Dictionary Tokens */
+
+html[data-os="coffee"] {
+  /* --- 1. Canonical Vintage OS Raw Swatches (roast default) --- */
+  --coffee-wall: #34454c;
+  --coffee-wall-dot: rgba(235, 211, 162, 0.14);
+  --coffee-cream: #f7f0e1;
+  --coffee-latte: #ede3cc;
+  --coffee-ivory: #fffdf7;
+  --coffee-white: #ffffff;
+  --coffee-sand: #ebd3a2;
+  --coffee-ink: #1e2629;
+  --coffee-ink-60: rgba(30, 38, 41, 0.62);
+  --coffee-ink-28: rgba(30, 38, 41, 0.28);
+  --coffee-ink-14: rgba(30, 38, 41, 0.14);
+  --coffee-accent: #bb7125;
+  --coffee-accent-deep: #8a4f14;
+  --coffee-accent-ink: #ffffff;
+  --coffee-olive: #6b7140;
+  --coffee-error: #d92121;
+  --coffee-boot: #0f1416;
+  --coffee-icon-hover: rgba(235, 211, 162, 0.16);
+
+  /* --- 2. Shared Semantic OS Token Contract --- */
+  --os-desktop-bg: var(--coffee-wall);
+  --os-desktop-pattern: radial-gradient(var(--coffee-wall-dot) 1px, transparent 1.4px);
+  --os-desktop-pattern-size: 24px 24px;
+  --os-surface: var(--coffee-cream);
+  --os-surface-alt: var(--coffee-latte);
+  --os-surface-elevated: var(--coffee-ivory);
+  --os-taskbar-bg: var(--coffee-cream);
+  --os-topbar-bg: var(--coffee-cream);
+  --os-window-bar-bg: var(--coffee-latte);
+
+  --os-ink: var(--coffee-ink);
+  --os-ink-muted: var(--coffee-ink-60);
+  --os-ink-inverse: var(--coffee-accent-ink);
+
+  --os-border: var(--coffee-ink-28);
+  --os-border-strong: var(--coffee-ink);
+  --os-window-shadow: 6px 6px 0 var(--coffee-ink);
+  --os-menu-shadow: 4px 4px 0 var(--coffee-ink);
+  --os-radius-window: 0px;
+  --os-radius-control: 4px;
+  --os-radius-pill: 100px;
+
+  --os-accent: var(--coffee-accent);
+  --os-accent-hover: var(--coffee-accent-deep);
+  --os-accent-ink: var(--coffee-accent-ink);
+  --os-status-ok: var(--coffee-olive);
+
+  --os-titlebar-bg: var(--coffee-cream);
+  --os-titlebar-ink: var(--coffee-ink);
+  --os-titlebar-pattern: none;
+  --os-titlebar-inactive-bg: var(--coffee-latte);
+  --os-titlebar-inactive-ink: var(--coffee-ink-60);
+
+  /* --- 3. Bundled Typography (Instrument Serif × DM Sans Variable × DM Mono + CJK) --- */
+  --font-display: "Instrument Serif", "Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
+  --font-sans: "DM Sans Variable", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", system-ui, sans-serif;
+  --font-mono: "DM Mono", "Sarasa Mono SC", "LXGW WenKai Mono", "PingFang SC", monospace;
+  --os-font-body: var(--font-sans);
+  --os-font-features: normal;
+
+  /* Responsive Type Scale Mapped to Shared App Tokens */
+  --type-h1: 124px;
+  --type-h2: 44px;
+  --type-h3: 32px;
+  --type-article-h2: 32px;
+  --type-article-h3: 24px;
+  --type-article-h4: 20px;
+  --type-lead: 16px;
+  --type-body: 15px;
+  --type-label: 12px;
+  --type-quote: 18px;
+  --type-nav: 13.5px;
+  --type-quiet: 12px;
+  --type-table: 14px;
+  --hero-line: 0.95;
+  --body-line: 1.55;
+
+  /* --- 4. Dynamic Paper-and-Ink Cursors (classic-ink) --- */
+  --os-cursor-fill: var(--coffee-ivory);
+  --os-cursor-stroke: var(--coffee-ink);
+  --os-cursor-hi: var(--coffee-sand);
+  --os-cursor-side: var(--coffee-accent);
+
+  /* --- 5. Chrome Layout Heights --- */
+  --topbar-height: 32px;
+  --taskbar-height: 82px;
+
+  /* --- 6. Legacy App Compatibility Bridge (All 20+ Shared Apps & 6 Games) --- */
+  /* Keep both --ground and --ground-fullscreen warm cream so fullscreen mode never breaks app contrast. */
+  --ground: var(--coffee-cream);
+  --ground-fullscreen: var(--coffee-cream);
+  --lit: var(--coffee-ink);
+  --lit-72: var(--coffee-ink-60);
+  --lit-28: var(--coffee-ink-28);
+  --lit-10: var(--coffee-latte);
+  --hi: var(--coffee-accent-deep);
+  --side: var(--coffee-ink);
+  --accent: var(--coffee-accent);
+  --accent-ink: var(--coffee-accent-ink);
+
+  /* --- 7. Warm Editorial Print CRT Optics Profile --- */
+  --crt-screen-blend: normal;
+  --crt-bloom-opacity: 0.06;
+  --crt-contour-opacity: 0.88;
+  --scanline-alpha: 0.12;
+  --crt-grille-alpha: 0.05;
+  --crt-aging-tint: rgb(36 32 26 / 0.04);
+  --crt-vignette-rgb: 28 24 20;
+  --vignette-alpha: 0.16;
+  --flicker-display: none;
+  --glass-glare-opacity: 1;
+  --text-glow-body: none;
+  --text-glow-heading: none;
+
+  /* --- 8. Editorial Print Shiki Code Highlighting --- */
+  --astro-code-color-text: var(--coffee-ink);
+  --astro-code-color-background: var(--coffee-latte);
+  --astro-code-token-constant: var(--coffee-accent);
+  --astro-code-token-string: var(--coffee-olive);
+  --astro-code-token-comment: var(--coffee-ink-60);
+  --astro-code-token-keyword: var(--coffee-accent-deep);
+  --astro-code-token-parameter: var(--coffee-ink);
+  --astro-code-token-function: var(--coffee-ink);
+  --astro-code-token-string-expression: var(--coffee-olive);
+  --astro-code-token-punctuation: rgba(30, 38, 41, 0.55);
+  --astro-code-token-link: var(--coffee-accent-deep);
+}
+
+/* Harmonious 1933 Japanese Color Dictionary Companion Presets */
+html[data-os="coffee"][data-theme="matcha"] {
+  --coffee-wall: #2d3d35;
+  --coffee-wall-dot: rgba(220, 224, 184, 0.14);
+  --coffee-cream: #f4f2e6;
+  --coffee-latte: #e5e3d2;
+  --coffee-sand: #dce0b8;
+  --coffee-accent: #5b6e3d;
+  --coffee-accent-deep: #3f4f28;
+  --coffee-olive: #5b6e3d;
+  --coffee-icon-hover: rgba(220, 224, 184, 0.16);
+}
+
+html[data-os="coffee"][data-theme="indigo"] {
+  --coffee-wall: #2a3647;
+  --coffee-wall-dot: rgba(215, 223, 234, 0.14);
+  --coffee-cream: #f3f1ec;
+  --coffee-latte: #e5e1d8;
+  --coffee-sand: #d7dfea;
+  --coffee-accent: #3b6289;
+  --coffee-accent-deep: #274463;
+  --coffee-olive: #4b7365;
+  --coffee-icon-hover: rgba(215, 223, 234, 0.16);
+}
+
+html[data-os="coffee"][data-theme="oat"] {
+  --coffee-wall: #4a4640;
+  --coffee-wall-dot: rgba(232, 223, 207, 0.16);
+  --coffee-cream: #faf7f0;
+  --coffee-latte: #eee8dc;
+  --coffee-sand: #e8dfcf;
+  --coffee-accent: #8a4f14;
+  --coffee-accent-deep: #62360b;
+  --coffee-olive: #6b7140;
+  --coffee-icon-hover: rgba(232, 223, 207, 0.16);
+}
+
+/* Reading Mode: Pure archival paper clarity */
+html[data-os="coffee"][data-reading="on"] {
+  --scanline-alpha: 0;
+  --crt-grille-alpha: 0;
+  --crt-aging-tint: transparent;
+  --vignette-alpha: 0.05;
+  --crt-bloom-opacity: 0;
+  --crt-contour-opacity: 0.2;
+  --glass-glare-opacity: 0;
+  --text-glow-body: none;
+  --text-glow-heading: none;
+}
+
+/* Fullscreen type boost */
+html[data-os="coffee"][data-zoom="fullscreen"] {
+  --type-h1: 132px;
+}
+
+@media (max-width: 1199px) {
+  html[data-os="coffee"] {
+    --type-h1: 96px;
+    --type-h2: 40px;
+    --type-h3: 26px;
+    --type-article-h2: 28px;
+    --type-article-h3: 22px;
+    --type-body: 15px;
+    --body-line: 1.5;
+  }
+}
+
+@media (max-width: 809px) {
+  html[data-os="coffee"] {
+    --type-h1: 54px;
+    --type-h2: 34px;
+    --type-h3: 20px;
+    --type-article-h2: 26px;
+    --type-article-h3: 20px;
+    --type-article-h4: 18px;
+    --type-lead: 15px;
+    --type-body: 14.5px;
+    --type-label: 11.5px;
+    --type-nav: 13px;
+    --type-quiet: 11.5px;
+    --type-table: 13.5px;
+    --hero-line: 0.96;
+    --taskbar-height: 74px;
+  }
+}

@@ -1,10 +1,18 @@
-import { canBeatMonster, getDamageInfo, getDefDamageReduction, getNextCritical } from './combat';
-import { ITEMS, MONSTERS, SHOPS } from './data';
+import { SPECIAL_META, canBeatMonster, getDamageInfo, getDefDamageReduction, getNextCritical } from './combat';
+import {
+  DIFFICULTY_META,
+  ITEMS,
+  SHOPS,
+  formatShopCostText,
+  getMonsterDef,
+  getShopOptionCost,
+} from './data';
 import { FLOORS, MAP_SIZE } from './floors';
 import type {
   CriticalInfo,
   DamageInfo,
   DialogueState,
+  Difficulty,
   Direction,
   FloorDef,
   GameState,
@@ -53,15 +61,17 @@ export function getFloorDef(floor: number): FloorDef {
   return FLOORS[floor] ?? FLOORS[0];
 }
 
-export function createInitialState(): GameState {
+export function createInitialState(difficulty: Difficulty = 'standard'): GameState {
   const start = FLOORS[0].fromBelow;
+  const meta = DIFFICULTY_META[difficulty];
   return {
+    difficulty,
     floor: 0,
     maxFloor: 0,
     visitedFloors: [0],
     hero: {
       lv: 1,
-      hp: 1000,
+      hp: meta.initHp,
       atk: 10,
       def: 10,
       gold: 0,
@@ -85,6 +95,7 @@ export function createInitialState(): GameState {
     steps: 0,
     battlesWon: 0,
     playSeconds: 0,
+    shopPurchases: {},
     cleared: {},
     flags: {
       gate0fOpened: false,
@@ -100,7 +111,9 @@ export function createInitialState(): GameState {
       victory: false,
       discoveredShops: [],
     },
-    log: ['抵达魔塔入口，请与左侧守塔仙子对话开启塔门。'],
+    log: [
+      `[${meta.label}] 抵达魔塔入口，请与左侧守塔仙子对话开启塔门。`,
+    ],
     dialogue: null,
     activeShop: null,
     lastCombat: null,
@@ -117,6 +130,7 @@ export function cloneState(state: GameState): GameState {
     visitedFloors: [...state.visitedFloors],
     hero: { ...state.hero },
     relics: { ...state.relics },
+    shopPurchases: { ...state.shopPurchases },
     cleared,
     flags: {
       ...state.flags,
@@ -217,25 +231,25 @@ function applyItemPickup(next: GameState, itemId: ItemId): { log: string; sound:
       next.hero.yellowKeys += 1;
       next.hero.blueKeys += 1;
       next.hero.redKeys += 1;
-      return { log: '获得钥匙盒：[Y]铜/[B]银/[R]金钥匙各 +1', sound: 'item' };
+      return { log: '获得三色钥匙盒：[Y]黄/[B]蓝/[R]红钥匙各 +1', sound: 'item' };
     case 'redGem':
       next.hero.atk += 3;
-      return { log: '拾取攻击晶石：攻击 +3', sound: 'gem' };
+      return { log: '拾取红攻晶石：攻击 +3', sound: 'gem' };
     case 'blueGem':
       next.hero.def += 3;
-      return { log: '拾取防御晶石：防御 +3', sound: 'gem' };
+      return { log: '拾取蓝防晶石：防御 +3', sound: 'gem' };
     case 'bigRedGem':
       next.hero.atk += 8;
-      return { log: '拾取高阶攻晶：攻击 +8', sound: 'gem' };
+      return { log: '拾取高阶红晶：攻击 +8', sound: 'gem' };
     case 'bigBlueGem':
       next.hero.def += 8;
-      return { log: '拾取高阶防晶：防御 +8', sound: 'gem' };
+      return { log: '拾取高阶蓝晶：防御 +8', sound: 'gem' };
     case 'redPotion':
       next.hero.hp += 200;
-      return { log: '饮用小血瓶：生命 +200', sound: 'potion' };
+      return { log: '饮用小回血瓶：生命 +200', sound: 'potion' };
     case 'bluePotion':
       next.hero.hp += 500;
-      return { log: '饮用大血瓶：生命 +500', sound: 'potion' };
+      return { log: '饮用大回血壶：生命 +500', sound: 'potion' };
     case 'holyWater':
       next.hero.hp = Math.min(999999, next.hero.hp * 2);
       return { log: `饮用圣水：生命翻倍至 ${next.hero.hp}！`, sound: 'potion' };
@@ -248,37 +262,37 @@ function applyItemPickup(next: GameState, itemId: ItemId): { log: string; sound:
       equipShieldIfStronger(next.hero, item.name);
       return { log: '装备铁盾：防御 +10', sound: 'gem' };
     case 'sword2':
-      next.hero.atk += 30;
+      next.hero.atk += 25;
       equipWeaponIfStronger(next.hero, item.name);
-      return { log: '装备银剑：攻击 +30', sound: 'gem' };
+      return { log: '装备银剑：攻击 +25', sound: 'gem' };
     case 'shield2':
-      next.hero.def += 30;
+      next.hero.def += 25;
       equipShieldIfStronger(next.hero, item.name);
-      return { log: '装备银盾：防御 +30', sound: 'gem' };
+      return { log: '装备银盾：防御 +25', sound: 'gem' };
     case 'sword3':
-      next.hero.atk += 65;
+      next.hero.atk += 50;
       equipWeaponIfStronger(next.hero, item.name);
-      return { log: '装备骑士剑：攻击 +65', sound: 'gem' };
+      return { log: '装备骑士剑：攻击 +50', sound: 'gem' };
     case 'shield3':
-      next.hero.def += 65;
+      next.hero.def += 50;
       equipShieldIfStronger(next.hero, item.name);
-      return { log: '装备骑士盾：防御 +65', sound: 'gem' };
+      return { log: '装备骑士盾：防御 +50', sound: 'gem' };
     case 'sword4':
-      next.hero.atk += 110;
+      next.hero.atk += 85;
       equipWeaponIfStronger(next.hero, item.name);
-      return { log: '装备圣剑：攻击 +110', sound: 'gem' };
+      return { log: '装备圣剑：攻击 +85', sound: 'gem' };
     case 'shield4':
-      next.hero.def += 110;
+      next.hero.def += 85;
       equipShieldIfStronger(next.hero, item.name);
-      return { log: '装备圣盾：防御 +110', sound: 'gem' };
+      return { log: '装备圣盾：防御 +85', sound: 'gem' };
     case 'sword5':
-      next.hero.atk += 160;
+      next.hero.atk += 130;
       equipWeaponIfStronger(next.hero, item.name);
-      return { log: '装备神圣剑：攻击 +160', sound: 'gem' };
+      return { log: '装备神圣剑：攻击 +130', sound: 'gem' };
     case 'shield5':
-      next.hero.def += 160;
+      next.hero.def += 130;
       equipShieldIfStronger(next.hero, item.name);
-      return { log: '装备神圣盾：防御 +160', sound: 'gem' };
+      return { log: '装备神圣盾：防御 +130', sound: 'gem' };
     case 'book':
       next.relics.book = true;
       return { log: '获得【怪物手册】：已解锁地图显伤与临界图鉴 (按 B 查看)', sound: 'gem' };
@@ -287,10 +301,10 @@ function applyItemPickup(next: GameState, itemId: ItemId): { log: string; sound:
       return { log: '获得【楼层传送器】：可自由飞往已到达的楼层 (按 F 传送)', sound: 'gem' };
     case 'cross':
       next.relics.cross = true;
-      return { log: '获得【十字架】：交给 0F 守塔仙子可提升全属性 33%！', sound: 'gem' };
+      return { log: '获得【圣光十字架】：留到后期再交给 0F 守塔仙子，百分比增幅最惊人！', sound: 'gem' };
     case 'pickaxe':
       next.relics.pickaxe = true;
-      return { log: '获得【破墙镐】：可击碎裂纹墙，交给 4F 杰克可开 18F 密门', sound: 'gem' };
+      return { log: '获得【破墙镐】：可击碎 10F 裂纹暗墙，交给 4F 杰克可开 18F 密门', sound: 'gem' };
     case 'coin':
       next.relics.coin = true;
       return { log: '获得【幸运金币】：此后击杀怪物获得双倍金币！', sound: 'gem' };
@@ -299,16 +313,16 @@ function applyItemPickup(next: GameState, itemId: ItemId): { log: string; sound:
       return { log: '拾取钱袋：金币 +300', sound: 'item' };
     case 'featherSmall':
       next.hero.lv += 1;
-      next.hero.hp += 700;
-      next.hero.atk += 7;
-      next.hero.def += 7;
-      return { log: '获得小飞羽：等级 +1 (HP+700 攻+7 防+7)', sound: 'gem' };
+      next.hero.hp += 600;
+      next.hero.atk += 6;
+      next.hero.def += 6;
+      return { log: '获得小飞羽：等级 +1 (HP+600 攻+6 防+6)', sound: 'gem' };
     case 'featherBig':
       next.hero.lv += 3;
-      next.hero.hp += 2100;
-      next.hero.atk += 21;
-      next.hero.def += 21;
-      return { log: '获得大飞羽：等级 +3 (HP+2100 攻+21 防+21)', sound: 'gem' };
+      next.hero.hp += 1600;
+      next.hero.atk += 16;
+      next.hero.def += 16;
+      return { log: '获得大飞羽：等级 +3 (HP+1600 攻+16 防+16)', sound: 'gem' };
   }
 }
 
@@ -318,6 +332,9 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
     if (logLine) next.log = appendLog(next.log, logLine);
     return { state: next, changed: true, checkpoint: Boolean(logLine), sound };
   };
+
+  const diffMeta = DIFFICULTY_META[next.difficulty];
+  const crossPct = next.difficulty === 'hard' ? '28%' : '33%';
 
   switch (npcId) {
     case 'fairy0f': {
@@ -331,10 +348,10 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
             speaker: '守塔仙子 (0F)',
             sprite: 'npc_fairy',
             lines: [
-              '冒险者，这座 21 层魔塔封锁着失落的信号核心与被囚的守望者。',
-              '我为你打开塔门，并赠你 [Y]铜、[B]银、[R]金钥匙各一把。',
-              '1F 入口处放着【怪物手册】，拾取后即可查看每位怪物的伤害与临界值。',
-              '若你能在 7F 找回遗失的【十字架】，请带回给我——但记住：越晚交给我，百分比增幅越惊人！',
+              `冒险者，这座 21 层魔塔（${diffMeta.label}）每层机关格局迥异，钥匙与商店均已紧平衡设计。`,
+              '我为你打开塔门，并赠你 [Y]黄、[B]蓝、[R]红钥匙各一把——每扇门都请三思再开。',
+              '1F 入口处放着【怪物手册】，拾取后即可查看每位怪物的战损分级与攻击临界值。',
+              `若你在 7F 找回【圣光十字架】，切记留到 20F 决战前再交给我，全属性 +${crossPct} 的增幅才能最大化！`,
             ],
             index: 0,
           },
@@ -344,9 +361,9 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
       }
       if (next.relics.cross && !next.flags.crossDelivered) {
         next.flags.crossDelivered = true;
-        const hpGain = Math.floor(next.hero.hp / 3);
-        const atkGain = Math.floor(next.hero.atk / 3);
-        const defGain = Math.floor(next.hero.def / 3);
+        const hpGain = Math.floor(next.hero.hp * diffMeta.crossRatio);
+        const atkGain = Math.floor(next.hero.atk * diffMeta.crossRatio);
+        const defGain = Math.floor(next.hero.def * diffMeta.crossRatio);
         next.hero.hp += hpGain;
         next.hero.atk += atkGain;
         next.hero.def += defGain;
@@ -355,13 +372,13 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
             speaker: '守塔仙子 (0F)',
             sprite: 'npc_fairy',
             lines: [
-              '你真的找回了十字架！以圣光为誓，我将你的力量全面升华！',
-              `生命 +${hpGain}，攻击 +${atkGain}，防御 +${defGain}（全属性提升约 33%）。`,
-              '带着这份力量直冲塔顶吧！',
+              '你真的找回了圣光十字架！以圣光为誓，我将你的力量全面升华！',
+              `生命 +${hpGain}，攻击 +${atkGain}，防御 +${defGain}（全属性提升 ${crossPct}）。`,
+              '带着这份力量直冲塔顶王座吧！',
             ],
             index: 0,
           },
-          `献上十字架：HP+${hpGain} 攻+${atkGain} 防+${defGain}！`,
+          `献上圣光十字架：HP+${hpGain} 攻+${atkGain} 防+${defGain}！`,
           'victory',
         );
       }
@@ -378,8 +395,8 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
         sprite: 'npc_fairy',
         lines: [
           next.flags.crossDelivered
-            ? '圣光已与你同在，随时可以用快捷键 G 存档、Z 撤回。祝你登顶成功！'
-            : '找到 7F 的【十字架】后再回来找我吧。留到中后期再交给我收益更高哦！',
+            ? '圣光已与你同在，随时可用快捷键 G 存档、Z 撤回、C 切换色彩风格。祝你登顶成功！'
+            : `找到 7F 的【圣光十字架】后再回来找我吧。越晚提交（如 20F 决战前），+${crossPct} 收益越高！`,
         ],
         index: 0,
       });
@@ -390,9 +407,9 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
         speaker: '引路老人 (1F)',
         sprite: 'npc_sage',
         lines: [
-          '先拿走旁边的【怪物手册】吧！按 B 键可随时打开当前楼层的怪物图鉴。',
-          '鼠标悬停怪物即可预览伤血、临界值（再加几点攻可少挨一刀）与 +1 防减伤。',
-          '走错步或开错门也别慌，按 Z 键可随时撤回上一步！',
+          '先拿走正前方的【怪物手册】吧！按 B 键可随时打开当前楼层的怪物图鉴。',
+          '3F 与 11F 祭坛每次购买都会涨价，前期切忌把金币全部花光；多余钥匙可在 12F 卖出换钱！',
+          '走错步或开错门也别慌，按 Z 键可随时撤回上一步，按 C 键可切换荧光彩标 / 全彩复古风格。',
         ],
         index: 0,
       });
@@ -400,44 +417,44 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
     case 'blacksmith2f':
       if (!next.flags.blacksmithRewarded) {
         next.flags.blacksmithRewarded = true;
-        next.hero.atk += 30;
+        next.hero.atk += 15;
         return showDialogue(
           {
             speaker: '铁匠大师 (2F)',
             sprite: 'npc_sage',
-            lines: ['多亏你与杰克打开了牢门！这把秘锻钢刃送给你，攻击力 +30！'],
+            lines: ['多亏你与杰克打开了牢门！这把秘锻钢刃送给你，攻击力 +15！'],
             index: 0,
           },
-          '铁匠大师赠予钢刃：攻击 +30！',
+          '铁匠大师赠予钢刃：攻击 +15！',
           'gem',
         );
       }
       return showDialogue({
         speaker: '铁匠大师 (2F)',
         sprite: 'npc_sage',
-        lines: ['遇到【坚固】石头怪时，堆攻击没用，提升防御力就能无伤防杀！'],
+        lines: ['遇到 6F【坚固】石头怪时，堆攻击没用，提升防御力就能大幅减伤甚至无伤防杀！'],
         index: 0,
       });
 
     case 'armorer2f':
       if (!next.flags.armorerRewarded) {
         next.flags.armorerRewarded = true;
-        next.hero.def += 30;
+        next.hero.def += 15;
         return showDialogue(
           {
             speaker: '护甲匠 (2F)',
             sprite: 'npc_merchant',
-            lines: ['终于重见天日！这面精钢轻盾请收下，防御力 +30！'],
+            lines: ['终于重见天日！这面精钢轻盾请收下，防御力 +15！'],
             index: 0,
           },
-          '护甲匠赠予轻盾：防御 +30！',
+          '护甲匠赠予轻盾：防御 +15！',
           'gem',
         );
       }
       return showDialogue({
         speaker: '护甲匠 (2F)',
         sprite: 'npc_merchant',
-        lines: ['高层有【圣水】能将当前生命翻倍，记得血多时再喝！'],
+        lines: ['全塔仅在 15F 有一瓶【圣水】可将当前生命翻倍，务必留到决战前高血量时饮用！'],
         index: 0,
       });
 
@@ -450,7 +467,7 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
             sprite: 'npc_thief',
             lines: [
               '谢天谢地！我叫杰克，擅长开各种机关暗门。',
-              '作为报答，我已经顺手帮你撬开了 2F 左下角的囚室机关门，里面的匠人会重谢你！',
+              '作为报答，我已经顺手帮你撬开了 2F 左下角的囚室机关门，里面的匠人会送你攻防装备！',
               '另外，如果你在 10F 找到我弄丢的【破墙镐】，带回来给我，我还能帮你打开 18F 的密室大门！',
             ],
             index: 0,
@@ -480,7 +497,7 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
         sprite: 'npc_thief',
         lines: [
           next.flags.thiefHelped18f
-            ? '18F 密室门已经为你打开，祝你早日击败顶层大魔王！'
+            ? '18F 密室门已经为你打开，祝你早日击败顶层暗影大魔王！'
             : '2F 左下角的囚室已经开了。如果找到了 10F 的【破墙镐】，记得回来找我！',
         ],
         index: 0,
@@ -491,9 +508,9 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
         speaker: '守望学者 (7F)',
         sprite: 'npc_sage',
         lines: [
-          '本塔共 21 层，分为三段试炼：1–7F 以突破血翼蝠王为界，8–16F 以炎魔领主为界，17–21F 为最终决战。',
-          '这层左右藏着【楼层传送器】与【十字架】。拿到楼传后按 F 键即可随时飞往商店与任意已达楼层！',
-          '提示：把【十字架】留到 15F–19F 甚至 20F 再交给 0F 仙子，33% 的全属性增幅会非常可观！',
+          '本塔共 21 层分 4 大试炼区：1–5F(骷髅队长)、6–10F(重甲铁骑)、11–16F(炎魔领主)、17–21F(暗影大魔王)。',
+          '北端左右蓝门内藏着【楼层传送器】与【圣光十字架】。拿到楼传后按 F 键即可随时飞回低层清怪与逛商店！',
+          `切记：把【圣光十字架】留到 20F 消费完金币与经验后再交 0F 仙子，+${crossPct} 的倍率收益远超前期！`,
         ],
         index: 0,
       });
@@ -503,9 +520,9 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
         speaker: '老兵向导 (10F)',
         sprite: 'npc_sage',
         lines: [
-          '中高层会出现三大特殊怪物：',
-          '【魔攻】无视防御，靠堆攻击抢临界回合；【坚固】防随你攻涨，靠高防防杀；【吸血】战前按比例扣血，趁血少时击杀最划算！',
-          '本层西北角有【破墙镐】，拿到后既可敲碎西侧裂纹墙，也能回去找 4F 杰克解锁 18F 密室。',
+          '高层 9 大战术词条应对口诀：',
+          '【魔攻/狂暴/反伤】怕高攻速杀与临界点；【坚固/先攻/2连/3连】极吃高防防杀；【破甲】无视部分防御需攻防兼修；【吸血】趁残血击杀最省血！',
+          '西北角有【破墙镐】，拿到后既可敲碎西侧裂纹墙拿高阶双晶，也能回去找 4F 杰克解锁 18F 密室。',
         ],
         index: 0,
       });
@@ -522,11 +539,11 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
       return showDialogue({
         speaker: '剑道宗师 (15F)',
         sprite: 'npc_sage',
-        lines: ['我可以传授你终极剑术（攻击 +120），但需要 500 点经验值作为代价。'],
+        lines: ['我可以传授你终极剑术（攻击 +90），但需要 500 点经验值作为代价。'],
         index: 0,
         choice: {
-          prompt: '消耗 500 经验换取攻击 +120？',
-          confirmLabel: '支付 500 经验 (+120 攻)',
+          prompt: '消耗 500 经验换取攻击 +90？',
+          confirmLabel: '支付 500 经验 (+90 攻)',
           cancelLabel: '暂不交换',
           actionId: 'sage15fAtk',
         },
@@ -537,18 +554,18 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
         return showDialogue({
           speaker: '铁壁商神 (15F)',
           sprite: 'npc_merchant',
-          lines: ['不动如山，记得去拿东北角的圣水与 12F 的幸运金币！'],
+          lines: ['不动如山，记得统筹好东北角唯一一瓶【圣水】与 12F【幸运金币】！'],
           index: 0,
         });
       }
       return showDialogue({
         speaker: '铁壁商神 (15F)',
         sprite: 'npc_merchant',
-        lines: ['我手里有一套秘传龙鳞护甲（防御 +120），只需 500 金币即可成交。'],
+        lines: ['我手里有一套秘传龙鳞护甲（防御 +90），只需 500 金币即可成交。'],
         index: 0,
         choice: {
-          prompt: '消耗 500 金币换取防御 +120？',
-          confirmLabel: '支付 500 金币 (+120 防)',
+          prompt: '消耗 500 金币换取防御 +90？',
+          confirmLabel: '支付 500 金币 (+90 防)',
           cancelLabel: '暂不购买',
           actionId: 'sage15fDef',
         },
@@ -578,17 +595,22 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
         index: 0,
       });
 
-    case 'warning20f':
+    case 'warning20f': {
+      const fb = getMonsterDef('finalBoss', next.difficulty)!;
+      const spText = fb.special?.length
+        ? ` · 特技【${fb.special.map((s) => SPECIAL_META[s].name).join(' / ')}】`
+        : '';
       return showDialogue({
         speaker: '塔顶信使 (20F)',
         sprite: 'npc_sage',
         lines: [
-          '楼上就是 21F 最终王座！暗影大魔王拥有 25000 生命、1620 攻击、1320 防御。',
-          '上去之前，记得检查：是否已把【十字架】交给 0F 仙子、喝完【圣水】、并用快捷商店 (V) 把剩余金币与经验全部换成战力！',
+          `楼上就是 21F 最终王座！暗影大魔王（${diffMeta.label}）拥有 ${fb.hp} 生命、${fb.atk} 攻击、${fb.def} 防御${spText}。`,
+          '终战最佳顺序：先去 12F 卖掉所有多余钥匙 → 用快捷商店 (V) 对比 3F/11F/5F/13F 把金币经验花光 → 飞 0F 交十字架 → 最后飞 15F 喝圣水翻倍！',
           '强烈建议现在按 G 键存个档！',
         ],
         index: 0,
       });
+    }
 
     case 'princess21f':
       if (!next.flags.victory) {
@@ -598,13 +620,13 @@ function handleNpcInteraction(next: GameState, npcId: NpcId): StepOutcome {
             speaker: '守望者 (21F)',
             sprite: 'npc_princess',
             lines: [
-              '你真的击败了暗影大魔王，一路登上 21 层塔顶！',
+              `你真的在【${diffMeta.label}】模式下击败了暗影大魔王，一路登上 21 层塔顶！`,
               '魔塔的封锁已经解除，信号重新回到了这条旧桌面。',
               `最终通关成绩：剩余生命 ${next.hero.hp} · 攻击 ${next.hero.atk} · 防御 ${next.hero.def} · 总步数 ${next.steps}！`,
             ],
             index: 0,
           },
-          `恭喜通关魔塔 21F！最终生命得分：${next.hero.hp}`,
+          `恭喜通关魔塔 21F (${diffMeta.shortLabel})！最终生命得分：${next.hero.hp}`,
           'victory',
         );
       }
@@ -633,9 +655,9 @@ export function resolveDialogueChoice(state: GameState, confirm: boolean): StepO
       return { state: next, changed: true, checkpoint: false, sound: 'error' };
     }
     next.hero.exp -= 500;
-    next.hero.atk += 120;
+    next.hero.atk += 90;
     next.flags.sage15fAtkBought = true;
-    next.log = appendLog(next.log, '向剑道宗师支付 500 经验：攻击 +120！');
+    next.log = appendLog(next.log, '向剑道宗师支付 500 经验：攻击 +90！');
     return { state: next, changed: true, checkpoint: true, sound: 'shop' };
   }
 
@@ -645,9 +667,9 @@ export function resolveDialogueChoice(state: GameState, confirm: boolean): StepO
       return { state: next, changed: true, checkpoint: false, sound: 'error' };
     }
     next.hero.gold -= 500;
-    next.hero.def += 120;
+    next.hero.def += 90;
     next.flags.sage15fDefBought = true;
-    next.log = appendLog(next.log, '向铁壁商神支付 500 金币：防御 +120！');
+    next.log = appendLog(next.log, '向铁壁商神支付 500 金币：防御 +90！');
     return { state: next, changed: true, checkpoint: true, sound: 'shop' };
   }
 
@@ -662,7 +684,6 @@ export function advanceDialogue(state: GameState): StepOutcome {
     next.dialogue.index += 1;
     return { state: next, changed: true, checkpoint: false, sound: 'talk' };
   }
-  // If a choice prompt is attached on the last page, keep it open until user picks Confirm/Cancel.
   if (next.dialogue.choice) {
     return { state, changed: false, checkpoint: false };
   }
@@ -702,12 +723,17 @@ export function buyShopOption(state: GameState, shopId: ShopId, optionId: string
   };
   const field = currencyMap[option.currency];
   const balance = next.hero[field] as number;
-  if (balance < option.cost) {
-    next.log = appendLog(next.log, `资源不足（需要 ${option.costText}）。`);
+  const currentCost = getShopOptionCost(shopId, optionId, next.shopPurchases);
+  const costText = formatShopCostText(shopId, optionId, next.shopPurchases);
+  if (balance < currentCost) {
+    next.log = appendLog(next.log, `资源不足（当前需要 ${costText}）。`);
     return { state: next, changed: true, checkpoint: false, sound: 'error' };
   }
 
-  (next.hero[field] as number) = balance - option.cost;
+  (next.hero[field] as number) = balance - currentCost;
+  if (shop.escalating && option.costStep) {
+    next.shopPurchases[shopId] = (next.shopPurchases[shopId] ?? 0) + 1;
+  }
   if (option.effect.hp) next.hero.hp += option.effect.hp;
   if (option.effect.atk) next.hero.atk += option.effect.atk;
   if (option.effect.def) next.hero.def += option.effect.def;
@@ -717,7 +743,7 @@ export function buyShopOption(state: GameState, shopId: ShopId, optionId: string
   if (option.effect.blueKey) next.hero.blueKeys += option.effect.blueKey;
   if (option.effect.redKey) next.hero.redKeys += option.effect.redKey;
 
-  next.log = appendLog(next.log, `[${shop.name}] ${option.label}`);
+  next.log = appendLog(next.log, `[${shop.name}] ${option.label} (-${costText})`);
   return { state: next, changed: true, checkpoint: true, sound: 'shop' };
 }
 
@@ -735,11 +761,14 @@ export function flyToFloor(state: GameState, targetFloor: number): StepOutcome {
     return { state, changed: false, checkpoint: false, sound: 'error' };
   }
   const next = cloneState(state);
-  const spawn =
-    targetFloor > state.floor || !destDef.fromAbove
-      ? destDef.fromBelow
-      : destDef.fromAbove;
+  const canUseFromAbove =
+    targetFloor < state.floor &&
+    state.visitedFloors.includes(targetFloor + 1) &&
+    Boolean(destDef.fromAbove);
+  const candidate = canUseFromAbove && destDef.fromAbove ? destDef.fromAbove : destDef.fromBelow;
   next.floor = targetFloor;
+  const landingTile = getEffectiveTile(next, candidate.x, candidate.y);
+  const spawn = landingTile.type === 'floor' ? candidate : destDef.fromBelow;
   next.x = spawn.x;
   next.y = spawn.y;
   next.dir = spawn.dir ?? 'down';
@@ -811,8 +840,9 @@ export function stepMove(state: GameState, dir: Direction): StepOutcome {
     const targetFloor = next.floor - 1;
     if (targetFloor < 0) return { state: next, changed: false, checkpoint: false };
     const dest = getFloorDef(targetFloor);
-    const spawn = dest.fromAbove ?? dest.fromBelow;
     next.floor = targetFloor;
+    const candidate = dest.fromAbove ?? dest.fromBelow;
+    const spawn = getEffectiveTile(next, candidate.x, candidate.y).type === 'floor' ? candidate : dest.fromBelow;
     next.x = spawn.x;
     next.y = spawn.y;
     next.dir = spawn.dir ?? 'down';
@@ -824,7 +854,7 @@ export function stepMove(state: GameState, dir: Direction): StepOutcome {
   if (tile.type === 'door') {
     if (tile.door === 'yellow') {
       if (next.hero.yellowKeys < 1) {
-        next.log = appendLog(next.log, '缺少铜钥匙 [Y]，无法打开 [Y] 门。');
+        next.log = appendLog(next.log, '缺少黄钥匙 [Y]，无法打开黄门 [Y]。');
         return { state: next, changed: true, checkpoint: false, sound: 'error' };
       }
       next.hero.yellowKeys -= 1;
@@ -832,12 +862,12 @@ export function stepMove(state: GameState, dir: Direction): StepOutcome {
       next.x = nx;
       next.y = ny;
       next.steps += 1;
-      next.log = appendLog(next.log, '使用铜钥匙 [Y] 开启 [Y] 门。');
+      next.log = appendLog(next.log, '使用黄钥匙 [Y] 开启黄门。');
       return { state: next, changed: true, checkpoint: true, sound: 'door' };
     }
     if (tile.door === 'blue') {
       if (next.hero.blueKeys < 1) {
-        next.log = appendLog(next.log, '缺少银钥匙 [B]，无法打开 [B] 门。');
+        next.log = appendLog(next.log, '缺少蓝钥匙 [B]，无法打开蓝门 [B]。');
         return { state: next, changed: true, checkpoint: false, sound: 'error' };
       }
       next.hero.blueKeys -= 1;
@@ -845,12 +875,12 @@ export function stepMove(state: GameState, dir: Direction): StepOutcome {
       next.x = nx;
       next.y = ny;
       next.steps += 1;
-      next.log = appendLog(next.log, '使用银钥匙 [B] 开启 [B] 门。');
+      next.log = appendLog(next.log, '使用蓝钥匙 [B] 开启蓝门。');
       return { state: next, changed: true, checkpoint: true, sound: 'door' };
     }
     if (tile.door === 'red') {
       if (next.hero.redKeys < 1) {
-        next.log = appendLog(next.log, '缺少金钥匙 [R]，无法打开 [R] 门。');
+        next.log = appendLog(next.log, '缺少红钥匙 [R]，无法打开红门 [R]。');
         return { state: next, changed: true, checkpoint: false, sound: 'error' };
       }
       next.hero.redKeys -= 1;
@@ -858,7 +888,7 @@ export function stepMove(state: GameState, dir: Direction): StepOutcome {
       next.x = nx;
       next.y = ny;
       next.steps += 1;
-      next.log = appendLog(next.log, '使用金钥匙 [R] 开启 [R] 门。');
+      next.log = appendLog(next.log, '使用红钥匙 [R] 开启红门。');
       return { state: next, changed: true, checkpoint: true, sound: 'door' };
     }
     if (tile.door === 'crackedWall') {
@@ -873,7 +903,6 @@ export function stepMove(state: GameState, dir: Direction): StepOutcome {
       next.log = appendLog(next.log, '挥动破墙镐击碎了裂纹暗墙！');
       return { state: next, changed: true, checkpoint: true, sound: 'door' };
     }
-    // Special mechanism gate
     const hint =
       next.floor === 0
         ? '先与左侧的守塔仙子对话以开启塔门。'
@@ -901,7 +930,7 @@ export function stepMove(state: GameState, dir: Direction): StepOutcome {
   }
 
   if (tile.type === 'monster') {
-    const monster = MONSTERS[tile.monsterId];
+    const monster = getMonsterDef(tile.monsterId, next.difficulty);
     if (!monster) return { state: next, changed: false, checkpoint: false };
     const info = getDamageInfo(monster, next.hero);
     if (!info) {
@@ -962,9 +991,8 @@ export function stepMove(state: GameState, dir: Direction): StepOutcome {
 }
 
 /**
- * Shortest-path BFS/A* movement planner modeled after mota-js click-to-move.
- * Walks through passable floor tiles only, allowing the final step to interact with a target
- * (item, monster, door, stairs, NPC, or shop).
+ * Shortest-path BFS movement planner modeled after mota-js click-to-move.
+ * Walks through passable floor tiles only, allowing the final step to interact with a target.
  */
 export function findPathToTile(state: GameState, targetX: number, targetY: number): Direction[] | null {
   if (targetX < 0 || targetY < 0 || targetX >= MAP_SIZE || targetY >= MAP_SIZE) return null;
@@ -997,7 +1025,6 @@ export function findPathToTile(state: GameState, targetX: number, targetY: numbe
       }
 
       const tile = getEffectiveTile(state, nx, ny);
-      // Intermediate steps strictly walk on clear floor so pathing never accidentally triggers traps/battles/doors.
       if (tile.type === 'floor') {
         visited.add(key);
         queue.push({ x: nx, y: ny, path: [...current.path, dir] });
@@ -1030,7 +1057,7 @@ export function getCurrentFloorMonsters(state: GameState): FloorMonsterEntry[] {
 
   const entries: FloorMonsterEntry[] = [];
   for (const [id, count] of counts.entries()) {
-    const monster = MONSTERS[id];
+    const monster = getMonsterDef(id, state.difficulty);
     if (!monster) continue;
     const damageInfo = getDamageInfo(monster, state.hero);
     entries.push({
@@ -1064,6 +1091,7 @@ export function buildSaveSummary(state: GameState): SaveSlotSummary {
     def: state.hero.def,
     steps: state.steps,
     victory: state.flags.victory,
+    difficulty: state.difficulty,
   };
 }
 
@@ -1072,8 +1100,15 @@ export function serializeSavePayload(state: GameState): SerializedSavePayload {
   for (const [floorKey, keys] of Object.entries(state.cleared)) {
     if (keys.length > 0) cleared[String(floorKey)] = [...keys];
   }
+  const shopPurchases: Partial<Record<ShopId, number>> = {};
+  for (const [shopKey, count] of Object.entries(state.shopPurchases)) {
+    if (typeof count === 'number' && count > 0) {
+      shopPurchases[shopKey as ShopId] = Math.floor(count);
+    }
+  }
   return {
     v: 1,
+    difficulty: state.difficulty,
     floor: state.floor,
     maxFloor: state.maxFloor,
     visitedFloors: [...state.visitedFloors],
@@ -1085,6 +1120,7 @@ export function serializeSavePayload(state: GameState): SerializedSavePayload {
     steps: state.steps,
     battlesWon: state.battlesWon,
     playSeconds: state.playSeconds,
+    shopPurchases,
     cleared,
     flags: {
       ...state.flags,
@@ -1107,7 +1143,8 @@ export function deserializeSavePayload(raw: unknown): GameState | null {
     return null;
   }
 
-  const base = createInitialState();
+  const difficulty: Difficulty = data.difficulty === 'hard' ? 'hard' : 'standard';
+  const base = createInitialState(difficulty);
   const cleared: Record<number, string[]> = {};
   if (data.cleared && typeof data.cleared === 'object') {
     for (const [floorStr, list] of Object.entries(data.cleared)) {
@@ -1131,14 +1168,24 @@ export function deserializeSavePayload(raw: unknown): GameState | null {
     ? data.flags.discoveredShops.filter((id): id is ShopId => typeof id === 'string' && validShopIds.has(id))
     : [];
 
+  const shopPurchases: Partial<Record<ShopId, number>> = {};
+  if (data.shopPurchases && typeof data.shopPurchases === 'object') {
+    for (const [shopKey, count] of Object.entries(data.shopPurchases)) {
+      if (validShopIds.has(shopKey) && typeof count === 'number' && Number.isFinite(count) && count > 0) {
+        shopPurchases[shopKey as ShopId] = Math.min(999, Math.floor(count));
+      }
+    }
+  }
+
   return {
     ...base,
+    difficulty,
     floor: data.floor,
     maxFloor: Math.max(data.floor, Number(data.maxFloor) || data.floor),
     visitedFloors: visited,
     hero: {
       lv: Math.max(1, Math.floor(Number(data.hero.lv) || 1)),
-      hp: Math.max(1, Math.floor(Number(data.hero.hp) || 1000)),
+      hp: Math.max(1, Math.floor(Number(data.hero.hp) || DIFFICULTY_META[difficulty].initHp)),
       atk: Math.max(0, Math.floor(Number(data.hero.atk) || 10)),
       def: Math.max(0, Math.floor(Number(data.hero.def) || 10)),
       gold: Math.max(0, Math.floor(Number(data.hero.gold) || 0)),
@@ -1162,6 +1209,7 @@ export function deserializeSavePayload(raw: unknown): GameState | null {
     steps: Math.max(0, Math.floor(Number(data.steps) || 0)),
     battlesWon: Math.max(0, Math.floor(Number(data.battlesWon) || 0)),
     playSeconds: Math.max(0, Math.floor(Number(data.playSeconds) || 0)),
+    shopPurchases,
     cleared,
     flags: {
       gate0fOpened: Boolean(data.flags.gate0fOpened),
@@ -1177,7 +1225,7 @@ export function deserializeSavePayload(raw: unknown): GameState | null {
       victory: Boolean(data.flags.victory),
       discoveredShops,
     },
-    log: [`已读取存档：${getFloorDef(data.floor).name}`],
+    log: [`已读取存档：${getFloorDef(data.floor).name} (${DIFFICULTY_META[difficulty].shortLabel})`],
     dialogue: null,
     activeShop: null,
     lastCombat: null,

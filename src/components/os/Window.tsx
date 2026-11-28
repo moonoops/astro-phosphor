@@ -36,7 +36,16 @@ function clampWindowPosition(
 }
 
 function reachablePosition(panel: HTMLElement, stage: HTMLElement, x: number, y: number) {
-  return clampWindowPosition(panel.offsetWidth, stage.clientWidth, stage.clientHeight, x, y);
+  const space = panel.closest<HTMLElement>('.desktop-space');
+  const topBarOffset = space ? space.offsetTop : 0;
+  return clampWindowPosition(panel.offsetWidth, stage.clientWidth, Math.max(0, stage.clientHeight - topBarOffset), x, y);
+}
+
+function projectDragPointer(element: Element, x: number, y: number, surfaceRect: DOMRect | null) {
+  if (document.documentElement.dataset.osFlatOptics === 'on') {
+    return { x, y };
+  }
+  return pointerThroughGlass(element, x, y, surfaceRect);
 }
 
 export function bringWindowForward(panel: HTMLElement | null) {
@@ -71,6 +80,7 @@ export default function WindowFrame({
     stage: HTMLElement;
     stageLeft: number;
     stageTop: number;
+    topBarOffset: number;
     stageW: number;
     stageH: number;
     scaleX: number;
@@ -150,9 +160,11 @@ export default function WindowFrame({
     event.preventDefault();
     const bounds = panel.getBoundingClientRect();
     const stageBounds = stage.getBoundingClientRect();
+    const space = panel.closest<HTMLElement>('.desktop-space');
+    const topBarOffset = space ? space.offsetTop : 0;
     const surface = stage.closest('.screen-plane')?.querySelector('.crt-optics');
     const surfaceRect = surface ? surface.getBoundingClientRect() : null;
-    const pointer = pointerThroughGlass(panel, event.clientX, event.clientY, surfaceRect);
+    const pointer = projectDragPointer(panel, event.clientX, event.clientY, surfaceRect);
     const baseX = panel.offsetLeft;
     const baseY = panel.offsetTop;
     // Pointer events use physical screen pixels while window geometry belongs to the virtual desktop.
@@ -170,8 +182,9 @@ export default function WindowFrame({
       stage,
       stageLeft: stageBounds.left,
       stageTop: stageBounds.top,
+      topBarOffset,
       stageW: stage.clientWidth,
-      stageH: stage.clientHeight,
+      stageH: Math.max(0, stage.clientHeight - topBarOffset),
       scaleX: stage.clientWidth / stageBounds.width,
       scaleY: stage.clientHeight / stageBounds.height,
       surfaceRect,
@@ -186,9 +199,9 @@ export default function WindowFrame({
     const panel = frame.current;
     if (active?.pointerId !== event.pointerId || !panel) return;
 
-    const pointer = pointerThroughGlass(active.stage, event.clientX, event.clientY, active.surfaceRect);
+    const pointer = projectDragPointer(active.stage, event.clientX, event.clientY, active.surfaceRect);
     const x = (pointer.x - active.stageLeft) * active.scaleX - active.grabX;
-    const y = (pointer.y - active.stageTop) * active.scaleY - active.grabY;
+    const y = (pointer.y - active.stageTop) * active.scaleY - active.topBarOffset - active.grabY;
     const next = clampWindowPosition(active.panelW, active.stageW, active.stageH, x, y);
     if (next.x === active.lastX && next.y === active.lastY) return;
     active.lastX = next.x;
@@ -267,7 +280,13 @@ export default function WindowFrame({
           if (!dialog && window.innerWidth >= 810 && !(event.target as Element).closest('a, button')) toggleMaximize();
         }}
       >
+        <span className="window-titlebar-dots" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
         <span className="window-title" id={`window-title-${windowId}`}>{title}</span>
+        <span className="window-titlebar-grip" aria-hidden="true" />
         <div className="window-actions" ref={closeLink} inert={!focused}>
           {!dialog && (
             <ButtonBase
@@ -280,7 +299,7 @@ export default function WindowFrame({
               <PixelIcon name={maximized ? 'restore' : 'maximize'} size={16} />
             </ButtonBase>
           )}
-          <ButtonBase href={closeHref} variant="icon" aria-label="Close window" title="Close window">
+          <ButtonBase href={closeHref} variant="icon" className="window-close" aria-label="Close window" title="Close window">
             <PixelIcon name="close" size={16} />
           </ButtonBase>
         </div>

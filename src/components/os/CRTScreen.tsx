@@ -67,6 +67,10 @@ export default function CRTScreen() {
   );
 }
 
+const ROOM_VIEW_MEDIA = '(min-width: 1000px) and (min-aspect-ratio: 6/5)';
+const CLICK_DRAG_THRESHOLD_PX = 6;
+const CLICK_AFTER_RELEASE_MAX_MS = 450;
+
 export function CRTScreenControls() {
   const { zoom } = useStore($preferences, { ssr: 'initial' });
   const powered = useStore($powered);
@@ -91,7 +95,7 @@ export function CRTScreenControls() {
       if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.isComposing) return;
       if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable="true"], dialog')) return;
       const inFullscreen = $preferences.get().zoom === 'fullscreen';
-      const inRoomView = window.matchMedia('(min-width: 1000px) and (min-aspect-ratio: 6/5)').matches;
+      const inRoomView = window.matchMedia(ROOM_VIEW_MEDIA).matches;
       if (!inRoomView && !inFullscreen) return;
       if (event.key === 'f' || event.key === 'F') {
         event.preventDefault();
@@ -111,6 +115,128 @@ export function CRTScreenControls() {
     }
     window.addEventListener('keydown', cameraShortcut);
     return () => window.removeEventListener('keydown', cameraShortcut);
+  }, []);
+
+  useEffect(() => {
+    const roomMedia = window.matchMedia(ROOM_VIEW_MEDIA);
+    let press: {
+      pointerId: number;
+      x: number;
+      y: number;
+      moved: boolean;
+      inScreen: boolean;
+      releasedAt: number | null;
+    } | null = null;
+    let pointerInScreen = false;
+
+    const isInsideActiveScreen = (target: EventTarget | null) =>
+      target instanceof Element
+      && Boolean(target.closest('.screen-plane'))
+      && !target.closest('.crt-off-screen');
+
+    const canAutoZoomToClose = () =>
+      roomMedia.matches
+      && $powered.get()
+      && $preferences.get().zoom === 'room'
+      && !document.querySelector('dialog[open]');
+
+    function handlePointerDown(event: PointerEvent) {
+      if (event.button !== 0 || !event.isPrimary || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
+        press = null;
+        return;
+      }
+      const inScreen = isInsideActiveScreen(event.target);
+      pointerInScreen = inScreen;
+      press = {
+        pointerId: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        moved: false,
+        inScreen,
+        releasedAt: null,
+      };
+    }
+
+    function handlePointerMove(event: PointerEvent) {
+      pointerInScreen = isInsideActiveScreen(event.target);
+      if (!press || event.pointerId !== press.pointerId || press.moved) return;
+      if (Math.hypot(event.clientX - press.x, event.clientY - press.y) > CLICK_DRAG_THRESHOLD_PX) {
+        press.moved = true;
+      }
+    }
+
+    function handlePointerUp(event: PointerEvent) {
+      if (!press || event.pointerId !== press.pointerId) return;
+      if (Math.hypot(event.clientX - press.x, event.clientY - press.y) > CLICK_DRAG_THRESHOLD_PX) {
+        press.moved = true;
+      }
+      press.releasedAt = performance.now();
+    }
+
+    function handlePointerCancel(event: PointerEvent) {
+      if (press && event.pointerId === press.pointerId) {
+        press = null;
+      }
+    }
+
+    function handlePointerLeave() {
+      pointerInScreen = false;
+    }
+
+    function handleClick(event: MouseEvent) {
+      const activePress = press;
+      press = null;
+      if (
+        !activePress?.inScreen
+        || activePress.moved
+        || event.button !== 0
+        || event.detail === 0
+        || event.metaKey
+        || event.ctrlKey
+        || event.altKey
+        || event.shiftKey
+      ) {
+        return;
+      }
+      if (activePress.releasedAt !== null && performance.now() - activePress.releasedAt > CLICK_AFTER_RELEASE_MAX_MS) {
+        return;
+      }
+      if (!isInsideActiveScreen(event.target) || !canAutoZoomToClose()) return;
+      queueMicrotask(() => {
+        if (canAutoZoomToClose()) {
+          setPreference('zoom', 'close');
+        }
+      });
+    }
+
+    function handleWindowBlur() {
+      if (!pointerInScreen || !canAutoZoomToClose()) return;
+      queueMicrotask(() => {
+        if (!canAutoZoomToClose()) return;
+        const active = document.activeElement;
+        if (active instanceof HTMLIFrameElement && active.closest('.screen-stage')) {
+          setPreference('zoom', 'close');
+        }
+      });
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown, { capture: true });
+    document.addEventListener('pointermove', handlePointerMove, { capture: true, passive: true });
+    document.addEventListener('pointerup', handlePointerUp, { capture: true });
+    document.addEventListener('pointercancel', handlePointerCancel, { capture: true });
+    document.documentElement.addEventListener('pointerleave', handlePointerLeave);
+    document.addEventListener('click', handleClick, { capture: true });
+    window.addEventListener('blur', handleWindowBlur);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, { capture: true });
+      document.removeEventListener('pointermove', handlePointerMove, { capture: true });
+      document.removeEventListener('pointerup', handlePointerUp, { capture: true });
+      document.removeEventListener('pointercancel', handlePointerCancel, { capture: true });
+      document.documentElement.removeEventListener('pointerleave', handlePointerLeave);
+      document.removeEventListener('click', handleClick, { capture: true });
+      window.removeEventListener('blur', handleWindowBlur);
+    };
   }, []);
 
   const isFullscreen = zoom === 'fullscreen';

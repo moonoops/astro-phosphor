@@ -13,6 +13,13 @@
     clip-path: url("#tube-aperture");
     background: rgb(0 0 0 / calc(.34 + .66 * var(--crt-full)));
   }
+  /* Warm smoked ambient-lit glass lip for powered-on non-phosphor OSes (keeps Phosphor & power-off dark) */
+  html[data-os]:not([data-os="phosphor"]):not([data-crt-flat="on"]):not([data-power="off"]):not([data-cooling]) .crt-bezel::after {
+    background: rgb(var(--crt-shoulder-rgb, 88 78 66) / calc(var(--crt-shoulder-alpha, .26) + (1 - var(--crt-shoulder-alpha, .26)) * var(--crt-full)));
+  }
+  html:is([data-os="cli"]:not([data-theme="light"]), [data-os="pixel"][data-theme="slate"]):not([data-crt-flat="on"]):not([data-power="off"]):not([data-cooling]) .crt-bezel::after {
+    background: rgb(var(--crt-shoulder-dark-rgb, 38 34 30) / calc(.30 + .70 * var(--crt-full)));
+  }
   .screen-plane {
     --tube-radius: 0px;
     --tube-overscan: calc(var(--raster-overscan) * var(--photo-unit) * (1 - var(--crt-full)));
@@ -43,6 +50,9 @@
     background: transparent;
     mask: url("#tube-raster");
   }
+  html[data-os]:not([data-os="phosphor"]):not([data-crt-flat="on"]) .screen-plane .crt-emission {
+    mask: url("#tube-raster-tight");
+  }
   html[data-crt-flat="on"] .screen-plane .crt-emission {
     background: var(--crt-off);
     mask: none;
@@ -57,7 +67,47 @@
     bottom: auto;
     transform: scale(calc(var(--stage-scale, 1) * (1 - 2 * var(--raster-x))), calc(var(--stage-scale-y, 1) * (1 - 2 * var(--raster-y))));
   }
+  /* Seamless overscan bleed behind the tighter non-phosphor glass lip so patterns & topbars meet the edge cleanly */
+  html[data-os]:not([data-os="phosphor"]):not([data-crt-flat="on"]) .screen-plane .screen-stage::before {
+    content: "";
+    position: absolute;
+    inset: -28px;
+    z-index: -1;
+    pointer-events: none;
+    background-color: inherit;
+    background-image: inherit;
+    background-size: inherit;
+    background-position: inherit;
+  }
+  html[data-os]:not([data-os="phosphor"]):not([data-crt-flat="on"]) .screen-plane .os-topbar {
+    isolation: isolate;
+  }
+  html[data-os]:not([data-os="phosphor"]):not([data-crt-flat="on"]) .screen-plane .os-topbar::before {
+    content: "";
+    position: absolute;
+    inset: -28px -28px 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--os-topbar-bg, var(--ground));
+    border-bottom: inherit;
+  }
   .crt-optics .crt-contour { box-shadow: none; }
+  /* Directional recessed plastic-lip shadow for non-phosphor OSes:
+     deeper along top/left overhanging bezel edges, lighter on sunlit bottom/right edges. */
+  html[data-os]:not([data-os="phosphor"]):not([data-crt-flat="on"]) .crt-optics .crt-contour {
+    inset: var(--tube-overscan);
+    border-radius: 2.4% / 3.2%;
+    box-shadow:
+      inset 2px 3px 6px 0 rgb(28 22 16 / 0.24),
+      inset 5px 7px 14px -2px rgb(34 26 18 / 0.12),
+      inset -1px -2px 5px 0 rgb(36 28 20 / 0.08);
+  }
+  html[data-scene="night"][data-os]:not([data-os="phosphor"]):not([data-crt-flat="on"]) .crt-optics .crt-contour {
+    box-shadow:
+      inset 2px 3px 7px 0 rgb(10 9 8 / 0.34),
+      inset 5px 7px 16px -2px rgb(10 9 8 / 0.18),
+      inset -1px -2px 6px 0 rgb(12 10 8 / 0.13);
+  }
 
   /* Switching off the beam leaves the underlying glass and its reflection. */
   html:not([data-crt-flat="on"]) .screen-plane .crt-blank { background: transparent; }

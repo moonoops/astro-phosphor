@@ -1,4 +1,6 @@
-/* Shared monochrome phosphor arcade game shell (0px radius, single-hue tokens) */
+@import "./game-themes.css";
+
+/* Shared arcade game shell (OS-aware via game-themes.css; preserves 0px monochrome phosphor) */
 .arcade-host {
   position: relative;
   container: arcade-window / inline-size;
@@ -101,11 +103,18 @@
   position: relative;
   display: grid;
   place-items: center;
-  border: 1px solid var(--lit);
-  background: var(--ground);
-  box-shadow: inset 0 0 0 2px var(--ground);
+  border: 1px solid var(--game-stage-border);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-stage-bg);
+  box-shadow: var(--game-stage-shadow);
   overflow: hidden;
   touch-action: none;
+}
+
+/* Override Coffee OS cream canvas wrapper so recessed dark arcade stages stay crisp */
+html:not([data-os="phosphor"]) .arcade-canvas-wrap {
+  background: var(--game-stage-bg);
+  border-color: var(--game-stage-border);
 }
 
 .arcade-canvas {
@@ -123,7 +132,8 @@
   gap: 10px;
   padding: 18px;
   text-align: center;
-  background: color-mix(in srgb, var(--ground) 84%, transparent);
+  background: var(--game-stage-overlay-bg);
+  color: var(--game-stage-overlay-ink);
 }
 
 .arcade-overlay-title {
@@ -133,14 +143,25 @@
   font-weight: 400;
   line-height: 0.92;
   letter-spacing: 0.03em;
+  color: var(--game-stage-overlay-ink);
 }
 
 .arcade-overlay-sub {
   margin: 0;
   max-width: 28ch;
-  color: var(--lit-72);
+  color: var(--game-stage-overlay-muted);
   font-size: 14px;
   line-height: 1.4;
+}
+
+.arcade-overlay .lb-inline-note {
+  color: var(--game-stage-overlay-muted);
+}
+
+.arcade-overlay .lb-inline-status,
+.arcade-overlay .lb-inline-remind a,
+.arcade-overlay .lb-inline-link {
+  color: var(--game-stage-overlay-ink);
 }
 
 .arcade-overlay-actions {
@@ -162,7 +183,8 @@
   gap: 8px;
   padding: 10px 12px;
   border: 1px solid var(--lit-28);
-  background: var(--lit-10);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-panel-alt-bg, var(--lit-10));
 }
 
 .arcade-card-title {
@@ -185,7 +207,8 @@
   gap: 2px;
   padding: 6px 8px;
   border: 1px solid var(--lit-28);
-  background: var(--ground);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-panel-bg, var(--ground));
 }
 
 .arcade-stat span {
@@ -335,8 +358,8 @@
   flex: none;
   display: grid;
   grid-template-columns: repeat(var(--mine-cols), var(--mine-cell));
-  border: 2px solid var(--lit);
-  background: var(--ground);
+  border: 2px solid var(--mine-board-border);
+  background: var(--mine-board-bg);
   box-shadow: 0 0 0 1px var(--lit-28);
   user-select: none;
 }
@@ -348,64 +371,75 @@
   place-items: center;
   padding: 0;
   border: 0;
+  border-radius: 0;
   font-family: var(--font-mono);
   font-size: var(--mine-font);
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  background: color-mix(in srgb, var(--lit) 18%, var(--ground));
+  background: var(--mine-cell-closed-bg);
   color: var(--lit);
+  text-shadow: none;
   box-shadow:
-    inset 2px 2px 0 color-mix(in srgb, var(--hi) 85%, transparent),
-    inset -2px -2px 0 var(--side);
+    inset 2px 2px 0 var(--mine-cell-bevel-hi),
+    inset -2px -2px 0 var(--mine-cell-bevel-lo);
 }
 
 .mine-cell:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--lit) 28%, var(--ground));
+  background: var(--mine-cell-closed-hover);
 }
 
 .mine-cell:active:not(:disabled) {
-  box-shadow: inset 1px 1px 0 var(--lit-28);
+  box-shadow: inset 1px 1px 0 var(--mine-cell-open-border);
 }
 
 .mine-cell[data-state="open"] {
-  background: var(--ground);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lit) 18%, transparent);
+  background: var(--mine-cell-open-bg);
+  box-shadow: inset 0 0 0 1px var(--mine-cell-open-border);
 }
 
 .mine-cell[data-state="flagged"] {
-  color: var(--hi);
+  background: var(--mine-flag-bg);
+  color: var(--mine-flag-ink);
 }
 
 .mine-cell[data-state="exploded"] {
-  background: var(--lit);
-  color: var(--ground);
+  background: var(--mine-exploded-bg);
+  color: var(--mine-exploded-ink);
   text-shadow: none;
-  box-shadow: inset 0 0 0 1px var(--ground);
+  box-shadow: inset 0 0 0 1px var(--mine-exploded-ink);
 }
 
 .mine-cell[data-state="mine"] {
-  background: var(--lit-10);
-  color: var(--lit);
-  box-shadow: inset 0 0 0 1px var(--lit-28);
+  background: var(--mine-bomb-bg);
+  color: var(--mine-bomb-ink);
+  box-shadow: inset 0 0 0 1px var(--mine-cell-open-border);
 }
 
 .mine-cell[data-state="wrong"] {
-  background: var(--lit-10);
-  color: var(--hi);
-  box-shadow: inset 0 0 0 1px var(--lit);
+  background: var(--mine-wrong-bg);
+  color: var(--mine-wrong-ink);
+  box-shadow: inset 0 0 0 1px var(--mine-wrong-border);
 }
 
-.mine-cell[data-num="1"] { color: var(--lit-72); font-weight: 500; }
-.mine-cell[data-num="2"] { color: var(--lit); }
-.mine-cell[data-num="3"] { color: var(--hi); }
-.mine-cell[data-num="4"],
-.mine-cell[data-num="5"],
-.mine-cell[data-num="6"],
-.mine-cell[data-num="7"],
-.mine-cell[data-num="8"] {
-  color: var(--hi);
-  text-shadow: 0 0 6px var(--lit);
+.mine-cell[data-num="1"] { color: var(--mine-num-1); font-weight: 700; }
+.mine-cell[data-num="2"] { color: var(--mine-num-2); font-weight: 700; }
+.mine-cell[data-num="3"] { color: var(--mine-num-3); font-weight: 700; }
+.mine-cell[data-num="4"] { color: var(--mine-num-4); font-weight: 700; text-shadow: var(--mine-num-high-shadow); }
+.mine-cell[data-num="5"] { color: var(--mine-num-5); font-weight: 700; text-shadow: var(--mine-num-high-shadow); }
+.mine-cell[data-num="6"] { color: var(--mine-num-6); font-weight: 700; text-shadow: var(--mine-num-high-shadow); }
+.mine-cell[data-num="7"] { color: var(--mine-num-7); font-weight: 700; text-shadow: var(--mine-num-high-shadow); }
+.mine-cell[data-num="8"] { color: var(--mine-num-8); font-weight: 700; text-shadow: var(--mine-num-high-shadow); }
+
+html[data-os="phosphor"] .mine-cell[data-num="1"] {
+  font-weight: 500;
+}
+
+html[data-os="phosphor"] .mine-cell[data-num="4"],
+html[data-os="phosphor"] .mine-cell[data-num="5"],
+html[data-os="phosphor"] .mine-cell[data-num="6"],
+html[data-os="phosphor"] .mine-cell[data-num="7"],
+html[data-os="phosphor"] .mine-cell[data-num="8"] {
   box-shadow: inset 0 0 0 1px var(--lit-28);
 }
 
@@ -442,7 +476,7 @@
   display: grid;
   place-items: center;
   padding: 16px;
-  background: color-mix(in srgb, var(--ground) 84%, transparent);
+  background: var(--game-backdrop-bg);
 }
 
 .lb-dialog {
@@ -450,9 +484,12 @@
   max-height: 100%;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--lit);
-  background: var(--ground);
-  box-shadow: 4px 4px 0 var(--side);
+  border: 1px solid var(--game-modal-border);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-modal-bg);
+  color: var(--lit);
+  box-shadow: var(--game-modal-shadow);
+  overflow: hidden;
 }
 
 .lb-head {
@@ -461,9 +498,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 8px 12px;
-  background: var(--lit);
-  color: var(--ground);
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--game-modal-head-border);
+  background: var(--game-modal-head-bg);
+  color: var(--game-modal-head-ink);
   text-shadow: none;
 }
 
@@ -487,13 +525,16 @@
   place-items: center;
   width: 26px;
   height: 26px;
-  border: 1px solid var(--ground);
-  background: var(--ground);
-  color: var(--lit);
+  border: 1px solid var(--game-modal-close-border);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-modal-close-bg);
+  color: var(--game-modal-close-ink);
 }
 
-.lb-close:hover {
-  background: color-mix(in srgb, var(--lit) 18%, var(--ground));
+.lb-close:hover,
+.lb-close:focus-visible {
+  background: var(--game-modal-close-hover-bg);
+  color: var(--game-modal-head-ink);
 }
 
 .lb-modes {
@@ -571,9 +612,19 @@
 }
 
 .lb-login-btn {
-  min-height: 32px;
-  padding: 4px 10px;
+  min-height: 34px;
+  padding: 5px 12px;
   font-size: 13px;
+}
+
+/* Legible disabled OAuth buttons when provider isn't configured locally (never murky 0.4 opacity!) */
+html[data-os] .lb-login-btn[aria-disabled="true"] {
+  opacity: 1;
+  background: var(--game-disabled-bg);
+  color: var(--game-disabled-ink);
+  border: 1px dashed var(--game-disabled-border);
+  box-shadow: none;
+  pointer-events: none;
 }
 
 .lb-feedback {
@@ -631,7 +682,7 @@
 .lb-table tbody tr:nth-child(1) .lb-col-rank,
 .lb-table tbody tr:nth-child(2) .lb-col-rank,
 .lb-table tbody tr:nth-child(3) .lb-col-rank {
-  color: var(--hi);
+  color: var(--game-accent-ink);
 }
 
 .lb-col-score {
@@ -680,7 +731,7 @@
 .lb-crown {
   display: inline-flex;
   align-items: center;
-  color: var(--hi);
+  color: var(--game-accent-ink);
 }
 
 .lb-empty {
@@ -743,7 +794,13 @@
   gap: 6px;
   padding: 8px;
   border: 1px solid var(--lit-28);
-  background: var(--ground);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-panel-bg, var(--ground));
+}
+
+.tetris-mini-box .arcade-canvas {
+  border: 1px solid var(--game-stage-border);
+  background: var(--game-stage-bg);
 }
 
 .tetris-mini-box span {
@@ -768,7 +825,8 @@
   align-items: center;
   gap: 8px;
   font-size: 12px;
-  color: var(--hi);
+  font-weight: 600;
+  color: var(--game-accent-ink);
 }
 
 .snake-bonus-track {
@@ -779,7 +837,7 @@
 
 .snake-bonus-fill {
   height: 100%;
-  background: var(--lit);
+  background: var(--game-accent-ink);
 }
 
 /* ==================== 2048 ==================== */
@@ -788,10 +846,13 @@
   width: min(392px, 100%);
   aspect-ratio: 1;
   padding: 10px;
-  border: 2px solid var(--lit);
-  background: var(--ground);
+  border: 2px solid var(--g2048-board-border);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--g2048-board-bg);
+  box-shadow: var(--game-stage-shadow);
   touch-action: none;
   user-select: none;
+  overflow: hidden;
 }
 
 .g2048-grid {
@@ -806,74 +867,119 @@
 .g2048-cell {
   display: grid;
   place-items: center;
-  border: 1px solid var(--lit-28);
-  background: color-mix(in srgb, var(--lit) 4%, var(--ground));
+  border: 1px solid var(--g2048-empty-border);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--g2048-empty-bg);
   font-family: var(--font-display);
   font-size: clamp(26px, 6cqi, 42px);
-  font-weight: 400;
+  font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   text-align: center;
+  text-shadow: none;
+}
+
+html[data-os="phosphor"] .g2048-cell {
+  font-weight: 400;
+  text-shadow: inherit;
 }
 
 .g2048-cell[data-v="2"] {
-  background: var(--lit-10);
-  color: var(--lit-72);
-  border-color: var(--lit-28);
+  background: var(--g2048-t2-bg);
+  color: var(--g2048-t2-ink);
+  border-color: var(--g2048-t2-border);
 }
 
 .g2048-cell[data-v="4"] {
-  background: color-mix(in srgb, var(--lit) 18%, var(--ground));
-  color: var(--lit);
-  border-color: var(--lit-28);
+  background: var(--g2048-t4-bg);
+  color: var(--g2048-t4-ink);
+  border-color: var(--g2048-t4-border);
 }
 
 .g2048-cell[data-v="8"] {
-  background: color-mix(in srgb, var(--lit) 28%, var(--ground));
-  color: var(--hi);
-  border-color: var(--lit);
+  background: var(--g2048-t8-bg);
+  color: var(--g2048-t8-ink);
+  border-color: var(--g2048-t8-border);
 }
 
 .g2048-cell[data-v="16"] {
-  background: color-mix(in srgb, var(--lit) 40%, var(--ground));
-  color: var(--hi);
-  border: 2px solid var(--lit);
+  background: var(--g2048-t16-bg);
+  color: var(--g2048-t16-ink);
+  border: 2px solid var(--g2048-t16-border);
 }
 
 .g2048-cell[data-v="32"] {
-  background: color-mix(in srgb, var(--lit) 58%, var(--ground));
-  color: var(--ground);
-  border: 2px solid var(--lit);
+  background: var(--g2048-t32-bg);
+  color: var(--g2048-t32-ink);
+  border: 2px solid var(--g2048-t32-border);
   text-shadow: none;
 }
 
 .g2048-cell[data-v="64"] {
-  background: color-mix(in srgb, var(--lit) 76%, var(--ground));
-  color: var(--ground);
-  border: 2px solid var(--hi);
+  background: var(--g2048-t64-bg);
+  color: var(--g2048-t64-ink);
+  border: 2px solid var(--g2048-t64-border);
   text-shadow: none;
 }
 
-.g2048-cell[data-v="128"],
-.g2048-cell[data-v="256"],
-.g2048-cell[data-v="512"] {
-  background: var(--lit);
-  color: var(--ground);
-  border: 0;
+.g2048-cell[data-v="128"] {
+  background: var(--g2048-t128-bg);
+  color: var(--g2048-t128-ink);
+  border: 2px solid var(--g2048-t128-border, transparent);
   text-shadow: none;
+}
+
+.g2048-cell[data-v="256"] {
+  background: var(--g2048-t256-bg);
+  color: var(--g2048-t256-ink);
+  border: 2px solid var(--g2048-t256-border, transparent);
+  text-shadow: none;
+}
+
+.g2048-cell[data-v="512"] {
+  background: var(--g2048-t512-bg);
+  color: var(--g2048-t512-ink);
+  border: 2px solid var(--g2048-t512-border, transparent);
+  text-shadow: none;
+}
+
+html[data-os="phosphor"] .g2048-cell[data-v="128"],
+html[data-os="phosphor"] .g2048-cell[data-v="256"],
+html[data-os="phosphor"] .g2048-cell[data-v="512"] {
+  border: 0;
   box-shadow: inset 2px 2px 0 var(--hi), inset -2px -2px 0 var(--side);
 }
 
-.g2048-cell[data-v="1024"],
-.g2048-cell[data-v="2048"],
-.g2048-cell[data-v="4096"],
-.g2048-cell[data-v="8192"] {
-  background: var(--hi);
-  color: var(--ground);
+.g2048-cell[data-v="1024"] {
+  background: var(--g2048-t1024-bg);
+  color: var(--g2048-t1024-ink);
+  border: 2px solid var(--g2048-t1024-border, transparent);
+  font-size: clamp(22px, 5cqi, 34px);
+  text-shadow: none;
+}
+
+.g2048-cell[data-v="2048"] {
+  background: var(--g2048-t2048-bg);
+  color: var(--g2048-t2048-ink);
   border: 0;
   font-size: clamp(22px, 5cqi, 34px);
   text-shadow: none;
-  box-shadow: inset 2px 2px 0 var(--hi), inset -2px -2px 0 var(--lit), 0 0 12px var(--lit);
+  box-shadow: var(--g2048-high-shadow);
+}
+
+.g2048-cell[data-v="4096"],
+.g2048-cell[data-v="8192"] {
+  background: var(--g2048-tsuper-bg);
+  color: var(--g2048-tsuper-ink);
+  border: 0;
+  font-size: clamp(22px, 5cqi, 34px);
+  text-shadow: none;
+  box-shadow: var(--g2048-high-shadow);
+}
+
+html[data-os="phosphor"] .g2048-cell[data-v="1024"] {
+  border: 0;
+  box-shadow: var(--g2048-high-shadow);
 }
 
 .g2048-cell[data-pop="true"] {
@@ -935,7 +1041,8 @@
   height: 100%;
   padding: 16px;
   border: 2px solid var(--lit-28);
-  background: var(--ground);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-panel-bg, var(--ground));
   color: var(--lit);
   text-decoration: none;
   transition: border-color 120ms ease, background-color 120ms ease;
@@ -943,7 +1050,7 @@
 
 .games-hub-card:is(:hover, :focus-visible) {
   border-color: var(--lit);
-  background: var(--lit-10);
+  background: var(--game-panel-alt-bg, var(--lit-10));
 }
 
 .games-hub-icon {
@@ -953,7 +1060,8 @@
   height: 48px;
   flex-shrink: 0;
   border: 1px solid var(--lit-28);
-  background: var(--lit-10);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-panel-alt-bg, var(--lit-10));
 }
 
 .games-hub-copy {

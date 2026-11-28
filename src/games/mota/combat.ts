@@ -9,11 +9,15 @@
 import type { CriticalInfo, DamageInfo, HeroStats, MonsterDef, MonsterSpecial } from './types';
 
 export const SPECIAL_META: Record<MonsterSpecial, { name: string; desc: string }> = {
-  firstStrike: { name: '先攻', desc: '战斗开始时怪物先攻击一次' },
-  magic: { name: '魔攻', desc: '怪物攻击无视勇者防御力' },
-  solid: { name: '坚固', desc: '怪物防御力不低于勇者攻击 - 1' },
-  doubleHit: { name: '2连击', desc: '怪物每回合连续攻击 2 次' },
-  vampire: { name: '吸血', desc: '战前先吸取勇者当前生命值的固定比例' },
+  firstStrike: { name: '先攻', desc: '战斗开始时怪物先攻击一次，堆防收益高' },
+  magic: { name: '魔攻', desc: '攻击完全无视勇者防御，需堆攻击速杀' },
+  solid: { name: '坚固', desc: '防御不低于勇者攻击 - 1，需堆防御防杀' },
+  doubleHit: { name: '2连击', desc: '每回合连续攻击 2 次，防御阈值收益翻倍' },
+  tripleHit: { name: '3连击', desc: '每回合连续攻击 3 次，极度考验防御临界' },
+  vampire: { name: '吸血', desc: '战前吸取当前生命固定比例，残血击杀最赚' },
+  armorBreak: { name: '破甲', desc: '无视勇者部分防御（默认 40%），攻防需兼顾' },
+  berserk: { name: '狂暴', desc: '每回合攻击递增（默认 +12%），拖回合会滚雪球' },
+  thorns: { name: '反伤', desc: '每次非致死受击反弹真实伤害，缩短回合最关键' },
 };
 
 export function hasSpecial(monster: MonsterDef, special: MonsterSpecial): boolean {
@@ -56,23 +60,42 @@ export function getDamageInfo(
   const heroPerDamage = Math.max(heroAtk - monDef, 0);
   if (heroPerDamage <= 0) return null;
 
+  const turns = Math.ceil(monHp / heroPerDamage);
+  const enemyAttacks = Math.max(0, turns - 1);
+
+  const effDef = hasSpecial(monster, 'magic')
+    ? 0
+    : hasSpecial(monster, 'armorBreak')
+      ? Math.floor(heroDef * (1 - (monster.armorBreakRatio ?? 0.4)))
+      : heroDef;
+
+  const hitMul = hasSpecial(monster, 'tripleHit') ? 3 : hasSpecial(monster, 'doubleHit') ? 2 : 1;
+  const thornsPerHit = hasSpecial(monster, 'thorns')
+    ? Math.max(1, Math.floor(monAtk * (monster.thornsRatio ?? 0.25)))
+    : 0;
+  const berserkRate = hasSpecial(monster, 'berserk') ? (monster.berserkRate ?? 0.12) : 0;
+
+  const roundStrikeDamage = (roundIndex: number): number => {
+    const scaledAtk = berserkRate > 0 ? Math.floor(monAtk * (1 + berserkRate * roundIndex)) : monAtk;
+    return Math.max(0, scaledAtk - effDef) * hitMul;
+  };
+
   let initDamage = 0;
   if (hasSpecial(monster, 'vampire')) {
-    const ratio = monster.vampireRatio ?? 1 / 3;
+    const ratio = monster.vampireRatio ?? 0.25;
     initDamage += Math.floor(heroHp * ratio);
   }
-
-  let perDamage = hasSpecial(monster, 'magic') ? monAtk : Math.max(0, monAtk - heroDef);
-  if (hasSpecial(monster, 'doubleHit')) {
-    perDamage *= 2;
-  }
-
   if (hasSpecial(monster, 'firstStrike')) {
-    initDamage += perDamage;
+    initDamage += roundStrikeDamage(0);
   }
 
-  const turns = Math.ceil(monHp / heroPerDamage);
-  const damage = Math.max(0, Math.floor(initDamage + (turns - 1) * perDamage));
+  let turnDamage = 0;
+  for (let i = 0; i < enemyAttacks; i += 1) {
+    turnDamage += roundStrikeDamage(i) + thornsPerHit;
+  }
+
+  const perDamage = roundStrikeDamage(0) + thornsPerHit;
+  const damage = Math.max(0, Math.floor(initDamage + turnDamage));
 
   return {
     monHp,
@@ -117,7 +140,7 @@ export function getNextCritical(
     };
   }
 
-  if (current.turns <= 1 || current.perDamage <= 0) {
+  if (current.turns <= 1 || current.damage <= current.initDamage) {
     return { atkNeeded: 0, damageReduced: 0 };
   }
 

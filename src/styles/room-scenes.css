@@ -78,9 +78,10 @@ html[data-scene="night"] {
     --scene-glass: 1;
     background: none;
   }
-  html[data-photo-scene="morning"] { --window-light: 212 224 230; --window-return: .085; }
-  html[data-photo-scene="noon"] { --window-light: 239 238 232; --window-return: .16; }
-  html[data-photo-scene="dusk"] { --window-light: 240 177 129; --window-return: .075; }
+  html[data-photo-scene="morning"] { --window-light: 212 224 230; --window-return: .085; --crt-shoulder-rgb: 86 84 76; --crt-shoulder-dark-rgb: 38 37 35; --crt-shoulder-alpha: .26; }
+  html[data-photo-scene="noon"] { --window-light: 239 238 232; --window-return: .16; --crt-shoulder-rgb: 102 96 86; --crt-shoulder-dark-rgb: 44 41 38; --crt-shoulder-alpha: .28; }
+  html[data-photo-scene="dusk"] { --window-light: 240 177 129; --window-return: .075; --crt-shoulder-rgb: 62 50 42; --crt-shoulder-dark-rgb: 28 24 21; --crt-shoulder-alpha: .24; }
+  html[data-photo-scene="night"] { --crt-shoulder-rgb: 26 24 22; --crt-shoulder-dark-rgb: 12 12 14; --crt-shoulder-alpha: .28; }
   html[data-scene] .crt-glass::after {
     inset: var(--tube-overscan);
     background: rgb(var(--window-light, 234 228 213));
@@ -109,7 +110,8 @@ html[data-scene="night"] {
       transition: opacity .65s cubic-bezier(.4, 0, .2, 1);
     }
     html[data-scene] .crt-glass::before,
-    html[data-scene] .crt-glass::after {
+    html[data-scene] .crt-glass::after,
+    html[data-scene] .crt-bezel::after {
       transition: opacity .65s cubic-bezier(.4, 0, .2, 1), background-color .65s cubic-bezier(.4, 0, .2, 1);
     }
     .bezel-power .hardware-led {

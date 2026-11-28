@@ -1,0 +1,1542 @@
+/* ==========================================================================
+   Rainbow OS — Complete Chrome, Tab Bar, Floating Pill Dock, Squircle Windows
+   Strictly scoped to html[data-os="rainbow"]
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Base Stage, Selection, Focus & Daylight CRT Optics (TOP-ONLY *.fig Studio)
+   -------------------------------------------------------------------------- */
+html[data-os="rainbow"] .taskbar {
+  display: none !important;
+}
+
+html[data-os="rainbow"] .screen-plane {
+  --taskbar-height: 0px;
+  --wmax-bottom: 18px;
+  --window-left: 248px;
+  --window-top: 20px;
+  --window-right: 42px;
+  --window-bottom: 18px;
+  --rail-left: 34px;
+  --rail-top: 18px;
+}
+
+html[data-os="rainbow"] .screen-stage {
+  background-position: -0.25px -0.25px;
+}
+
+html[data-os="rainbow"] ::selection {
+  background: var(--rb-selection);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] :focus-visible {
+  outline: 2px solid var(--rb-pink);
+  outline-offset: 3px;
+}
+
+html[data-os="rainbow"] .phosphor-picture img {
+  filter: none;
+}
+
+/* Crisp daylight contrast for outer room/fullscreen camera controls */
+html[data-os="rainbow"] .camera,
+html[data-os="rainbow"][data-zoom="fullscreen"] .camera {
+  border: 1px solid var(--rb-ink);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24), 0 2px 0 var(--rb-ink);
+}
+
+html[data-os="rainbow"][data-zoom="fullscreen"] .camera {
+  bottom: 12px;
+  left: 12px;
+}
+
+html[data-os="rainbow"] .camera button {
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .camera svg {
+  filter: none;
+}
+
+html[data-os="rainbow"] .camera button:hover:enabled {
+  background: var(--rb-yellow);
+}
+
+/* Display typography weight & tracking for Outfit Variable */
+html[data-os="rainbow"] .hero-title,
+html[data-os="rainbow"] .page-title,
+html[data-os="rainbow"] .section-title,
+html[data-os="rainbow"] .prose :is(h2, h3, h4) {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+html[data-os="rainbow"] .hero-title {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+html[data-os="rainbow"] .page-title {
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+html[data-os="rainbow"] .section-title {
+  line-height: 1.1;
+}
+
+/* --------------------------------------------------------------------------
+   2. Persistent Top *.fig Browser Tab Bar (.os-topbar)
+   -------------------------------------------------------------------------- */
+html[data-os="rainbow"] .os-topbar {
+  display: flex;
+  padding: 0 12px;
+  gap: 10px;
+  border-bottom: 1px solid var(--rb-ink);
+  background: var(--rb-white);
+  color: var(--rb-ink);
+  font-family: var(--font-sans);
+}
+
+/* Keep top tab bar brand, controls & bottom canvas safely clear of curved CRT glass corners in room/close views */
+@media (min-width: 1000px) and (min-aspect-ratio: 6/5) {
+  html[data-os="rainbow"]:not([data-zoom="fullscreen"]) {
+    --topbar-height: 52px;
+  }
+
+  html[data-os="rainbow"]:not([data-zoom="fullscreen"]) .screen-plane {
+    --window-bottom: 28px;
+    --wmax-bottom: 28px;
+  }
+
+  html[data-os="rainbow"]:not([data-zoom="fullscreen"]) .os-topbar {
+    padding: 6px 48px 0;
+  }
+
+  html[data-os="rainbow"]:not([data-zoom="fullscreen"]) .desktop-space {
+    --wallpaper-bottom: 34px;
+  }
+
+  html[data-os="rainbow"]:not([data-zoom="fullscreen"]) .desktop-home {
+    --hint-start: 44px;
+    --hint-bottom: 24px;
+  }
+}
+
+html[data-os="rainbow"] .os-topbar-left {
+  gap: 8px;
+  height: 100%;
+}
+
+html[data-os="rainbow"] .os-topbar-brand {
+  gap: 7px;
+  padding: 3px 6px 3px 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+html[data-os="rainbow"] .os-topbar-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--rb-ink);
+  border-radius: 7px;
+  background: var(--os-accent);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .os-topbar-mark::after {
+  content: "✦";
+  font-size: 13px;
+  line-height: 1;
+}
+
+html[data-os="rainbow"] .os-topbar-menu-btn {
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--rb-ink);
+  border-radius: var(--rb-radius-pill);
+  background: var(--rb-cream);
+  color: var(--rb-ink);
+  font-weight: 600;
+  font-size: 12px;
+  transition: background-color 140ms ease, transform 120ms var(--rb-ease-out);
+}
+
+html[data-os="rainbow"] .os-topbar-menu-btn:hover,
+html[data-os="rainbow"] .os-topbar-menu-btn[aria-expanded="true"] {
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+}
+
+/* Bottom-flush Figma/Browser *.fig Tabs */
+html[data-os="rainbow"] .os-topbar-links {
+  display: inline-flex;
+  align-items: flex-end;
+  align-self: flex-end;
+  gap: 3px;
+  height: 34px;
+  margin-left: 2px;
+}
+
+html[data-os="rainbow"] .os-topbar-links a {
+  display: inline-flex;
+  align-items: center;
+  height: 33px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  color: var(--rb-ink-56);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+html[data-os="rainbow"] .os-topbar-links a::after {
+  content: ".fig";
+  opacity: 0.55;
+  font-size: 11.5px;
+}
+
+html[data-os="rainbow"] .os-topbar-links a:hover {
+  background: var(--rb-ink-05);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .os-topbar-links a[aria-current="page"] {
+  position: relative;
+  height: 34px;
+  margin-bottom: -1px;
+  border-color: var(--rb-ink);
+  border-bottom: 1px solid var(--rb-yellow);
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+  font-weight: 600;
+}
+
+html[data-os="rainbow"] .os-topbar-links a[aria-current="page"]::after {
+  opacity: 0.85;
+}
+
+/* Center Active Document Tab */
+html[data-os="rainbow"] .os-topbar-center {
+  height: 100%;
+  align-items: flex-end;
+}
+
+html[data-os="rainbow"] .os-topbar-tab {
+  align-items: center;
+  gap: 0;
+  height: 34px;
+  margin-bottom: -1px;
+  padding: 0 12px;
+  border: 1px solid var(--rb-ink);
+  border-bottom: 1px solid var(--rb-yellow);
+  border-radius: 10px 10px 0 0;
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* Hide redundant center tab on desktop when one of the 5 left tabs is already active without a child slug */
+@media (min-width: 961px) {
+  html[data-os="rainbow"] .screen-stage:not([data-active-label]) .os-topbar-tab:is(
+    [data-section="work"],
+    [data-section="journal"],
+    [data-section="about"],
+    [data-section="contact"],
+    [data-section="games"]
+  ) {
+    display: none;
+  }
+}
+
+/* When viewing a child route (/work/[slug], /journal/[slug]), show center pill alongside left parent tab */
+html[data-os="rainbow"] .screen-stage[data-active-label] .os-topbar-tab:is(
+  [data-section="work"],
+  [data-section="journal"],
+  [data-section="about"],
+  [data-section="contact"],
+  [data-section="games"]
+) {
+  align-self: center;
+  height: 26px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--rb-ink);
+  border-radius: var(--rb-radius-pill);
+  background: var(--rb-cream);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* On desktop home (/), style the tagline cleanly as a soft cream studio pill without appending .fig */
+html[data-os="rainbow"] .os-topbar-tab[data-section="desktop"] {
+  align-self: center;
+  height: 26px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--rb-ink-30);
+  border-color: var(--rb-ink-30);
+  border-radius: var(--rb-radius-pill);
+  background: var(--rb-cream);
+  color: var(--rb-ink-72);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+html[data-os="rainbow"] .os-topbar-tab[data-section="desktop"] .os-topbar-tab-ext {
+  display: none;
+}
+
+html[data-os="rainbow"] .os-topbar-path {
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .os-topbar-tab-ext {
+  display: inline;
+  color: var(--rb-ink-72);
+  font-weight: 500;
+}
+
+/* Right Mini Music, Sound Toggle, Hot-Pink OS Switcher & Clock */
+html[data-os="rainbow"] .os-topbar-right {
+  gap: 7px;
+}
+
+/* Top-only OS: hide redundant status chip next to OS switcher */
+html[data-os="rainbow"] .os-topbar-status {
+  display: none;
+}
+
+html[data-os="rainbow"] .os-topbar-music {
+  height: 28px;
+  max-width: 144px;
+  border: 1px solid var(--rb-ink);
+  border-radius: var(--rb-radius-pill);
+  background: var(--rb-white);
+  color: var(--rb-ink);
+  box-shadow: 0 1.5px 0 var(--rb-ink);
+}
+
+html[data-os="rainbow"] .os-topbar-music[data-playing="true"] {
+  background: var(--rb-yellow);
+}
+
+html[data-os="rainbow"] .os-topbar-music-toggle {
+  width: 26px;
+  border-right-color: var(--rb-ink-30);
+}
+
+html[data-os="rainbow"] .os-topbar-music-link {
+  padding: 0 8px 0 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+html[data-os="rainbow"] .os-topbar-music-toggle:hover,
+html[data-os="rainbow"] .os-topbar-music-link:hover {
+  background: var(--rb-pink);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .os-topbar-sound {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--rb-ink);
+  border-radius: 50%;
+  background: var(--rb-white);
+  color: var(--rb-ink);
+  box-shadow: 0 1.5px 0 var(--rb-ink);
+  transition: transform 120ms var(--rb-ease-out), background-color 140ms ease;
+}
+
+html[data-os="rainbow"] .os-topbar-sound[aria-pressed="false"] {
+  background: var(--rb-sand);
+  color: var(--rb-ink-56);
+}
+
+html[data-os="rainbow"] .os-topbar-sound:hover {
+  background: var(--rb-blue);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .os-topbar-sound-toast {
+  border: 1px solid var(--rb-ink);
+  border-radius: 12px;
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+  font-weight: 500;
+  box-shadow: var(--rb-shadow-float);
+}
+
+html[data-os="rainbow"] .os-topbar-os-btn {
+  height: 28px;
+  padding: 0 11px;
+  border: 1px solid var(--rb-ink);
+  border-radius: var(--rb-radius-pill);
+  background: var(--os-accent);
+  color: var(--rb-ink);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 1.5px 0 var(--rb-ink);
+  transition: transform 120ms var(--rb-ease-out), background-color 140ms ease;
+}
+
+html[data-os="rainbow"] .os-topbar-os-btn:hover,
+html[data-os="rainbow"] .os-topbar-os-btn[aria-expanded="true"] {
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .os-topbar-os-menu {
+  top: calc(100% + 7px);
+  min-width: 186px;
+  padding: 6px;
+  border: 1px solid var(--rb-ink);
+  border-radius: 14px;
+  background: var(--rb-white);
+  box-shadow: var(--rb-shadow-float);
+}
+
+html[data-os="rainbow"] .os-topbar-os-option {
+  padding: 7px 10px;
+  border-radius: 9px;
+  font-weight: 500;
+}
+
+html[data-os="rainbow"] .os-topbar-os-option[aria-checked="true"] {
+  background: var(--rb-pink-tint);
+  box-shadow: inset 0 0 0 1px var(--rb-pink);
+  font-weight: 600;
+}
+
+html[data-os="rainbow"] .os-topbar-os-option:is(:hover, :focus-visible) {
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+  box-shadow: inset 0 0 0 1px var(--rb-ink);
+}
+
+html[data-os="rainbow"] .os-topbar-clock {
+  padding: 3px 8px;
+  border: 1px solid var(--rb-ink-30);
+  border-radius: var(--rb-radius-pill);
+  background: var(--rb-cream);
+  color: var(--rb-ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   3. Desktop Icons, Hero Marquee & NOW.txt Studio Widget
+   -------------------------------------------------------------------------- */
+html[data-os="rainbow"] .desktop-icons {
+  grid-template-columns: repeat(2, 84px);
+  gap: 8px 10px;
+}
+
+html[data-os="rainbow"] .desktop-icon {
+  gap: 5px;
+  padding: 7px 5px 6px;
+  border-radius: 14px;
+  color: var(--rb-ink);
+  text-decoration: none;
+  transition: transform 150ms var(--rb-ease-spring), background-color 140ms ease, box-shadow 140ms ease;
+}
+
+html[data-os="rainbow"] .desktop-icon svg {
+  width: 46px;
+  height: 46px;
+  padding: 9px;
+  border: 1px solid var(--rb-ink);
+  border-radius: 13px;
+  background: var(--rb-white);
+  color: var(--rb-ink);
+  box-shadow: 0 2px 0 var(--rb-ink);
+  filter: none;
+  transition: transform 150ms var(--rb-ease-spring), background-color 140ms ease, box-shadow 140ms ease;
+}
+
+/* Playful Amara Makes CMY-Pop folder/app tile tints */
+html[data-os="rainbow"] .desktop-icon:nth-child(4n + 1) svg { background: var(--rb-pink); }
+html[data-os="rainbow"] .desktop-icon:nth-child(4n + 2) svg { background: var(--rb-yellow); }
+html[data-os="rainbow"] .desktop-icon:nth-child(4n + 3) svg { background: var(--rb-blue); }
+html[data-os="rainbow"] .desktop-icon:nth-child(4n + 4) svg { background: var(--rb-orange); }
+html[data-os="rainbow"] .desktop-icon:nth-child(9) svg { background: var(--rb-white); }
+
+html[data-os="rainbow"] .desktop-icon span {
+  padding: 2px 7px;
+  border: 1px solid transparent;
+  border-radius: var(--rb-radius-pill);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--rb-ink);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+html[data-os="rainbow"] .desktop-icon:is(:hover, :focus-visible) {
+  background: rgba(255, 84, 221, 0.08);
+  box-shadow: inset 0 0 0 1.5px var(--rb-pink);
+  outline: none;
+}
+
+html[data-os="rainbow"] .desktop-icon:focus-visible {
+  background: rgba(255, 84, 221, 0.12);
+  box-shadow: inset 0 0 0 2px var(--rb-pink);
+}
+
+html[data-os="rainbow"] .desktop-icon:is(:hover, :focus-visible) svg {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 0 var(--rb-ink);
+}
+
+html[data-os="rainbow"] .desktop-icon:is(:hover, :focus-visible) span,
+html[data-os="rainbow"] .desktop-icon[aria-current="location"] span {
+  border-color: var(--rb-ink);
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+}
+
+/* Desktop Status Widget — Compact Amara Makes Sticky Card (Top-Right) */
+html[data-os="rainbow"] .os-desktop-widget {
+  display: flex;
+  inset-block-start: 18px;
+  inset-inline-end: 42px;
+  width: min(312px, calc(100% - 268px));
+  border: 1px solid var(--rb-ink);
+  border-radius: 18px;
+  background: var(--rb-white);
+  box-shadow: var(--rb-shadow-window);
+  overflow: hidden;
+  transform: rotate(0.6deg);
+  transition: transform 200ms var(--rb-ease-spring), box-shadow 200ms ease;
+}
+
+html[data-os="rainbow"] .os-desktop-widget:hover {
+  transform: rotate(0deg) translateY(-2px);
+}
+
+html[data-os="rainbow"] .os-widget-header {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--rb-ink);
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+html[data-os="rainbow"] .os-widget-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--rb-ink);
+  border-radius: 50%;
+  background: var(--rb-green);
+  color: transparent;
+  overflow: hidden;
+}
+
+html[data-os="rainbow"] .os-widget-body {
+  gap: 7px;
+  padding: 12px 14px;
+}
+
+html[data-os="rainbow"] .os-widget-kicker {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--rb-ink-56);
+}
+
+html[data-os="rainbow"] .os-widget-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .os-widget-note {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--rb-ink-80);
+}
+
+html[data-os="rainbow"] .os-widget-tags {
+  gap: 5px;
+  margin-top: 2px;
+}
+
+html[data-os="rainbow"] .os-widget-tags li {
+  padding: 2px 8px;
+  border: 1px solid var(--rb-ink);
+  border-radius: var(--rb-radius-pill);
+  color: var(--rb-ink);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+html[data-os="rainbow"] .os-widget-tags li:nth-child(4n + 1) { background: var(--rb-pink); }
+html[data-os="rainbow"] .os-widget-tags li:nth-child(4n + 2) { background: var(--rb-yellow); }
+html[data-os="rainbow"] .os-widget-tags li:nth-child(4n + 3) { background: var(--rb-blue); }
+html[data-os="rainbow"] .os-widget-tags li:nth-child(4n + 4) { background: var(--rb-orange); }
+
+html[data-os="rainbow"] .os-widget-footer {
+  gap: 6px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--rb-ink-30);
+  background: var(--rb-cream);
+}
+
+html[data-os="rainbow"] .os-widget-link {
+  padding: 3px 10px;
+  border: 1px solid var(--rb-ink);
+  border-radius: var(--rb-radius-pill);
+  background: var(--rb-white);
+  color: var(--rb-ink);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 140ms ease, transform 120ms var(--rb-ease-out);
+}
+
+html[data-os="rainbow"] .os-widget-link:hover {
+  background: var(--rb-pink);
+  color: var(--rb-ink);
+  transform: translateY(-1px);
+}
+
+/* Desktop Home Wallpaper Hero (Bottom-Right, clean clearance from top-right widget & CRT bottom curve) */
+html[data-os="rainbow"] .desktop-space {
+  --wallpaper-end: 42px;
+  --wallpaper-bottom: 28px;
+  --wallpaper-width: 720px;
+}
+
+html[data-os="rainbow"] .desktop-home {
+  --intro-width: 38ch;
+  --hint-start: 34px;
+  --hint-bottom: 20px;
+}
+
+html[data-os="rainbow"][data-zoom="fullscreen"] .desktop-home {
+  --hint-start: 72px;
+  --hint-bottom: 18px;
+}
+
+html[data-os="rainbow"] .desktop-home-wallpaper {
+  gap: 14px;
+}
+
+html[data-os="rainbow"] .desktop-home-wallpaper .typed-text {
+  padding: 10px 14px;
+  border: 1px solid var(--rb-ink);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--rb-ink-80);
+  font-size: 15.5px;
+  line-height: 1.48;
+  box-shadow: 0 4px 12px rgba(34, 22, 10, 0.08);
+  text-align: start;
+}
+
+html[data-os="rainbow"] .typed-marker::after {
+  background: var(--rb-pink);
+  box-shadow: none;
+  border-radius: 2px;
+}
+
+/* Figma-style Pink Selection Marquee around Hero Wordmark */
+html[data-os="rainbow"] .desktop-home-wallpaper .hero-title {
+  position: relative;
+  padding: 8px 18px;
+  border: 1.5px solid var(--rb-pink);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--rb-ink);
+  text-shadow: 3px 3px 0 var(--rb-yellow);
+}
+
+html[data-os="rainbow"] .desktop-home-wallpaper .hero-title::before,
+html[data-os="rainbow"] .desktop-home-wallpaper .hero-title::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--rb-ink);
+  background: var(--rb-pink);
+}
+
+html[data-os="rainbow"] .desktop-home-wallpaper .hero-title::before {
+  top: -5px;
+  left: -5px;
+}
+
+html[data-os="rainbow"] .desktop-home-wallpaper .hero-title::after {
+  right: -5px;
+  bottom: -5px;
+}
+
+html[data-os="rainbow"] .desktop-wallpaper {
+  opacity: 0.16;
+  color: var(--rb-ink);
+}
+
+/* Desktop Home Footer & Like Pill */
+html[data-os="rainbow"] .desktop-home-hint {
+  padding: 4px 10px;
+  border: 1px solid var(--rb-ink-30);
+  border-radius: var(--rb-radius-pill);
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--rb-ink-72);
+  font-weight: 500;
+}
+
+html[data-os="rainbow"] .desktop-like-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--rb-ink);
+  border-radius: var(--rb-radius-pill);
+  background: var(--rb-white);
+  color: var(--rb-ink);
+  font-weight: 600;
+  box-shadow: 0 2px 0 var(--rb-ink);
+}
+
+html[data-os="rainbow"] .desktop-like-btn svg {
+  color: var(--rb-pink);
+  filter: none;
+}
+
+html[data-os="rainbow"] .desktop-like-btn[aria-pressed="true"],
+html[data-os="rainbow"] .desktop-like-btn:is(:hover, :focus-visible) {
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .desktop-like-btn:is(:hover, :focus-visible) .desktop-like-count {
+  background: transparent;
+  color: var(--rb-ink);
+}
+
+/* --------------------------------------------------------------------------
+   4. Squircle OS Windows & Per-Section CMY-Pop Titlebars
+   -------------------------------------------------------------------------- */
+/* Per-section CMY titlebar rotation */
+html[data-os="rainbow"] .screen-stage:is([data-section="work"], [data-section="about"], [data-section="contact"], [data-section="system"]) {
+  --os-titlebar-bg: var(--rb-pink);
+  --rb-dot-1: var(--rb-white);
+  --rb-dot-2: var(--rb-yellow);
+  --rb-dot-3: var(--rb-blue);
+}
+
+html[data-os="rainbow"] .screen-stage:is([data-section="article"], [data-section="journal"], [data-section="error"]) {
+  --os-titlebar-bg: var(--rb-yellow);
+  --rb-dot-1: var(--rb-white);
+  --rb-dot-2: var(--rb-pink);
+  --rb-dot-3: var(--rb-blue);
+}
+
+html[data-os="rainbow"] .screen-stage:is([data-section="browser"], [data-section="chat"], [data-section="message-board"]) {
+  --os-titlebar-bg: var(--rb-blue);
+  --rb-dot-1: var(--rb-white);
+  --rb-dot-2: var(--rb-yellow);
+  --rb-dot-3: var(--rb-pink);
+}
+
+html[data-os="rainbow"] .screen-stage:is(
+  [data-section="games"],
+  [data-section="mota"],
+  [data-section="minesweeper"],
+  [data-section="tetris"],
+  [data-section="snake"],
+  [data-section="game2048"]
+) {
+  --os-titlebar-bg: var(--rb-orange);
+  --rb-dot-1: var(--rb-white);
+  --rb-dot-2: var(--rb-pink);
+  --rb-dot-3: var(--rb-blue);
+}
+
+/* Contrasting stacked child window titlebar */
+html[data-os="rainbow"] .screen-stage[data-section="work"] .os-window--child {
+  --os-titlebar-bg: var(--rb-yellow);
+  --rb-dot-2: var(--rb-pink);
+}
+
+html[data-os="rainbow"] .screen-stage[data-section="journal"] .os-window--child {
+  --os-titlebar-bg: var(--rb-pink);
+  --rb-dot-2: var(--rb-yellow);
+}
+
+/* Classic Six-Color preset adds Apple Leaf Green to Games/Snake */
+html[data-os="rainbow"][data-theme="classic"] .screen-stage:is([data-section="games"], [data-section="snake"]) {
+  --os-titlebar-bg: var(--rb-green);
+  --rb-dot-1: var(--rb-white);
+  --rb-dot-2: var(--rb-yellow);
+  --rb-dot-3: var(--rb-pink);
+}
+
+html[data-os="rainbow"] .os-window {
+  border-radius: var(--os-radius-window);
+  background: var(--os-surface);
+  box-shadow: var(--rb-shadow-window);
+  overflow: hidden;
+}
+
+@supports (corner-shape: superellipse(2)) {
+  html[data-os="rainbow"] .os-window,
+  html[data-os="rainbow"] .os-window::after {
+    corner-shape: superellipse(2);
+  }
+}
+
+html[data-os="rainbow"] .os-window[data-wfocus="off"] {
+  --frame-ink: var(--rb-ink-56);
+  box-shadow: var(--rb-shadow-window-idle);
+}
+
+html[data-os="rainbow"] .os-window[data-wmax="on"] {
+  inset: 14px 20px var(--wmax-bottom) 20px;
+}
+
+html[data-os="rainbow"][data-zoom="fullscreen"] .os-window[data-wmax="on"] {
+  inset: 14px 16px 16px 68px;
+}
+
+html[data-os="rainbow"] .window-titlebar {
+  min-height: 44px;
+  padding: 7px 10px 7px 14px;
+  border-radius: 0;
+  border-bottom: 1px solid var(--rb-ink);
+  background-color: var(--os-titlebar-bg);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .os-window[data-wfocus="off"] .window-titlebar {
+  border-bottom-color: var(--rb-ink-30);
+  background-color: var(--rb-sand);
+  color: var(--rb-ink-56);
+  box-shadow: none;
+}
+
+/* Signature 3 Black-Outlined Traffic-Light Dots */
+html[data-os="rainbow"] .window-titlebar-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 4px;
+  flex: none;
+}
+
+html[data-os="rainbow"] .window-titlebar-dots > i {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--rb-ink);
+  border-radius: 50%;
+  flex: none;
+}
+
+html[data-os="rainbow"] .window-titlebar-dots > i:nth-child(1) { background: var(--rb-dot-1); }
+html[data-os="rainbow"] .window-titlebar-dots > i:nth-child(2) { background: var(--rb-dot-2); }
+html[data-os="rainbow"] .window-titlebar-dots > i:nth-child(3) { background: var(--rb-dot-3); }
+
+html[data-os="rainbow"] .os-window[data-wfocus="off"] .window-titlebar-dots {
+  opacity: 0.5;
+}
+
+html[data-os="rainbow"] .window-title {
+  font-family: var(--font-sans);
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Circular White Window Action Buttons (strip phosphor 3D keycap bevel) */
+html[data-os="rainbow"] .window-actions {
+  gap: 6px;
+}
+
+html[data-os="rainbow"] .window-actions .pixel-key {
+  --key-size: 28px;
+  border: 1px solid var(--rb-ink);
+  border-radius: 50%;
+  background: var(--rb-white);
+  color: var(--rb-ink);
+  box-shadow: 0 1.5px 0 var(--rb-ink);
+  transition: transform 110ms var(--rb-ease-out), background-color 130ms ease, box-shadow 110ms ease;
+}
+
+html[data-os="rainbow"] .window-actions .pixel-key::before {
+  display: none;
+}
+
+html[data-os="rainbow"] .window-actions .pixel-key svg {
+  transform: none;
+  width: 13px;
+  height: 13px;
+}
+
+html[data-os="rainbow"] .window-actions .pixel-key:hover {
+  background: var(--rb-yellow);
+  transform: translateY(-1px);
+  box-shadow: 0 2.5px 0 var(--rb-ink);
+}
+
+html[data-os="rainbow"] .window-actions .window-close:hover {
+  background: var(--rb-pink);
+}
+
+html[data-os="rainbow"] .window-actions .pixel-key:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+html[data-os="rainbow"] .window-actions .pixel-key:active svg {
+  transform: none;
+}
+
+html[data-os="rainbow"] .window-actions .pixel-key:focus-visible {
+  outline: 2px solid var(--rb-ink);
+  outline-offset: 3px;
+}
+
+/* Breadcrumb Path Bar & Status Bar */
+html[data-os="rainbow"] .window-path {
+  padding: 6px 14px;
+  background: var(--rb-white);
+  box-shadow: inset 0 -1px var(--rb-ink-30);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+html[data-os="rainbow"] .window-path a {
+  padding: 1px 7px;
+  margin-inline: -4px;
+  border-radius: var(--rb-radius-pill);
+  opacity: 0.78;
+  text-decoration: none;
+}
+
+html[data-os="rainbow"] .window-path a:hover {
+  opacity: 1;
+  background: var(--rb-yellow-tint);
+  box-shadow: inset 0 0 0 1px var(--rb-ink);
+  text-decoration: none;
+}
+
+html[data-os="rainbow"] .window-status {
+  padding: 6px 14px;
+  border-radius: 0;
+  background: var(--rb-white);
+  box-shadow: inset 0 1px var(--rb-ink);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+html[data-os="rainbow"] .window-status > * {
+  opacity: 0.72;
+}
+
+/* Custom Rounded Scrollbar */
+html[data-os="rainbow"] .window-scroll {
+  scrollbar-color: rgba(0, 0, 0, 0.26) transparent;
+}
+
+html[data-os="rainbow"] .window-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html[data-os="rainbow"] .window-scroll::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: var(--rb-radius-pill);
+  background: rgba(0, 0, 0, 0.24);
+  background-clip: content-box;
+}
+
+html[data-os="rainbow"] .window-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--rb-pink);
+  background-clip: content-box;
+}
+
+/* Error Dialog (/404 — missing.fig) */
+html[data-os="rainbow"] .os-window--error {
+  width: min(500px, calc(100% - 24px));
+  height: min(300px, calc(100% - 20px));
+}
+
+html[data-os="rainbow"] .error-message {
+  background: var(--rb-white);
+}
+
+html[data-os="rainbow"] .error-message > svg {
+  padding: 8px;
+  border: 1px solid var(--rb-ink);
+  border-radius: 50%;
+  background: var(--rb-pink);
+  color: var(--rb-ink);
+}
+
+/* --------------------------------------------------------------------------
+   5. Top-Anchored Pull-Down Start Menu & Submenus (Figma / search.fig Popover Style)
+   -------------------------------------------------------------------------- */
+html[data-os="rainbow"] .start-menu {
+  top: calc(100% + 8px);
+  bottom: auto;
+  z-index: 40;
+  border: 1px solid var(--rb-ink);
+  border-radius: 18px;
+  background: var(--rb-white);
+  box-shadow: var(--rb-shadow-float);
+  overflow: visible;
+}
+
+html[data-os="rainbow"] .start-menu-spine {
+  border-right: 1px solid var(--rb-ink);
+  border-radius: 17px 0 0 17px;
+  background: var(--os-accent);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .start-menu-spine-mark {
+  border-color: var(--rb-ink);
+  border-radius: 50%;
+  background: var(--rb-yellow);
+  box-shadow: none;
+}
+
+html[data-os="rainbow"] .start-menu-spine-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+html[data-os="rainbow"] .start-menu-list-scroll {
+  padding: 6px;
+}
+
+html[data-os="rainbow"] .start-menu-item {
+  min-height: 34px;
+  padding: 5px 10px;
+  border-radius: 10px;
+  color: var(--rb-ink);
+  font-weight: 500;
+  transition: background-color 120ms ease;
+}
+
+html[data-os="rainbow"] .start-menu-item[aria-current="page"],
+html[data-os="rainbow"] .start-menu-folder-trigger[data-folder-active="true"] {
+  background: var(--rb-pink-tint);
+  box-shadow: inset 0 0 0 1px var(--rb-pink);
+}
+
+html[data-os="rainbow"] .start-menu-folder[data-open="true"] > .start-menu-folder-trigger,
+html[data-os="rainbow"] .start-menu-item:not(:disabled):is(:hover, :focus-visible) {
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+  box-shadow: inset 0 0 0 1px var(--rb-ink);
+}
+
+html[data-os="rainbow"] .start-menu-state {
+  border-radius: var(--rb-radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+html[data-os="rainbow"] .start-menu-item[aria-pressed="true"] .start-menu-state {
+  background: var(--rb-pink);
+  color: var(--rb-ink);
+  border-color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .start-submenu {
+  padding: 6px;
+  border: 1px solid var(--rb-ink);
+  border-radius: 16px;
+  background: var(--rb-cream);
+  box-shadow: var(--rb-shadow-float);
+}
+
+html[data-os="rainbow"] .start-menu-footer {
+  padding: 6px;
+  border-top: 1px solid var(--rb-ink-30);
+  border-radius: 0 0 17px 0;
+  background: var(--rb-cream);
+}
+
+/* --------------------------------------------------------------------------
+   6. Shared Interactive Controls, Cards, Forms, Prose & App Polish
+   -------------------------------------------------------------------------- */
+/* Tactile Pill Buttons (replaces phosphor 3D pixel keycap bevel) */
+html[data-os="rainbow"] .pixel-key {
+  min-height: 36px;
+  padding: 7px 15px;
+  border: 1px solid var(--rb-ink);
+  border-radius: var(--rb-radius-pill);
+  background: var(--rb-white);
+  color: var(--rb-ink);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  box-shadow: var(--rb-shadow-key);
+  transition: transform 120ms var(--rb-ease-out), box-shadow 120ms var(--rb-ease-out), background-color 140ms ease;
+}
+
+html[data-os="rainbow"] .pixel-key--primary {
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .pixel-key--icon {
+  padding: 0;
+  border-radius: 10px;
+}
+
+html[data-os="rainbow"] .pixel-key:hover {
+  background: var(--rb-cream);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 0 var(--rb-ink);
+}
+
+html[data-os="rainbow"] .pixel-key--primary:hover {
+  background: var(--rb-pink);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .pixel-key:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* Work & Article Cards (Amara Makes crisp white cards with CMY pop hover) */
+html[data-os="rainbow"] .work-card,
+html[data-os="rainbow"] .article-card {
+  padding: 10px;
+  border: 1px solid var(--rb-ink);
+  border-radius: var(--rb-radius-card);
+  background: var(--rb-white);
+  color: var(--rb-ink);
+  box-shadow: 0 2px 0 var(--rb-ink);
+  transition: transform 160ms var(--rb-ease-spring), box-shadow 160ms ease;
+}
+
+html[data-os="rainbow"] .work-card:is(:hover, :focus-visible),
+html[data-os="rainbow"] .article-card:is(:hover, :focus-visible) {
+  transform: translateY(-3px);
+  box-shadow: inset 0 0 0 2px var(--rb-pink), 0 5px 0 var(--rb-ink);
+  outline: none;
+}
+
+html[data-os="rainbow"] .work-card-image,
+html[data-os="rainbow"] .work-media-image,
+html[data-os="rainbow"] .article-card-media,
+html[data-os="rainbow"] .journal-cover img {
+  border: 1px solid var(--rb-ink);
+  border-radius: 11px;
+  background: var(--rb-cream);
+}
+
+html[data-os="rainbow"] .work-card h2,
+html[data-os="rainbow"] .article-card-title {
+  padding: 2px 8px;
+  border-radius: var(--rb-radius-pill);
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+html[data-os="rainbow"] .work-card:is(:hover, :focus-visible) h2,
+html[data-os="rainbow"] .article-card:is(:hover, :focus-visible) .article-card-title {
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .work-meta,
+html[data-os="rainbow"] .wizard-steps,
+html[data-os="rainbow"] .faq-list {
+  border: 1px solid var(--rb-ink);
+  border-radius: 14px;
+  background: var(--rb-white);
+  overflow: hidden;
+}
+
+/* Chips, Badges & Tags */
+html[data-os="rainbow"] .journal-chip,
+html[data-os="rainbow"] .about-tags li,
+html[data-os="rainbow"] .about-handle-badge,
+html[data-os="rainbow"] .music-mode-chip {
+  border: 1px solid var(--rb-ink);
+  border-radius: var(--rb-radius-pill);
+  background: var(--rb-white);
+  color: var(--rb-ink);
+  box-shadow: none;
+  font-weight: 500;
+}
+
+html[data-os="rainbow"] .journal-chip[aria-pressed="true"],
+html[data-os="rainbow"] .about-handle-badge {
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] .journal-contents a[aria-current="location"] {
+  border-radius: var(--rb-radius-pill);
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+  box-shadow: inset 0 0 0 1px var(--rb-ink);
+}
+
+/* Inputs, Selects & Textareas */
+html[data-os="rainbow"] :is(
+  .contact-field input,
+  .contact-field select,
+  .contact-field textarea,
+  .journal-search input,
+  .journal-tag select,
+  .journal-share input,
+  .specimen-fields input,
+  .specimen-fields select
+) {
+  border: 1px solid var(--rb-ink-30);
+  border-radius: 10px;
+  background: var(--rb-white);
+  color: var(--rb-ink);
+}
+
+html[data-os="rainbow"] :is(
+  .contact-field input,
+  .contact-field select,
+  .contact-field textarea,
+  .journal-search input,
+  .journal-tag select,
+  .journal-share input,
+  .specimen-fields input,
+  .specimen-fields select
+):focus {
+  border-color: var(--rb-pink);
+  box-shadow: 0 0 0 3px rgba(255, 84, 221, 0.2);
+  outline: none;
+}
+
+/* Prose Blocks & Editorial Accents */
+html[data-os="rainbow"] .prose blockquote {
+  padding: 10px 16px;
+  border-inline-start: 4px solid var(--rb-pink);
+  border-radius: 0 12px 12px 0;
+  background: var(--rb-white);
+}
+
+html[data-os="rainbow"] .prose pre {
+  border: 1px solid var(--rb-ink);
+  border-radius: 12px;
+  background: var(--rb-cream-deep);
+}
+
+html[data-os="rainbow"] .prose :not(pre) > code {
+  padding: 1px 5px;
+  border: 1px solid var(--rb-ink-30);
+  border-radius: 5px;
+  background: rgba(255, 203, 46, 0.28);
+}
+
+html[data-os="rainbow"] .prose a:not(.pixel-key) {
+  color: var(--rb-cobalt-ink);
+  text-decoration-color: var(--rb-pink);
+}
+
+html[data-os="rainbow"] .prose a:not(.pixel-key):hover {
+  border-radius: 4px;
+  background: var(--rb-yellow);
+  color: var(--rb-ink);
+}
+
+/* Music Player & Media Deck Cards */
+html[data-os="rainbow"] .music-deck-bar,
+html[data-os="rainbow"] .music-screen,
+html[data-os="rainbow"] .music-playlist-panel,
+html[data-os="rainbow"] .music-cue {
+  border: 1px solid var(--rb-ink);
+  border-radius: 14px;
+  background: var(--rb-white);
+  box-shadow: none;
+}
+
+html[data-os="rainbow"] .music-vfd-pill {
+  border: 1px solid var(--rb-ink-30);
+  border-radius: var(--rb-radius-pill);
+  background: var(--rb-cream);
+}
+
+html[data-os="rainbow"] .music-signal-dot {
+  border-radius: 50%;
+}
+
+html[data-os="rainbow"] .music-signal-dot[data-live="on"] {
+  background: var(--rb-pink);
+  box-shadow: 0 0 0 2px var(--rb-yellow-tint);
+}
+
+html[data-os="rainbow"] .music-mode-chip:hover,
+html[data-os="rainbow"] .music-mode-chip[aria-pressed="true"] {
+  background: var(--rb-yellow);
+  border-color: var(--rb-ink);
+}
+
+/* Lightbox Backdrop (crisp high-contrast true-color viewer) */
+html[data-os="rainbow"] .gallery-lightbox {
+  color: var(--rb-white);
+  font-family: var(--font-sans);
+}
+
+html[data-os="rainbow"] .gallery-lightbox::backdrop {
+  background: rgba(20, 16, 12, 0.9);
+}
+
+/* --------------------------------------------------------------------------
+   7. Responsive Breakpoints (Tablet <= 1199px, Narrow <= 960px, Phone <= 809px)
+   -------------------------------------------------------------------------- */
+@media (max-width: 1199.98px) {
+  html[data-os="rainbow"] .screen-plane {
+    --window-left: 234px;
+    --window-top: 18px;
+    --window-right: 22px;
+    --window-bottom: 18px;
+    --rail-left: 22px;
+    --rail-top: 16px;
+  }
+
+  html[data-os="rainbow"] .os-desktop-widget {
+    inset-inline-end: 22px;
+    width: min(296px, calc(100% - 246px));
+  }
+
+  html[data-os="rainbow"] .desktop-space {
+    --wallpaper-end: 24px;
+    --wallpaper-bottom: 26px;
+  }
+}
+
+@media (max-width: 960px) {
+  /* Collapse the 5 quick-link tabs cleanly so the center active .fig tab takes center stage */
+  html[data-os="rainbow"] .os-topbar-links {
+    display: none;
+  }
+
+  html[data-os="rainbow"] .os-topbar-tab:is(
+    [data-section="work"],
+    [data-section="article"],
+    [data-section="journal"],
+    [data-section="about"],
+    [data-section="contact"]
+  ) {
+    align-self: flex-end;
+    height: 34px;
+    margin-bottom: -1px;
+    border-bottom: 1px solid var(--rb-yellow);
+    border-radius: 10px 10px 0 0;
+    background: var(--rb-yellow);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 809px) {
+  html[data-os="rainbow"] .screen-plane {
+    --taskbar-height: 0px;
+  }
+
+  /* Top-only bar on phone (390x844): Brand mark + Menu + active .fig tab + Sound + OS + Clock */
+  html[data-os="rainbow"] .os-topbar {
+    padding: 0 8px;
+    gap: 5px;
+  }
+
+  html[data-os="rainbow"] .os-topbar-left,
+  html[data-os="rainbow"] .os-topbar-right {
+    gap: 5px;
+  }
+
+  html[data-os="rainbow"] .os-topbar-brand {
+    padding: 0;
+  }
+
+  html[data-os="rainbow"] .os-topbar-site,
+  html[data-os="rainbow"] .os-topbar-status {
+    display: none;
+  }
+
+  html[data-os="rainbow"] .os-topbar-menu-btn {
+    display: inline-flex;
+    height: 28px;
+    padding: 0 9px;
+    font-size: 12px;
+  }
+
+  html[data-os="rainbow"] .os-topbar-center {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  html[data-os="rainbow"] .os-topbar-tab {
+    max-width: 100%;
+    height: 36px;
+    padding: 0 8px;
+    font-size: 11.5px;
+  }
+
+  html[data-os="rainbow"] .os-topbar-tab[data-section="desktop"] {
+    height: 26px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  html[data-os="rainbow"] .os-topbar-sound {
+    width: 28px;
+    height: 28px;
+  }
+
+  html[data-os="rainbow"] .os-topbar-music {
+    height: 28px;
+  }
+
+  html[data-os="rainbow"] .os-topbar-os-btn {
+    height: 28px;
+    padding: 0 8px;
+    font-size: 11.5px;
+  }
+
+  html[data-os="rainbow"] .os-topbar-clock {
+    display: inline-flex;
+    align-items: center;
+    height: 28px;
+    padding: 0 6px;
+    font-size: 11px;
+  }
+
+  /* Compact 3x3 icon grid at top of phone screen (0..238px) */
+  html[data-os="rainbow"] .desktop-icons {
+    top: 10px;
+    left: 12px;
+    right: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px 8px;
+  }
+
+  html[data-os="rainbow"] .desktop-icon {
+    gap: 4px;
+    padding: 4px 2px;
+  }
+
+  html[data-os="rainbow"] .desktop-icon svg {
+    width: 42px;
+    height: 42px;
+    padding: 8px;
+    border-radius: 11px;
+  }
+
+  html[data-os="rainbow"] .desktop-icon span {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+
+  /* Stack Hero, NOW.txt widget & footer cleanly BELOW the 3x3 icons — zero collision! */
+  html[data-os="rainbow"] .desktop-home {
+    inset: 238px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 6px 12px 16px;
+    overflow-y: auto;
+    pointer-events: auto;
+  }
+
+  html[data-os="rainbow"] .desktop-home-wallpaper,
+  html[data-os="rainbow"] .os-desktop-widget,
+  html[data-os="rainbow"] .desktop-home-footer {
+    position: static;
+    inset: auto;
+    width: 100%;
+    inline-size: 100%;
+    transform: none;
+  }
+
+  html[data-os="rainbow"] .desktop-home-wallpaper {
+    justify-items: center;
+    overflow: visible;
+    gap: 8px;
+    order: 1;
+  }
+
+  html[data-os="rainbow"] .desktop-home-wallpaper .hero-title {
+    font-size: min(var(--type-h1), 13.5cqw);
+    padding: 5px 12px;
+  }
+
+  html[data-os="rainbow"] .desktop-home-wallpaper .typed-text {
+    font-size: 13.5px;
+    line-height: 1.45;
+    padding: 8px 12px;
+  }
+
+  html[data-os="rainbow"] .os-desktop-widget {
+    order: 2;
+    box-shadow: 0 4px 12px rgba(34, 22, 10, 0.1);
+  }
+
+  html[data-os="rainbow"] .os-widget-note {
+    display: none; /* Avoid repeating intro copy above on compact phone screens */
+  }
+
+  html[data-os="rainbow"] .desktop-home-footer {
+    order: 3;
+    justify-content: center;
+    padding-bottom: 4px;
+  }
+
+  /* Full-width rounded windows with dark titlebar filter icon contrast */
+  html[data-os="rainbow"] .os-window:not(.os-window--error) {
+    inset: 8px 8px 10px !important;
+  }
+
+  html[data-os="rainbow"] .window-path {
+    background: transparent;
+    color: var(--rb-ink);
+  }
+
+  html[data-os="rainbow"] .journal-filter-toggle {
+    color: var(--rb-ink);
+  }
+}
+
+/* Reduced Motion Compliance */
+@media (prefers-reduced-motion: reduce) {
+  html[data-os="rainbow"] :is(
+    .desktop-icon,
+    .desktop-icon svg,
+    .os-desktop-widget,
+    .pixel-key,
+    .work-card,
+    .article-card,
+    .window-actions .pixel-key,
+    .os-topbar-menu-btn,
+    .os-topbar-os-btn,
+    .os-topbar-sound
+  ) {
+    transition: none;
+    transform: none;
+  }
+}

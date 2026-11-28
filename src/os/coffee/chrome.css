@@ -1,0 +1,1435 @@
+/* ==========================================================================
+   Coffee OS (data-os="coffee") — Vintage OS Editorial Paper-and-Ink Chrome
+   All rules strictly scoped to html[data-os="coffee"] for zero cross-OS leakage.
+   ========================================================================== */
+
+/* --- 1. Hardware Canvas, Fullscreen & CRT Stage --- */
+html[data-os="coffee"][data-zoom="fullscreen"],
+html[data-os="coffee"][data-zoom="fullscreen"] .crt-bezel,
+html[data-os="coffee"] .crt-raster {
+  background-color: var(--coffee-wall);
+}
+
+html[data-os="coffee"] .screen-plane {
+  --taskbar-height: 82px;
+  --wmax-bottom: 94px;
+  --window-left: 268px;
+  --window-top: 16px;
+  --window-right: 40px;
+  --window-bottom: 98px;
+  --rail-left: 36px;
+  --rail-top: 18px;
+  text-shadow: none;
+}
+
+html[data-os="coffee"] .screen-plane :is(h1, h2) {
+  text-shadow: none;
+}
+
+/* Warm sand/caramel flyback beam during CRT power-on/off */
+html[data-os="coffee"] :is(.crt-signal, .crt-start-glow, .crt-beam, .crt-afterglow) {
+  --lit: var(--coffee-accent);
+  --hi: var(--coffee-sand);
+}
+
+/* Room, close, and fullscreen floating hardware monitor controls pill */
+html[data-os="coffee"] .camera,
+html[data-os="coffee"][data-zoom="fullscreen"] .camera {
+  background: var(--coffee-cream);
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 8px;
+  box-shadow: 3px 3px 0 var(--coffee-ink);
+}
+
+html[data-os="coffee"] .camera button,
+html[data-os="coffee"][data-zoom="fullscreen"] .camera button {
+  color: var(--coffee-ink);
+  border-radius: 5px;
+}
+
+html[data-os="coffee"] .camera svg,
+html[data-os="coffee"][data-zoom="fullscreen"] .camera svg {
+  filter: none;
+}
+
+html[data-os="coffee"] .camera button:hover:enabled,
+html[data-os="coffee"][data-zoom="fullscreen"] .camera button:hover:enabled {
+  background: var(--coffee-sand);
+}
+
+/* --- 2. Top Full-Width 32px Cream Status Bar (.os-topbar) --- */
+html[data-os="coffee"] .os-topbar {
+  display: flex;
+  height: var(--topbar-height);
+  padding: 0 18px;
+  border-bottom: 1.5px solid var(--coffee-ink);
+  background: var(--coffee-cream);
+  color: var(--coffee-ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+
+/* Keep top status bar & floating dock safely inside curved CRT glass corners in room/close views */
+@media (min-width: 1000px) and (min-aspect-ratio: 6/5) {
+  html[data-os="coffee"]:not([data-zoom="fullscreen"]) {
+    --topbar-height: 40px;
+  }
+
+  html[data-os="coffee"]:not([data-zoom="fullscreen"]) .os-topbar {
+    padding: 8px 56px 0;
+  }
+
+  html[data-os="coffee"]:not([data-zoom="fullscreen"]) .taskbar {
+    bottom: 16px;
+    max-width: calc(100% - 96px);
+  }
+}
+
+html[data-os="coffee"] .os-topbar-brand {
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] .os-topbar-brand:hover .os-topbar-site {
+  color: var(--coffee-accent-deep);
+}
+
+/* Split-circle Vintage OS brand mark (left cream/ink, right caramel) */
+html[data-os="coffee"] .os-topbar-mark {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 50%;
+  background: linear-gradient(
+    90deg,
+    var(--coffee-cream) 0 47%,
+    var(--coffee-ink) 47% 53%,
+    var(--coffee-accent) 53% 100%
+  );
+}
+
+/* Passive top bar ONLY on Coffee OS: interactive controls live once in the bottom floating dock */
+html[data-os="coffee"] .os-topbar-start-menu,
+html[data-os="coffee"] .os-topbar-menu-btn,
+html[data-os="coffee"] .os-topbar-links,
+html[data-os="coffee"] .os-topbar-music,
+html[data-os="coffee"] .os-topbar-sound-wrap,
+html[data-os="coffee"] .os-topbar-sound,
+html[data-os="coffee"] .os-topbar-switcher,
+html[data-os="coffee"] .os-topbar-clock {
+  display: none;
+}
+
+html[data-os="coffee"] .os-topbar-path {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--coffee-ink-60);
+}
+
+html[data-os="coffee"] .os-topbar-status {
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--coffee-ink-60);
+}
+
+html[data-os="coffee"] .os-topbar-dot {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--coffee-ink);
+  background: var(--coffee-olive);
+}
+
+/* --- 3. Desktop Canvas, Icon Rail, Tilted NOW.txt Sticky & Editorial Hero --- */
+html[data-os="coffee"] .desktop-space {
+  --wallpaper-end: 44px;
+  --wallpaper-bottom: 114px;
+  --wallpaper-width: 680px;
+}
+
+html[data-os="coffee"] .desktop-home {
+  --intro-width: 36ch;
+  --hint-start: 36px;
+  --hint-bottom: 98px;
+}
+
+/* Left 2-column icon rail cleanly clear of default windows (--window-left: 268px) */
+html[data-os="coffee"] .desktop-icons {
+  grid-template-columns: repeat(2, 96px);
+  gap: 8px 6px;
+}
+
+html[data-os="coffee"] .desktop-icon {
+  gap: 6px;
+  padding: 10px 6px 8px;
+  border-radius: 6px;
+  color: var(--coffee-white);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.3;
+  transition: transform 150ms ease, background-color 120ms ease;
+}
+
+html[data-os="coffee"] .desktop-icon svg {
+  width: 44px;
+  height: 44px;
+  color: var(--coffee-cream);
+  filter: drop-shadow(2px 2px 0 var(--coffee-ink));
+}
+
+html[data-os="coffee"] .desktop-icon span {
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--coffee-cream);
+}
+
+html[data-os="coffee"] .desktop-icon:is(:hover, :focus-visible) {
+  background: var(--coffee-icon-hover);
+  transform: translateY(-2px);
+}
+
+html[data-os="coffee"] .desktop-icon:is(:hover, :focus-visible) span {
+  background: var(--coffee-sand);
+  color: var(--coffee-ink);
+  font-weight: 500;
+}
+
+html[data-os="coffee"] .desktop-icon:active {
+  transform: translateY(1px);
+}
+
+/* Tilted +1.5deg Sand NOW.txt Sticky Note (.os-desktop-widget) */
+html[data-os="coffee"] .os-desktop-widget {
+  display: flex;
+  inset-block-start: 18px;
+  inset-inline-end: 44px;
+  width: 244px;
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 4px;
+  background: var(--coffee-sand);
+  color: var(--coffee-ink);
+  box-shadow: 4px 4px 0 var(--coffee-ink);
+  transform: rotate(1.5deg);
+  transform-origin: center center;
+}
+
+html[data-os="coffee"] .os-widget-header {
+  padding: 8px 14px 4px;
+  border-bottom: 1px solid rgba(30, 38, 41, 0.16);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] .os-widget-badge {
+  color: var(--coffee-olive);
+  font-size: 9px;
+}
+
+html[data-os="coffee"] .os-widget-body {
+  gap: 6px;
+  padding: 8px 14px 10px;
+}
+
+html[data-os="coffee"] .os-widget-kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--coffee-ink-60);
+}
+
+html[data-os="coffee"] .os-widget-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] .os-widget-note {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.42;
+  color: var(--coffee-ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+html[data-os="coffee"] .os-widget-tags {
+  gap: 4px;
+  margin-top: 2px;
+}
+
+html[data-os="coffee"] .os-widget-tags li {
+  padding: 1px 7px;
+  border: 1px solid var(--coffee-ink);
+  border-radius: 100px;
+  background: var(--coffee-cream);
+  color: var(--coffee-ink);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+html[data-os="coffee"] .os-widget-footer {
+  padding: 6px 14px 9px;
+  border-top: 1px solid rgba(30, 38, 41, 0.18);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+html[data-os="coffee"] .os-widget-link {
+  color: var(--coffee-accent-deep);
+  text-decoration-color: var(--coffee-accent-deep);
+  text-underline-offset: 2px;
+}
+
+html[data-os="coffee"] .os-widget-link:hover {
+  background: var(--coffee-ink);
+  color: var(--coffee-sand);
+}
+
+/* Right-aligned Editorial Instrument Serif Hero on Petrol-Slate Canvas */
+html[data-os="coffee"] .desktop-home-wallpaper {
+  gap: 10px;
+}
+
+html[data-os="coffee"] :is(.desktop-home-wallpaper, .desktop-wallpaper) {
+  color: var(--coffee-sand);
+}
+
+html[data-os="coffee"] .desktop-home-wallpaper .hero-title,
+html[data-os="coffee"] .desktop-wallpaper {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  color: var(--coffee-sand);
+  font-feature-settings: "blwf" on, "cv03" on, "cv04" on, "cv09" on, "cv11" on;
+}
+
+/* Place Hero Display above Italic Editorial Subtitle (Vintage OS hierarchy) */
+html[data-os="coffee"] .desktop-home-wallpaper .hero-title {
+  order: 1;
+}
+
+html[data-os="coffee"] .desktop-home-wallpaper .typed-text {
+  order: 2;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 24px;
+  line-height: 1.18;
+  color: var(--coffee-sand);
+  opacity: 0.92;
+}
+
+html[data-os="coffee"] .typed-marker::after {
+  width: 2px;
+  height: 0.9em;
+  inset-block-end: -0.05em;
+  background: var(--coffee-sand);
+  box-shadow: none;
+}
+
+/* Desktop Footer Hint & Like Pill (High Contrast on Petrol-Slate Wallpaper) */
+html[data-os="coffee"] .desktop-home-hint {
+  color: rgba(235, 211, 162, 0.78);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+html[data-os="coffee"] .desktop-like-btn {
+  padding: 3px 8px;
+  border: 1px solid rgba(235, 211, 162, 0.45);
+  border-radius: 100px;
+  background: rgba(30, 38, 41, 0.35);
+  color: var(--coffee-sand);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+html[data-os="coffee"] .desktop-like-btn svg {
+  filter: none;
+}
+
+html[data-os="coffee"] .desktop-like-btn:is(:hover, :focus-visible),
+html[data-os="coffee"] .desktop-like-btn[aria-pressed="true"] {
+  background: var(--coffee-sand);
+  border-color: var(--coffee-ink);
+  color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] .desktop-like-btn:is(:hover, :focus-visible) .desktop-like-count {
+  background: transparent;
+  color: var(--coffee-ink);
+}
+
+/* --- 4. Floating Centered Bottom Dock / Taskbar Pill (.taskbar) --- */
+html[data-os="coffee"] .taskbar {
+  inset: auto auto 12px 50%;
+  transform: translateX(-50%);
+  width: fit-content;
+  max-width: calc(100% - 28px);
+  height: 58px;
+  padding: 6px 10px;
+  gap: 8px;
+  border: 2px solid var(--coffee-ink);
+  border-radius: 10px;
+  background: var(--coffee-cream);
+  box-shadow: 4px 4px 0 var(--coffee-ink);
+  transition: none;
+}
+
+html[data-os="coffee"][data-zoom="fullscreen"] .taskbar {
+  padding-left: 10px;
+}
+
+html[data-os="coffee"] .taskbar-start {
+  flex: 0 1 auto;
+  gap: 8px;
+}
+
+html[data-os="coffee"] .taskbar-menu {
+  padding-right: 10px;
+  box-shadow: none;
+  border-right: 2px solid var(--coffee-ink);
+}
+
+/* Sand Home/Menu Dock Pill */
+html[data-os="coffee"] .taskbar-menu-button {
+  height: 40px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 6px;
+  background: var(--coffee-sand);
+  color: var(--coffee-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 120ms ease, filter 120ms ease, transform 80ms ease;
+}
+
+html[data-os="coffee"] .taskbar-menu-button::before {
+  display: none;
+}
+
+html[data-os="coffee"] .taskbar-menu-face {
+  transform: none;
+  gap: 6px;
+}
+
+html[data-os="coffee"] .taskbar-menu-button:hover {
+  filter: brightness(1.05);
+}
+
+html[data-os="coffee"] .taskbar-menu-button:active {
+  transform: translateY(1px);
+}
+
+html[data-os="coffee"] .taskbar-menu-button:active .taskbar-menu-face,
+html[data-os="coffee"] .taskbar-menu-button[aria-expanded="true"] .taskbar-menu-face {
+  transform: none;
+}
+
+html[data-os="coffee"] .taskbar-menu-button[aria-expanded="true"] {
+  background: var(--coffee-ink);
+  color: var(--coffee-sand);
+}
+
+/* Dock Quick Launch Keys */
+html[data-os="coffee"] .taskbar-launch {
+  gap: 2px;
+  padding-right: 8px;
+  box-shadow: none;
+  border-right: 2px solid var(--coffee-ink);
+}
+
+html[data-os="coffee"] .taskbar .taskbar-key {
+  --key-size: 36px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--coffee-ink);
+  box-shadow: none;
+  transition: background-color 120ms ease, box-shadow 120ms ease, transform 80ms ease;
+}
+
+html[data-os="coffee"] .taskbar .taskbar-key::before {
+  display: none;
+}
+
+html[data-os="coffee"] .taskbar .taskbar-key svg {
+  transform: none;
+  width: 20px;
+  height: 20px;
+}
+
+html[data-os="coffee"] .taskbar .taskbar-key:hover {
+  background: var(--coffee-sand);
+  box-shadow: none;
+}
+
+html[data-os="coffee"] .taskbar .taskbar-key[aria-current="page"] {
+  background: var(--coffee-latte);
+  box-shadow: inset 0 -3px 0 var(--coffee-ink);
+}
+
+html[data-os="coffee"] .taskbar .taskbar-key:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+html[data-os="coffee"] .taskbar-tooltip {
+  bottom: calc(100% + 10px);
+  padding: 3px 8px;
+  border: 1px solid var(--coffee-ink);
+  border-radius: 4px;
+  background: var(--coffee-ink);
+  color: var(--coffee-cream);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  box-shadow: 2px 2px 0 rgba(30, 38, 41, 0.35);
+}
+
+/* Hide redundant ticker in dock (shown in .os-topbar-center) */
+html[data-os="coffee"] .taskbar-ticker {
+  display: none;
+}
+
+/* Active Window Tabs with Vintage OS 3px Espresso Bottom Underline */
+html[data-os="coffee"] .taskbar-tabs {
+  gap: 6px;
+}
+
+html[data-os="coffee"] .taskbar-tab {
+  height: 36px;
+  padding: 0 11px;
+  border: 1px solid var(--coffee-ink);
+  border-radius: 6px;
+  background: var(--coffee-latte);
+  color: var(--coffee-ink);
+  box-shadow: inset 0 -3px 0 var(--coffee-ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+html[data-os="coffee"] .taskbar-tab::before {
+  display: none;
+}
+
+html[data-os="coffee"] .taskbar .taskbar-tab--parent,
+html[data-os="coffee"] .screen-stage:has(.os-window--child[data-wfocus="off"]) .taskbar-tab--front {
+  padding: 0 11px;
+  background: var(--coffee-ivory);
+  color: var(--coffee-ink-60);
+  box-shadow: none;
+}
+
+html[data-os="coffee"] .taskbar-tab:hover {
+  background: var(--coffee-sand);
+  color: var(--coffee-ink);
+}
+
+/* Mini Music Pill in Dock */
+html[data-os="coffee"] .taskbar-music {
+  flex: 0 1 156px;
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 6px;
+  background: var(--coffee-latte);
+  overflow: hidden;
+}
+
+html[data-os="coffee"] .taskbar-music-toggle {
+  width: 32px;
+  height: 34px;
+  border-right: 1px solid var(--coffee-ink);
+  color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] .taskbar-music-toggle:hover,
+html[data-os="coffee"] .taskbar-music-link:hover {
+  background: var(--coffee-sand);
+  color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] .taskbar-music-link {
+  height: 34px;
+  padding: 0 8px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--coffee-ink);
+}
+
+/* Right System Tray: OS Switcher, Speaker, Boxed Latte Clock */
+html[data-os="coffee"] .taskbar-os-switcher {
+  margin-left: 0;
+}
+
+html[data-os="coffee"] .taskbar .taskbar-os-trigger {
+  border: 1.5px solid var(--coffee-ink);
+  background: var(--coffee-ivory);
+  box-shadow: none;
+}
+
+html[data-os="coffee"] .speaker-control {
+  padding-left: 8px;
+  border-left: 2px solid var(--coffee-ink);
+}
+
+html[data-os="coffee"] .taskbar .speaker-control .taskbar-key {
+  border: 1.5px solid var(--coffee-ink);
+  background: var(--coffee-ivory);
+  box-shadow: none;
+}
+
+html[data-os="coffee"] .taskbar :is(.taskbar-os-trigger, .speaker-control .taskbar-key):hover {
+  background: var(--coffee-sand);
+  box-shadow: none;
+}
+
+html[data-os="coffee"] .taskbar-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 6px;
+  background: var(--coffee-latte);
+  color: var(--coffee-ink-60);
+  opacity: 1;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+html[data-os="coffee"] .taskbar-clock::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--coffee-accent);
+  flex: none;
+}
+
+html[data-os="coffee"] .sound-toast {
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 6px;
+  background: var(--coffee-ivory);
+  color: var(--coffee-ink);
+  box-shadow: 4px 4px 0 var(--coffee-ink);
+  font-family: var(--font-mono);
+}
+
+/* --- 5. Start Menu & Dock OS Popover --- */
+html[data-os="coffee"] .start-menu,
+html[data-os="coffee"] .start-submenu,
+html[data-os="coffee"] .taskbar-os-menu {
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 6px;
+  background: var(--coffee-cream);
+  color: var(--coffee-ink);
+  box-shadow: 4px 4px 0 var(--coffee-ink);
+  font-family: var(--font-sans);
+}
+
+html[data-os="coffee"] .start-menu {
+  overflow: visible;
+}
+
+html[data-os="coffee"] .start-menu-spine {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  background: var(--coffee-ink);
+  color: var(--coffee-sand);
+}
+
+html[data-os="coffee"] .start-menu-spine-mark {
+  border-color: var(--coffee-sand);
+  box-shadow: inset 2px 2px 0 var(--coffee-accent);
+}
+
+html[data-os="coffee"] .start-menu-spine-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+html[data-os="coffee"] .start-menu-item {
+  border-radius: 4px;
+  color: var(--coffee-ink);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+}
+
+html[data-os="coffee"] .start-menu-item[aria-current="page"],
+html[data-os="coffee"] .start-menu-folder-trigger[data-folder-active="true"] {
+  background: var(--coffee-latte);
+}
+
+html[data-os="coffee"] .start-menu-folder[data-open="true"] > .start-menu-folder-trigger,
+html[data-os="coffee"] .start-menu-item:not(:disabled):is(:hover, :focus-visible) {
+  background: var(--coffee-sand);
+  color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] .start-menu-state {
+  border-radius: 100px;
+  border-color: var(--coffee-ink);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+html[data-os="coffee"] .start-menu-item[aria-pressed="true"] .start-menu-state {
+  background: var(--coffee-ink);
+  color: var(--coffee-sand);
+  border-color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] .start-menu-footer {
+  border-top: 1px solid var(--coffee-ink-28);
+  border-bottom-right-radius: 4px;
+  background: var(--coffee-latte);
+}
+
+/* --- 6. Archival Cream Paper Windows (.os-window) --- */
+html[data-os="coffee"] .os-window {
+  --ground: var(--coffee-cream);
+  --frame-ink: var(--coffee-ink);
+  border-radius: 0px;
+  background: var(--coffee-cream);
+  box-shadow: 6px 6px 0 var(--coffee-ink);
+}
+
+html[data-os="coffee"] .os-window:focus {
+  outline: none;
+}
+
+html[data-os="coffee"] .os-window::after {
+  border: 2px solid var(--frame-ink);
+}
+
+html[data-os="coffee"] .os-window[data-wfocus="off"] {
+  --frame-ink: var(--coffee-ink-60);
+  box-shadow: 4px 4px 0 rgba(30, 38, 41, 0.42);
+}
+
+html[data-os="coffee"] .os-window[data-wmax="on"] {
+  inset: 12px 16px 14px 16px;
+}
+
+html[data-os="coffee"] .os-window--child {
+  --frame-x: 320px;
+  --frame-y: 44px;
+  --frame-right: 24px;
+  --frame-bottom: 92px;
+}
+
+/* 34px Editorial Titlebar with Caramel Stippled Dot Grip Bar */
+html[data-os="coffee"] .window-titlebar {
+  min-height: 34px;
+  height: 34px;
+  padding: 0 10px 0 12px;
+  gap: 10px;
+  background: var(--coffee-cream);
+  color: var(--coffee-ink);
+  border-bottom: 1.5px solid var(--coffee-ink);
+}
+
+html[data-os="coffee"] .os-window[data-wfocus="off"] .window-titlebar {
+  background: var(--coffee-latte);
+  color: var(--coffee-ink-60);
+  box-shadow: none;
+  border-bottom-color: var(--coffee-ink-28);
+}
+
+html[data-os="coffee"] .window-title {
+  flex: 0 1 auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0em;
+  color: inherit;
+}
+
+/* Signature Caramel Stippled Dot-Matrix Grip Bar (.window-titlebar-grip) */
+html[data-os="coffee"] .window-titlebar-grip {
+  display: block;
+  flex: 1 1 24px;
+  min-width: 18px;
+  height: 12px;
+  background-image: radial-gradient(circle, var(--coffee-accent) 0.72px, transparent 0.85px);
+  background-size: 3px 3px;
+  background-position: 0 0.5px;
+}
+
+html[data-os="coffee"] .os-window[data-wfocus="off"] .window-titlebar-grip {
+  opacity: 0.35;
+}
+
+/* Square 22×22px Rounded Window Controls (4px radius, 1px espresso border) */
+html[data-os="coffee"] .window-actions {
+  gap: 6px;
+}
+
+html[data-os="coffee"] .window-actions .pixel-key {
+  --key-size: 22px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  border: 1px solid var(--coffee-ink);
+  border-radius: 4px;
+  background: var(--coffee-cream);
+  color: var(--coffee-ink);
+  box-shadow: none;
+  transition: background-color 110ms ease, color 110ms ease, transform 70ms ease;
+}
+
+html[data-os="coffee"] .window-actions .pixel-key::before {
+  display: none;
+}
+
+html[data-os="coffee"] .window-actions .pixel-key svg {
+  width: 12px;
+  height: 12px;
+  transform: none;
+}
+
+html[data-os="coffee"] .window-actions .pixel-key:hover {
+  background: var(--coffee-sand);
+}
+
+html[data-os="coffee"] .window-actions .window-close:hover {
+  background: var(--coffee-accent);
+  color: var(--coffee-white);
+}
+
+html[data-os="coffee"] .window-actions .pixel-key:active {
+  transform: translateY(1px);
+}
+
+html[data-os="coffee"] .window-actions .pixel-key:active svg {
+  transform: none;
+}
+
+html[data-os="coffee"] .window-actions .pixel-key:focus-visible {
+  outline-color: var(--coffee-accent);
+}
+
+/* Latte Parchment Path Bar & Status Footer */
+html[data-os="coffee"] .window-path {
+  padding: 7px 14px;
+  background: var(--coffee-latte);
+  box-shadow: inset 0 -1px var(--coffee-ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] .window-path a {
+  color: var(--coffee-accent-deep);
+  opacity: 0.9;
+}
+
+html[data-os="coffee"] .window-path a:hover {
+  opacity: 1;
+}
+
+html[data-os="coffee"] .window-status {
+  padding: 7px 14px;
+  background: var(--coffee-latte);
+  box-shadow: inset 0 1px var(--coffee-ink);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--coffee-ink-60);
+}
+
+html[data-os="coffee"] .window-status > * {
+  opacity: 1;
+}
+
+/* Exact Vintage OS 14px Framed Retro Scrollbar */
+html[data-os="coffee"] .window-scroll {
+  background: var(--coffee-cream);
+  scrollbar-width: auto;
+  scrollbar-color: var(--coffee-cream) var(--coffee-latte);
+}
+
+html[data-os="coffee"] .window-scroll::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+html[data-os="coffee"] .window-scroll::-webkit-scrollbar-track {
+  background: var(--coffee-latte);
+  border-left: 1.5px solid var(--coffee-ink);
+}
+
+html[data-os="coffee"] .window-scroll::-webkit-scrollbar-thumb {
+  background: var(--coffee-cream);
+  border: 1.5px solid var(--coffee-ink);
+}
+
+html[data-os="coffee"] .window-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--coffee-sand);
+}
+
+html[data-os="coffee"] .window-scroll::-webkit-scrollbar-corner {
+  background: var(--coffee-latte);
+}
+
+/* --- 7. Tactile Buttons, Pills, Inputs, Cards & Editorial Prose --- */
+html[data-os="coffee"] .pixel-key {
+  border: 1px solid var(--coffee-ink);
+  border-radius: 4px;
+  background: var(--coffee-ivory);
+  color: var(--coffee-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 3px 3px 0 var(--coffee-ink);
+  transition: transform 60ms linear, box-shadow 60ms linear, background-color 110ms ease;
+}
+
+html[data-os="coffee"] .pixel-key:hover {
+  background: var(--coffee-sand);
+}
+
+html[data-os="coffee"] .pixel-key:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--coffee-ink);
+}
+
+/* Burnt Caramel Primary CTA */
+html[data-os="coffee"] .pixel-key--primary {
+  background: var(--coffee-accent);
+  color: var(--coffee-accent-ink);
+  border-color: var(--coffee-ink);
+  font-weight: 600;
+  box-shadow: 4px 4px 0 var(--coffee-ink);
+}
+
+html[data-os="coffee"] .pixel-key--primary:hover {
+  background: var(--coffee-accent-deep);
+  color: var(--coffee-accent-ink);
+}
+
+html[data-os="coffee"] .pixel-key--primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--coffee-ink);
+}
+
+/* Crisp Ivory Inputs & Selects inside Windows */
+html[data-os="coffee"] .os-window :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select) {
+  background: var(--coffee-white);
+  color: var(--coffee-ink);
+  border: 1px solid var(--coffee-ink);
+  border-radius: 0px;
+}
+
+html[data-os="coffee"] .os-window :is(input, textarea, select):focus {
+  border-color: var(--coffee-accent);
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--coffee-accent);
+}
+
+/* Pill Filter Chips (Journal, Article, Arcade, About tags) */
+html[data-os="coffee"] :is(.journal-chip, .js-chip, .arcade-chip, .about-tags li) {
+  border-radius: 100px;
+  border: 1px solid var(--coffee-ink);
+  background: var(--coffee-white);
+  color: var(--coffee-ink);
+  box-shadow: none;
+  font-family: var(--font-sans);
+  font-size: 12px;
+}
+
+html[data-os="coffee"] :is(.journal-chip, .js-chip, .arcade-chip):hover {
+  background: var(--coffee-sand);
+  box-shadow: none;
+}
+
+html[data-os="coffee"] :is(.journal-chip, .js-chip, .arcade-chip)[aria-pressed="true"],
+html[data-os="coffee"] .arcade-chip[data-active="true"] {
+  background: var(--coffee-ink);
+  color: var(--coffee-white);
+  border-color: var(--coffee-ink);
+}
+
+/* Editorial Typography inside Windows */
+html[data-os="coffee"] .page-title {
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+html[data-os="coffee"] .section-title {
+  line-height: 1.05;
+}
+
+html[data-os="coffee"] .prose h2 {
+  font-style: italic;
+  line-height: 1.1;
+}
+
+html[data-os="coffee"] .prose:lang(zh) :is(h1, h2, h3, h4),
+html[data-os="coffee"] :lang(zh) .prose :is(h2, h3, h4) {
+  font-style: normal;
+}
+
+html[data-os="coffee"] .prose a:not(.pixel-key) {
+  color: var(--coffee-accent-deep);
+  text-decoration-color: var(--coffee-accent-deep);
+}
+
+html[data-os="coffee"] .prose a:not(.pixel-key):hover {
+  background: var(--coffee-sand);
+  color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] .prose pre {
+  border: 1px solid var(--coffee-ink);
+  border-left: 3px solid var(--coffee-accent);
+  border-radius: 0px;
+  background: var(--coffee-latte);
+}
+
+html[data-os="coffee"] .prose :not(pre) > code {
+  border: 1px solid var(--coffee-ink-28);
+  border-radius: 2px;
+  background: var(--coffee-latte);
+}
+
+/* Ivory Cards & True-Color Project / Article Media */
+html[data-os="coffee"] :is(.work-card-image, .work-media-image, .article-card-media) {
+  border: 1px solid var(--coffee-ink);
+  border-radius: 4px;
+  filter: none;
+}
+
+html[data-os="coffee"] .work-card:is(:hover, :focus-visible) .work-card-image,
+html[data-os="coffee"] .article-card:is(:hover, :focus-visible) .article-card-media {
+  box-shadow: 4px 4px 0 var(--coffee-ink);
+  transform: translate(-2px, -2px);
+}
+
+html[data-os="coffee"] :is(.work-card, .article-card):is(:hover, :focus-visible) :is(h2, .article-card-title) {
+  background: var(--coffee-sand);
+  color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] :is(.work-meta, .gb-composer, .chat-gate, .js-composer, .arcade-card, .browser-switcher) {
+  background: var(--coffee-ivory);
+  border-color: var(--coffee-ink);
+  border-radius: 4px;
+}
+
+html[data-os="coffee"] .desk-specs {
+  background: var(--coffee-ivory);
+  border: 1px solid var(--coffee-ink);
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+html[data-os="coffee"] .desk-specs th,
+html[data-os="coffee"] .desk-specs td {
+  padding: 11px 14px;
+  border-block-start: 1px solid var(--coffee-ink-28);
+}
+
+html[data-os="coffee"] .desk-specs tr:first-child :is(th, td) {
+  border-block-start: 0;
+}
+
+html[data-os="coffee"] .about-avatar-frame {
+  background: var(--coffee-ivory);
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 4px;
+  box-shadow: 4px 4px 0 var(--coffee-ink);
+}
+
+/* Archival Cream/Latte Deck Display for Canvas-Backed Music VFD & Arcade Canvases */
+html[data-os="coffee"] .music-screen {
+  background: var(--coffee-latte);
+  color: var(--coffee-ink);
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 2px var(--coffee-cream);
+}
+
+html[data-os="coffee"] .music-canvas-wrap {
+  border: 1px solid var(--coffee-ink);
+  border-radius: 2px;
+  background: var(--coffee-cream);
+}
+
+html[data-os="coffee"] .music-vfd-pill {
+  border: 1px solid var(--coffee-ink);
+  border-radius: 4px;
+  background: var(--coffee-ivory);
+  color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] .music-fx-scanlines {
+  opacity: 0.12;
+}
+
+html[data-os="coffee"] .music-fx-vignette {
+  opacity: 0.1;
+  box-shadow: none;
+}
+
+html[data-os="coffee"] .arcade-canvas-wrap {
+  background: var(--coffee-cream);
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 4px;
+  box-shadow: 4px 4px 0 var(--coffee-ink);
+}
+
+/* Keep Cinema Video Viewport Dark Ink Slate for Full-Color Film Contrast */
+html[data-os="coffee"] .video-screen {
+  --ground: var(--coffee-boot);
+  --lit: var(--coffee-sand);
+  --lit-72: rgba(235, 211, 162, 0.74);
+  --lit-28: rgba(235, 211, 162, 0.28);
+  --lit-10: rgba(235, 211, 162, 0.12);
+  --hi: var(--coffee-ivory);
+  --side: var(--coffee-accent);
+  background: var(--coffee-boot);
+  color: var(--coffee-sand);
+  border: 1.5px solid var(--coffee-ink);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 2px var(--coffee-boot);
+}
+
+html[data-os="coffee"] :is(.music-deck-bar, .video-monitor-bar, .arcade-toolbar, .chat-session-bar, .gb-stats, .browser-chrome) {
+  background: var(--coffee-latte);
+  border-color: var(--coffee-ink);
+}
+
+html[data-os="coffee"] :is(.music-vfd-clock, .arcade-led-value, .gb-stat dd) {
+  font-family: var(--font-display);
+}
+
+html[data-os="coffee"] .music-range {
+  border-color: var(--coffee-ink);
+  background: linear-gradient(
+    to right,
+    var(--coffee-accent) 0%,
+    var(--coffee-accent) var(--range-progress, 0%),
+    var(--coffee-latte) var(--range-progress, 0%),
+    var(--coffee-latte) 100%
+  );
+}
+
+/* Editorial 404 Error Dialog */
+html[data-os="coffee"] .os-window--error {
+  width: min(480px, calc(100% - 24px));
+  height: auto;
+  min-height: 290px;
+}
+
+html[data-os="coffee"] .os-window--error .error-message {
+  padding: 24px 26px;
+}
+
+html[data-os="coffee"] .os-window--error .error-message svg {
+  color: var(--coffee-accent);
+}
+
+html[data-os="coffee"] .os-window--error h1 {
+  font-family: var(--font-display);
+  font-size: 38px;
+  line-height: 1.02;
+  color: var(--coffee-ink);
+}
+
+/* True-Color Lightbox Backdrop */
+html[data-os="coffee"] .gallery-lightbox::backdrop {
+  background: rgba(15, 20, 22, 0.92);
+}
+
+html[data-os="coffee"] .gallery-lightbox {
+  color: var(--coffee-cream);
+}
+
+/* --- 8. Responsive Breakpoints (Tablet 900×900 & Phone 390×844) --- */
+@media (max-width: 1199.98px) and (min-width: 810px) {
+  html[data-os="coffee"] .screen-plane {
+    --taskbar-height: 78px;
+    --window-left: 240px;
+    --window-top: 14px;
+    --window-right: 22px;
+    --window-bottom: 92px;
+    --rail-left: 22px;
+    --rail-top: 16px;
+  }
+
+  html[data-os="coffee"] .desktop-icons {
+    grid-template-columns: repeat(2, 92px);
+    gap: 6px 4px;
+  }
+
+  html[data-os="coffee"] .os-desktop-widget {
+    inset-inline-end: 24px;
+    width: 228px;
+  }
+
+  html[data-os="coffee"] .desktop-space {
+    --wallpaper-end: 24px;
+    --wallpaper-bottom: 114px;
+    --wallpaper-width: 440px;
+  }
+
+  html[data-os="coffee"] .taskbar {
+    bottom: 10px;
+    height: 56px;
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  html[data-os="coffee"] .taskbar .taskbar-key {
+    --key-size: 32px;
+  }
+
+  html[data-os="coffee"] .taskbar .taskbar-key svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  html[data-os="coffee"] .taskbar-tab {
+    max-width: 132px;
+  }
+}
+
+@media (max-width: 960px) and (min-width: 810px) {
+  html[data-os="coffee"] .taskbar-tabs {
+    display: none;
+  }
+}
+
+@media (max-width: 809px) {
+  html[data-os="coffee"] .screen-plane {
+    --taskbar-height: 74px;
+  }
+
+  html[data-os="coffee"] .os-topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  html[data-os="coffee"] .os-topbar-center {
+    display: none;
+  }
+
+  html[data-os="coffee"] .os-topbar-status {
+    display: inline-flex;
+  }
+
+  /* Vintage OS Mobile Vertical Rhythm: Hero Top -> 3×3 Icons -> Flat NOW.txt Sticky -> Footer */
+  html[data-os="coffee"] .desktop-wallpaper {
+    display: none;
+  }
+
+  html[data-os="coffee"] .desktop-home-wallpaper {
+    inset: 12px 16px auto;
+    align-content: start;
+    justify-items: start;
+    gap: 6px;
+    text-align: start;
+    overflow: visible;
+  }
+
+  html[data-os="coffee"] .desktop-home-wallpaper .hero-title {
+    text-align: start;
+    font-size: clamp(42px, 13vw, 56px);
+    line-height: 0.96;
+  }
+
+  html[data-os="coffee"] .desktop-home-wallpaper .typed-text {
+    font-size: 16px;
+    line-height: 1.25;
+    max-width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  html[data-os="coffee"] .desktop-icons {
+    top: 126px;
+    left: 12px;
+    right: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px 6px;
+  }
+
+  html[data-os="coffee"] .desktop-icon {
+    padding: 6px 4px;
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  html[data-os="coffee"] .desktop-icon svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  /* Un-tilted full-width NOW.txt Sticky Note cleanly below 3×3 icons */
+  html[data-os="coffee"] .os-desktop-widget {
+    inset: 388px 14px auto;
+    width: auto;
+    transform: none;
+    box-shadow: 4px 4px 0 var(--coffee-ink);
+  }
+
+  html[data-os="coffee"] .os-widget-header {
+    padding: 6px 12px 4px;
+  }
+
+  html[data-os="coffee"] .os-widget-body {
+    gap: 4px;
+    padding: 6px 12px 8px;
+  }
+
+  html[data-os="coffee"] .os-widget-title {
+    font-size: 20px;
+  }
+
+  html[data-os="coffee"] .os-widget-note {
+    -webkit-line-clamp: 2;
+    font-size: 11.5px;
+  }
+
+  html[data-os="coffee"] .os-widget-footer {
+    padding: 6px 12px 8px;
+  }
+
+  html[data-os="coffee"] .desktop-home-footer {
+    inset-inline: 14px;
+    inset-block-end: 8px;
+    justify-content: space-between;
+  }
+
+  /* Mobile Windows: full-width archival card cleanly inside topbar & dock */
+  html[data-os="coffee"] .os-window:not(.os-window--error) {
+    inset: 8px 8px 8px !important;
+    box-shadow: 4px 4px 0 var(--coffee-ink);
+  }
+
+  html[data-os="coffee"] .window-titlebar {
+    height: 38px;
+    min-height: 38px;
+    padding: 0 8px 0 10px;
+  }
+
+  html[data-os="coffee"] .window-actions .pixel-key {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+  }
+
+  html[data-os="coffee"] .window-path {
+    top: 0;
+    right: 42px;
+    height: 38px;
+    background: transparent;
+    color: var(--coffee-ink);
+  }
+
+  /* Mobile Floating Bottom Dock Pill (0px horizontal overflow) */
+  html[data-os="coffee"] .taskbar {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    transform: none;
+    width: auto;
+    max-width: none;
+    height: 54px;
+    padding: 6px 8px;
+    gap: 6px;
+    justify-content: space-between;
+  }
+
+  html[data-os="coffee"] .taskbar-start {
+    flex: 1;
+    min-width: 0;
+    gap: 6px;
+  }
+
+  html[data-os="coffee"] .taskbar-menu {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  html[data-os="coffee"] .taskbar-menu-button {
+    height: 38px;
+    min-height: 38px;
+    padding: 0 11px;
+    font-size: 13px;
+  }
+
+  html[data-os="coffee"] .taskbar-launch {
+    display: none;
+  }
+
+  html[data-os="coffee"] .taskbar-os-switcher {
+    margin-left: auto;
+  }
+
+  html[data-os="coffee"] .taskbar .taskbar-key {
+    --key-size: 38px;
+  }
+
+  html[data-os="coffee"] .speaker-control {
+    padding-left: 6px;
+    border-left: 1.5px solid var(--coffee-ink);
+  }
+
+  html[data-os="coffee"] .taskbar-clock {
+    height: 38px;
+    min-height: 38px;
+    padding: 0 8px;
+    font-size: 11.5px;
+  }
+
+  html[data-os="coffee"] .taskbar-clock::before {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-os="coffee"] .desktop-icon,
+  html[data-os="coffee"] .taskbar-menu-button,
+  html[data-os="coffee"] .taskbar .taskbar-key,
+  html[data-os="coffee"] .pixel-key {
+    transition: none;
+  }
+
+  html[data-os="coffee"] .desktop-icon:is(:hover, :focus-visible) {
+    transform: none;
+  }
+
+  html[data-os="coffee"] .desktop-home-wallpaper .typed-text .typed-visible {
+    color: var(--coffee-sand);
+    text-shadow: none;
+  }
+}

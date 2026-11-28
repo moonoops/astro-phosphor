@@ -7,16 +7,16 @@ tags:
   - crt
   - design-system
   - astro
-coverImage: /media/work/kulo-hero.webp
-coverAlt: Monochrome phosphor desktop interface specimen
+coverImage: /media/work/field-guide.webp
+coverAlt: Multi-OS design system atlas and monochrome phosphor specimen
 lang: en
 ---
 
-Most retro websites bolt a green monospace font onto a standard dark layout and call it a day. **Astro Phosphor** takes a stricter architectural approach: the entire interface inside the monitor obeys a **single-hue derivation law**.
+Most retro websites bolt a green monospace font onto a standard dark layout and call it a day. **Astro Phosphor** takes a stricter architectural approach: the Phosphor OS inside the monitor obeys a **single-hue derivation law**.
 
 ## One Variable to Recolor Everything
 
-Inside `src/styles/tokens.css`, every visible surface inside the tube derives mathematically from `--lit` and `--ground` via CSS `color-mix()`:
+Inside `src/os/phosphor/tokens.css`, every visible surface inside the Phosphor tube derives mathematically from `--lit` and `--ground` via CSS `color-mix()`:
 
 ```css
 :root,

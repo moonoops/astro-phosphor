@@ -1,0 +1,5 @@
+/* Phosphor CRT OS — Chrome Visibility & Overrides */
+html[data-os="phosphor"] .os-topbar,
+html[data-os="phosphor"] .os-desktop-widget {
+  display: none;
+}

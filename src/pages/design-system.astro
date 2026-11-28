@@ -17,7 +17,11 @@ import '../styles/information.css';
 import '../styles/journal.css';
 import '../styles/work.css';
 
-const colors = ['lit', 'ground', 'lit-28', 'lit-10', 'lit-72', 'hi', 'side', 'room-bg', 'hardware-base', 'hardware-hi', 'hardware-shadow', 'crt-off', 'crt-wake', 'crt-led', 'zoom-bg'];
+const colors = [
+  'os-desktop-bg', 'os-surface', 'os-surface-alt', 'os-ink', 'os-ink-muted', 'os-accent', 'os-accent-ink',
+  'lit', 'ground', 'lit-28', 'lit-10', 'lit-72', 'hi', 'side',
+  'room-bg', 'hardware-base', 'hardware-hi', 'hardware-shadow', 'crt-off', 'crt-wake', 'crt-led', 'zoom-bg',
+];
 const typeSamples = [
   { label: 'Heading 1', css: 'hero-title', sample: 'Aa 08' },
   { label: 'Heading 2', css: 'page-title', sample: 'Aa 08' },
@@ -35,14 +39,14 @@ const typeSamples = [
 ];
 
 const photo = {
-  src: withBase('/media/work/kulo-hero.webp'),
-  alt: 'Kulo cross-device agent workbench preview',
+  src: withBase('/media/work/field-guide.webp'),
+  alt: 'Field Guide offline notebook cover specimen',
   caption: 'PhosphorPicture thumbnail — select to inspect in true-color lightbox',
 };
 const codeSample = [
-  "const phosphor = 'amber';",
-  '// Every ink, border, bevel, glow, and pixel cursor derives from --lit.',
-  'document.documentElement.dataset.theme = phosphor;',
+  "// Switch between 5 peer retro OS styles & 20 presets at runtime.",
+  "document.documentElement.dataset.os = 'rainbow';",
+  "document.documentElement.dataset.theme = 'studio';",
 ].join('\n');
 ---
 
@@ -55,16 +59,16 @@ const codeSample = [
     path={[{ label: pageCopy.site.desktopLabel, href: '/' }, { label: pageCopy.system.title }]}
     closeHref="/"
     statusLeft={pageCopy.system.title}
-    statusRight="Live specimens"
+    statusRight="5 OSes · 20 presets"
   >
     <div class="window-content specimen-page">
       <header class="specimen-header">
         <h1 class="page-title">Design System</h1>
-        <p class="lead">Single-hue phosphor tokens, display preferences, and live component specimens.</p>
+        <p class="lead">Five peer retro desktop OS styles, shared semantic tokens, display preferences, and live component specimens.</p>
       </header>
 
       <section class="specimen-section">
-        <h2 class="section-title">Phosphor</h2>
+        <h2 class="section-title">OS Style &amp; Tokens</h2>
         <DisplayPreferences client:load />
         <ul class="specimen-colors">
           {colors.map(token => (
@@ -105,7 +109,7 @@ const codeSample = [
           <label>Input<input type="text" placeholder="Type here" /></label>
           <label>Choice
             <span>
-              <select><option>Amber</option><option>Green</option><option>Blue</option><option>White</option></select>
+              <select><option>Rainbow</option><option>Phosphor</option><option>Coffee</option><option>CLI</option><option>Pixel</option></select>
               <PixelIcon name="chevron" />
             </span>
           </label>

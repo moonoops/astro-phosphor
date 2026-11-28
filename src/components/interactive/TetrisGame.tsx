@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useStore } from '@nanostores/react';
 import {
   playArcadeCue,
   readPhosphorPalette,
@@ -6,6 +7,8 @@ import {
   writeStoredNumber,
   type PhosphorPalette,
 } from '../../games/arcadeSound';
+import { DEFAULT_OS } from '../../os/registry';
+import { $preferences } from '../../stores/osStore';
 import ButtonBase from '../ui/ButtonBase';
 
 type PieceType = 'I' | 'O' | 'T' | 'S' | 'Z' | 'J' | 'L';
@@ -210,7 +213,109 @@ function drawMonochromeCell(
   }
 }
 
-function renderMiniCanvas(canvas: HTMLCanvasElement | null, type: PieceType | null, palette: PhosphorPalette) {
+interface TetrisVisualTheme {
+  isPhosphor: boolean;
+  stageBg: string;
+  stageGrid: string;
+  palette: PhosphorPalette;
+}
+
+const TETRIS_COLORS: Readonly<
+  Record<PieceType, { fill: string; hi: string; shade: string; ghostFill: string; ghostStroke: string }>
+> = {
+  I: { fill: '#35d8f0', hi: '#b8f7ff', shade: '#157c96', ghostFill: 'rgba(53,216,240,0.18)', ghostStroke: 'rgba(130,238,255,0.85)' },
+  O: { fill: '#f7c936', hi: '#fff2ad', shade: '#a67b0d', ghostFill: 'rgba(247,201,54,0.18)', ghostStroke: 'rgba(255,222,102,0.85)' },
+  T: { fill: '#b668ff', hi: '#e6c7ff', shade: '#6b2ca8', ghostFill: 'rgba(182,104,255,0.18)', ghostStroke: 'rgba(214,163,255,0.85)' },
+  S: { fill: '#47e378', hi: '#baffd1', shade: '#1b873e', ghostFill: 'rgba(71,227,120,0.18)', ghostStroke: 'rgba(126,247,165,0.85)' },
+  Z: { fill: '#ff5468', hi: '#ffbac3', shade: '#a61c2e', ghostFill: 'rgba(255,84,104,0.18)', ghostStroke: 'rgba(255,138,152,0.85)' },
+  J: { fill: '#528eff', hi: '#bad5ff', shade: '#214ea8', ghostFill: 'rgba(82,142,255,0.18)', ghostStroke: 'rgba(138,181,255,0.85)' },
+  L: { fill: '#ff943d', hi: '#ffd4ad', shade: '#a85212', ghostFill: 'rgba(255,148,61,0.18)', ghostStroke: 'rgba(255,184,122,0.85)' },
+};
+
+function readTetrisTheme(element: HTMLElement | null): TetrisVisualTheme {
+  const palette = readPhosphorPalette(element);
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return { isPhosphor: DEFAULT_OS === 'phosphor', stageBg: palette.ground, stageGrid: palette.lit10, palette };
+  }
+  const activeOs = document.documentElement.dataset.os || DEFAULT_OS;
+  if (activeOs === 'phosphor') {
+    return { isPhosphor: true, stageBg: palette.ground, stageGrid: palette.lit10, palette };
+  }
+  const target = element ?? document.documentElement;
+  const resolveVar = (expr: string, fb: string) => {
+    const probe = document.createElement('span');
+    probe.style.color = expr;
+    probe.style.display = 'none';
+    target.appendChild(probe);
+    const resolved = getComputedStyle(probe).color;
+    probe.remove();
+    return resolved || fb;
+  };
+  return {
+    isPhosphor: false,
+    stageBg: resolveVar('var(--game-stage-bg, #161a29)', '#161a29'),
+    stageGrid: resolveVar('var(--game-stage-grid, rgba(255,255,255,0.1))', 'rgba(255,255,255,0.1)'),
+    palette,
+  };
+}
+
+function drawColorCell(
+  ctx: CanvasRenderingContext2D,
+  px: number,
+  py: number,
+  size: number,
+  type: PieceType,
+  stageBg: string,
+  ghost = false,
+) {
+  const pad = 1;
+  const x = px + pad;
+  const y = py + pad;
+  const s = size - pad * 2;
+  const col = TETRIS_COLORS[type];
+
+  if (ghost) {
+    ctx.fillStyle = col.ghostFill;
+    ctx.fillRect(x, y, s, s);
+    ctx.strokeStyle = col.ghostStroke;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(x + 0.75, y + 0.75, s - 1.5, s - 1.5);
+    return;
+  }
+
+  ctx.fillStyle = stageBg;
+  ctx.fillRect(px, py, size, size);
+
+  ctx.fillStyle = col.fill;
+  ctx.fillRect(x, y, s, s);
+
+  ctx.fillStyle = col.hi;
+  ctx.fillRect(x, y, s, 2);
+  ctx.fillRect(x, y, 2, s);
+  ctx.fillStyle = col.shade;
+  ctx.fillRect(x, y + s - 2, s, 2);
+  ctx.fillRect(x + s - 2, y, 2, s);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+  ctx.fillRect(x + 3, y + 3, 2, 2);
+}
+
+function drawCell(
+  ctx: CanvasRenderingContext2D,
+  px: number,
+  py: number,
+  size: number,
+  type: PieceType,
+  theme: TetrisVisualTheme,
+  ghost = false,
+) {
+  if (theme.isPhosphor) {
+    drawMonochromeCell(ctx, px, py, size, type, theme.palette, ghost);
+  } else {
+    drawColorCell(ctx, px, py, size, type, theme.stageBg, ghost);
+  }
+}
+
+function renderMiniCanvas(canvas: HTMLCanvasElement | null, type: PieceType | null, theme: TetrisVisualTheme) {
   if (!canvas) return;
   const dpr = window.devicePixelRatio || 1;
   const w = PREVIEW_CELL * 4;
@@ -224,7 +329,7 @@ function renderMiniCanvas(canvas: HTMLCanvasElement | null, type: PieceType | nu
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.fillStyle = palette.ground;
+  ctx.fillStyle = theme.stageBg;
   ctx.fillRect(0, 0, w, h);
   if (!type) return;
 
@@ -251,7 +356,7 @@ function renderMiniCanvas(canvas: HTMLCanvasElement | null, type: PieceType | nu
   for (let r = 0; r < mat.length; r++) {
     for (let c = 0; c < mat[r]!.length; c++) {
       if (mat[r]![c]) {
-        drawMonochromeCell(ctx, offsetX + c * PREVIEW_CELL, offsetY + r * PREVIEW_CELL, PREVIEW_CELL, type, palette);
+        drawCell(ctx, offsetX + c * PREVIEW_CELL, offsetY + r * PREVIEW_CELL, PREVIEW_CELL, type, theme);
       }
     }
   }
@@ -262,6 +367,7 @@ export default function TetrisGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const nextCanvasRef = useRef<HTMLCanvasElement>(null);
   const holdCanvasRef = useRef<HTMLCanvasElement>(null);
+  const { os, theme } = useStore($preferences, { ssr: 'initial' });
 
   const gridRef = useRef<(PieceType | null)[][]>(createEmptyGrid());
   const bagRef = useRef<PieceType[]>(createBag());
@@ -269,7 +375,7 @@ export default function TetrisGame() {
   const nextTypeRef = useRef<PieceType>('T');
   const holdTypeRef = useRef<PieceType | null>(null);
   const holdUsedRef = useRef(false);
-  const paletteRef = useRef<PhosphorPalette>(readPhosphorPalette(null));
+  const visualThemeRef = useRef<TetrisVisualTheme>(readTetrisTheme(null));
   const phaseRef = useRef<Phase>('ready');
   const scoreRef = useRef(0);
   const linesRef = useRef(0);
@@ -294,7 +400,7 @@ export default function TetrisGame() {
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const palette = paletteRef.current;
+    const visual = visualThemeRef.current;
     const dpr = window.devicePixelRatio || 1;
     if (canvas.width !== BOARD_W * dpr || canvas.height !== BOARD_H * dpr) {
       canvas.width = BOARD_W * dpr;
@@ -306,10 +412,10 @@ export default function TetrisGame() {
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    ctx.fillStyle = palette.ground;
+    ctx.fillStyle = visual.stageBg;
     ctx.fillRect(0, 0, BOARD_W, BOARD_H);
 
-    ctx.strokeStyle = palette.lit10;
+    ctx.strokeStyle = visual.stageGrid;
     ctx.lineWidth = 1;
     for (let c = 1; c < COLS; c++) {
       ctx.beginPath();
@@ -328,7 +434,7 @@ export default function TetrisGame() {
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
         const cell = grid[r]![c];
-        if (cell) drawMonochromeCell(ctx, c * CELL, r * CELL, CELL, cell, palette);
+        if (cell) drawCell(ctx, c * CELL, r * CELL, CELL, cell, visual);
       }
     }
 
@@ -343,7 +449,7 @@ export default function TetrisGame() {
           if (!active.matrix[r]![c]) continue;
           const gy = ghostY + r;
           if (gy >= 0) {
-            drawMonochromeCell(ctx, (active.x + c) * CELL, gy * CELL, CELL, active.type, palette, true);
+            drawCell(ctx, (active.x + c) * CELL, gy * CELL, CELL, active.type, visual, true);
           }
         }
       }
@@ -352,14 +458,14 @@ export default function TetrisGame() {
           if (!active.matrix[r]![c]) continue;
           const py = active.y + r;
           if (py >= 0) {
-            drawMonochromeCell(ctx, (active.x + c) * CELL, py * CELL, CELL, active.type, palette, false);
+            drawCell(ctx, (active.x + c) * CELL, py * CELL, CELL, active.type, visual, false);
           }
         }
       }
     }
 
-    renderMiniCanvas(nextCanvasRef.current, nextTypeRef.current, palette);
-    renderMiniCanvas(holdCanvasRef.current, holdTypeRef.current, palette);
+    renderMiniCanvas(nextCanvasRef.current, nextTypeRef.current, visual);
+    renderMiniCanvas(holdCanvasRef.current, holdTypeRef.current, visual);
   }, []);
 
   const pullFromBag = useCallback((): PieceType => {
@@ -386,17 +492,17 @@ export default function TetrisGame() {
   useEffect(() => {
     setBest(readStoredNumber(BEST_KEY, 0));
     const refreshPalette = () => {
-      paletteRef.current = readPhosphorPalette(hostRef.current);
+      visualThemeRef.current = readTetrisTheme(hostRef.current);
       draw();
     };
     refreshPalette();
     const observer = new MutationObserver(refreshPalette);
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-theme', 'data-zoom', 'data-reading'],
+      attributeFilter: ['data-os', 'data-theme', 'data-zoom', 'data-reading'],
     });
     return () => observer.disconnect();
-  }, [draw]);
+  }, [draw, os, theme]);
 
   const startGame = useCallback(() => {
     gridRef.current = createEmptyGrid();
@@ -583,7 +689,7 @@ export default function TetrisGame() {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
-      if (document.querySelector('#start-menu-panel:not([hidden])')) return;
+      if (document.querySelector('#start-menu-panel:not([hidden]), #topbar-start-menu-panel:not([hidden])')) return;
 
       if (phaseRef.current === 'ready' || phaseRef.current === 'over') {
         if (event.key === 'Enter' || event.key === ' ') {

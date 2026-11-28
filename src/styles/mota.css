@@ -1,3 +1,5 @@
+@import "./game-themes.css";
+
 .os-window[data-window-id="mota"] .window-scroll {
   display: flex;
   flex-direction: column;
@@ -39,7 +41,8 @@
   gap: 6px 12px;
   padding: 6px 10px;
   border: 1px solid var(--lit-28);
-  background: var(--lit-10);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-panel-alt-bg, var(--lit-10));
 }
 
 .mota-floor-chip {
@@ -62,6 +65,85 @@
   white-space: nowrap;
 }
 
+.mota-diff-badge {
+  display: inline-block;
+  padding: 0 6px;
+  border: 1px solid var(--lit-28);
+  border-radius: var(--os-radius-pill, 0px);
+  background: var(--game-panel-bg, var(--ground));
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--game-accent-ink);
+}
+
+.mota-diff-badge[data-diff="hard"] {
+  border-color: var(--game-hard-border);
+  background: var(--game-hard-bg);
+  color: var(--game-hard-ink);
+}
+
+.mota-pill-btn[data-color-mode="color"] {
+  border-color: var(--game-colormode-border);
+  background: var(--game-colormode-bg);
+  color: var(--game-colormode-ink);
+  font-weight: 600;
+}
+
+.mota-diff-picker {
+  width: 100%;
+  max-width: 396px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mota-diff-card {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  padding: 8px 9px;
+  border: 1px solid var(--lit-28);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-panel-bg, var(--ground));
+  color: var(--lit);
+  text-align: left;
+  font-size: 12px;
+}
+
+.mota-diff-card strong {
+  font-size: 13px;
+  color: var(--game-accent-ink);
+}
+
+.mota-diff-card span {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--lit-72);
+}
+
+.mota-diff-card:hover,
+.mota-diff-card:focus-visible {
+  border-color: var(--lit);
+  background: var(--game-panel-alt-bg, var(--lit-10));
+}
+
+.mota-diff-card[data-active="true"] {
+  border-color: var(--lit);
+  background: var(--game-panel-alt-bg, var(--lit-10));
+  box-shadow: inset 2px 0 0 var(--lit), 2px 2px 0 var(--side);
+}
+
+.mota-diff-card[data-diff="hard"][data-active="true"] {
+  border-color: var(--game-hard-border);
+  background: var(--game-hard-bg);
+  box-shadow: inset 2px 0 0 var(--game-hard-border), 2px 2px 0 var(--game-hard-shadow);
+}
+
+.mota-diff-card[data-diff="hard"] strong {
+  color: var(--game-hard-ink);
+}
+
 .mota-topbar-actions {
   display: flex;
   align-items: center;
@@ -77,8 +159,8 @@
   min-height: 28px;
   padding: 2px 8px;
   border: 1px solid var(--lit-28);
-  border-radius: 0;
-  background: var(--ground);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-panel-bg, var(--ground));
   color: var(--lit);
   font-size: 13px;
   line-height: 1.2;
@@ -176,9 +258,10 @@
   position: relative;
   width: min(100cqi, 100cqb);
   height: min(100cqi, 100cqb);
-  border: 1px solid var(--lit);
-  background: var(--ground);
-  box-shadow: inset 0 0 0 1px var(--lit-28);
+  border: 1px solid var(--game-stage-border);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-stage-bg);
+  box-shadow: var(--game-stage-shadow);
   overflow: hidden;
 }
 
@@ -201,9 +284,11 @@
   flex-direction: column;
   gap: 10px;
   padding: 12px;
-  border: 1px solid var(--lit);
-  background: color-mix(in srgb, var(--ground) 96%, transparent);
-  box-shadow: 4px 4px 0 var(--side);
+  border: 1px solid var(--game-modal-border);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-modal-bg);
+  color: var(--lit);
+  box-shadow: var(--game-modal-shadow);
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--lit-28) transparent;
@@ -212,16 +297,17 @@
 .mota-modal--title,
 .mota-modal--victory {
   inset: 0;
-  justify-content: center;
+  justify-content: safe center;
   align-items: center;
   text-align: center;
   box-shadow: none;
   border: 0;
+  border-radius: 0;
   background:
     repeating-linear-gradient(to right, var(--lit-10) 0 1px, transparent 1px 40px),
     repeating-linear-gradient(to bottom, var(--lit-10) 0 1px, transparent 1px 40px),
-    var(--ground);
-  padding: 18px;
+    var(--game-modal-bg);
+  padding: 14px 16px;
 }
 
 .mota-title-art {
@@ -235,6 +321,20 @@
   flex: none;
   display: block;
   shape-rendering: crispEdges;
+}
+
+/* On non-phosphor OSes, frame HUD pixel portraits on the dark dungeon swatch so jewel sprites & light outlines never wash out on paper */
+html:not([data-os="phosphor"]) .mota-portrait-svg {
+  background: var(--game-stage-bg);
+  border: 1px solid var(--game-stage-border);
+  border-radius: min(var(--os-radius-control, 0px), 4px);
+  padding: 2px;
+  box-sizing: content-box;
+}
+
+html:not([data-os="phosphor"]) .mota-key-item .mota-portrait-svg {
+  padding: 1px;
+  border-radius: min(var(--os-radius-control, 0px), 3px);
 }
 
 .mota-boot-title {
@@ -292,7 +392,7 @@
 
 .mota-victory-stats strong {
   font-size: 16px;
-  color: var(--hi);
+  color: var(--game-accent-ink);
 }
 
 /* Dialogue box docked at bottom of viewport */
@@ -303,9 +403,11 @@
   display: grid;
   gap: 8px;
   padding: 10px 12px;
-  border: 1px solid var(--lit);
-  background: var(--ground);
-  box-shadow: 4px 4px 0 var(--side);
+  border: 1px solid var(--game-modal-border);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-modal-bg);
+  color: var(--lit);
+  box-shadow: var(--game-modal-shadow);
 }
 
 .mota-dialogue-head {
@@ -436,7 +538,11 @@
 }
 
 .mota-shop-row:disabled {
-  opacity: 0.42;
+  opacity: 0.92;
+  background: var(--game-disabled-bg);
+  color: var(--game-disabled-ink);
+  border-color: var(--game-disabled-border);
+  border-style: dashed;
 }
 
 .mota-shop-cost {
@@ -486,11 +592,39 @@
   font-weight: 700;
 }
 
+.mota-book-dmg[data-dmg-tier="safe"],
+.mota-radar-dmg[data-dmg-tier="safe"],
+.mota-inspect-dmg[data-dmg-tier="safe"] {
+  border-color: var(--game-dmg-safe-border);
+  background: var(--game-dmg-safe-bg);
+  color: var(--game-dmg-safe-ink);
+  text-shadow: none;
+}
+
+.mota-book-dmg[data-dmg-tier="normal"],
+.mota-radar-dmg[data-dmg-tier="normal"],
+.mota-inspect-dmg[data-dmg-tier="normal"] {
+  border-color: var(--game-dmg-warn-border);
+  background: var(--game-dmg-warn-bg);
+  color: var(--game-dmg-warn-ink);
+  text-shadow: none;
+}
+
+.mota-book-dmg[data-dmg-tier="high"],
+.mota-radar-dmg[data-dmg-tier="high"],
+.mota-inspect-dmg[data-dmg-tier="high"] {
+  border-color: var(--game-dmg-high-border);
+  background: var(--game-dmg-high-bg);
+  color: var(--game-dmg-high-ink);
+  text-shadow: none;
+}
+
 .mota-book-dmg[data-lethal="true"],
+.mota-radar-dmg[data-lethal="true"],
 .mota-inspect-dmg[data-lethal="true"] {
-  border-color: var(--lit);
-  background: var(--lit);
-  color: var(--ground);
+  border-color: var(--game-dmg-lethal-border);
+  background: var(--game-dmg-lethal-bg);
+  color: var(--game-dmg-lethal-ink);
   text-shadow: none;
 }
 
@@ -505,12 +639,31 @@
 
 .mota-tag {
   display: inline-block;
-  padding: 0 4px;
+  padding: 0 5px;
   border: 1px solid var(--lit-28);
+  border-radius: var(--os-radius-pill, 0px);
   font-size: 11px;
-  line-height: 1.3;
-  color: var(--hi);
+  font-weight: 600;
+  line-height: 1.38;
+  color: var(--game-accent-ink);
+  text-shadow: none;
 }
+
+.mota-tag[data-diff="hard"] {
+  border-color: var(--game-hard-border);
+  background: var(--game-hard-bg);
+  color: var(--game-hard-ink);
+}
+
+.mota-tag[data-special="firstStrike"] { border-color: var(--game-sp-firstStrike-border); background: var(--game-sp-firstStrike-bg); color: var(--game-sp-firstStrike-ink); }
+.mota-tag[data-special="magic"]       { border-color: var(--game-sp-magic-border);       background: var(--game-sp-magic-bg);       color: var(--game-sp-magic-ink); }
+.mota-tag[data-special="solid"]       { border-color: var(--game-sp-solid-border);       background: var(--game-sp-solid-bg);       color: var(--game-sp-solid-ink); }
+.mota-tag[data-special="doubleHit"]   { border-color: var(--game-sp-doubleHit-border);   background: var(--game-sp-doubleHit-bg);   color: var(--game-sp-doubleHit-ink); }
+.mota-tag[data-special="tripleHit"]   { border-color: var(--game-sp-tripleHit-border);   background: var(--game-sp-tripleHit-bg);   color: var(--game-sp-tripleHit-ink); }
+.mota-tag[data-special="vampire"]     { border-color: var(--game-sp-vampire-border);     background: var(--game-sp-vampire-bg);     color: var(--game-sp-vampire-ink); }
+.mota-tag[data-special="armorBreak"]  { border-color: var(--game-sp-armorBreak-border);  background: var(--game-sp-armorBreak-bg);  color: var(--game-sp-armorBreak-ink); }
+.mota-tag[data-special="berserk"]     { border-color: var(--game-sp-berserk-border);     background: var(--game-sp-berserk-bg);     color: var(--game-sp-berserk-ink); }
+.mota-tag[data-special="thorns"]      { border-color: var(--game-sp-thorns-border);      background: var(--game-sp-thorns-bg);      color: var(--game-sp-thorns-ink); }
 
 /* Floor Teleporter */
 .mota-fly-grid {
@@ -557,7 +710,15 @@
 }
 
 .mota-fly-btn:disabled {
-  opacity: 0.35;
+  opacity: 0.92;
+  background: var(--game-disabled-bg);
+  color: var(--game-disabled-ink);
+  border-color: var(--game-disabled-border);
+  border-style: dashed;
+}
+
+.mota-fly-btn:disabled span {
+  color: var(--game-disabled-ink);
 }
 
 /* Save / Cloud Sync Manager */
@@ -656,7 +817,11 @@
 }
 
 .mota-mini-key:disabled {
-  opacity: 0.35;
+  opacity: 0.92;
+  background: var(--game-disabled-bg);
+  color: var(--game-disabled-ink);
+  border-color: var(--game-disabled-border);
+  border-style: dashed;
 }
 
 /* Help Modal */
@@ -683,7 +848,7 @@
 
 .mota-help-keys dt {
   font-weight: 700;
-  color: var(--hi);
+  color: var(--game-accent-ink);
 }
 
 .mota-help-keys dd {
@@ -785,7 +950,8 @@
 
 .mota-panel {
   border: 1px solid var(--lit-28);
-  background: var(--ground);
+  border-radius: var(--os-radius-control, 0px);
+  background: var(--game-panel-bg, var(--ground));
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
@@ -868,16 +1034,10 @@
   flex: none;
   padding: 0 5px;
   border: 1px solid var(--lit-28);
+  border-radius: var(--os-radius-pill, 0px);
   font-size: 11px;
   font-weight: 700;
-  color: var(--hi);
-}
-
-.mota-radar-dmg[data-lethal="true"] {
-  border-color: var(--lit);
-  background: var(--lit);
-  color: var(--ground);
-  text-shadow: none;
+  color: var(--game-accent-ink);
 }
 
 .mota-radar-sub {
@@ -890,7 +1050,7 @@
   justify-content: space-between;
   gap: 6px;
   font-size: 11px;
-  color: var(--hi);
+  color: var(--game-accent-ink);
 }
 
 .mota-radar-legend {
@@ -905,7 +1065,7 @@
 }
 
 .mota-radar-legend strong {
-  color: var(--hi);
+  color: var(--game-accent-ink);
 }
 
 .mota-radar-hint {
@@ -943,7 +1103,7 @@
 }
 
 .mota-stat strong {
-  color: var(--hi);
+  color: var(--game-accent-ink);
   font-size: 15px;
   font-weight: 700;
 }
@@ -976,6 +1136,7 @@
   gap: 3px;
   padding: 4px 5px;
   border: 1px solid var(--lit-28);
+  border-radius: var(--os-radius-control, 0px);
   background: var(--lit-10);
   font-size: 12px;
   white-space: nowrap;
@@ -984,11 +1145,46 @@
 .mota-key-item span {
   color: var(--lit-72);
   font-size: 11px;
+  font-weight: 600;
 }
 
 .mota-key-item strong {
-  color: var(--hi);
+  color: var(--game-accent-ink);
   font-size: 14px;
+  font-weight: 700;
+}
+
+.mota-key-item[data-key="yellow"] {
+  border-color: var(--game-key-y-border);
+  background: var(--game-key-y-bg);
+}
+
+.mota-key-item[data-key="yellow"] span,
+.mota-key-item[data-key="yellow"] strong {
+  color: var(--game-key-y-ink);
+  text-shadow: none;
+}
+
+.mota-key-item[data-key="blue"] {
+  border-color: var(--game-key-b-border);
+  background: var(--game-key-b-bg);
+}
+
+.mota-key-item[data-key="blue"] span,
+.mota-key-item[data-key="blue"] strong {
+  color: var(--game-key-b-ink);
+  text-shadow: none;
+}
+
+.mota-key-item[data-key="red"] {
+  border-color: var(--game-key-r-border);
+  background: var(--game-key-r-bg);
+}
+
+.mota-key-item[data-key="red"] span,
+.mota-key-item[data-key="red"] strong {
+  color: var(--game-key-r-ink);
+  text-shadow: none;
 }
 
 .mota-relics-row {
@@ -998,15 +1194,19 @@
 }
 
 .mota-relic-pill {
-  padding: 2px 6px;
-  border: 1px solid var(--lit-28);
+  padding: 2px 7px;
+  border: 1px dashed var(--game-disabled-border);
+  border-radius: var(--os-radius-pill, 0px);
+  background: var(--game-disabled-bg);
   font-size: 11px;
-  color: var(--lit-72);
-  opacity: 0.45;
+  font-weight: 500;
+  color: var(--game-disabled-ink);
+  opacity: 0.94;
 }
 
 .mota-relic-pill[data-owned="true"] {
   opacity: 1;
+  border-style: solid;
   border-color: var(--lit);
   background: var(--lit);
   color: var(--ground);
@@ -1028,6 +1228,16 @@
   justify-content: center;
   font-size: 12px;
   white-space: nowrap;
+}
+
+/* Keep disabled HUD tool buttons clearly inactive yet comfortably legible across light & dark OSes */
+html[data-os] .mota-action-key:disabled {
+  opacity: 1;
+  background: var(--game-disabled-bg);
+  color: var(--game-disabled-ink);
+  border: 1px dashed var(--game-disabled-border);
+  box-shadow: none;
+  pointer-events: none;
 }
 
 /* Live Tile Inspector & Event Log */
@@ -1083,7 +1293,7 @@
   padding-top: 4px;
   border-top: 1px solid var(--lit-28);
   font-size: 12px;
-  color: var(--hi);
+  color: var(--game-accent-ink);
 }
 
 .mota-inspect-simple {
@@ -1147,7 +1357,7 @@
 }
 
 .mota-hud-foot-row strong {
-  color: var(--hi);
+  color: var(--game-accent-ink);
 }
 
 .mota-hud-foot-keys {
@@ -1258,6 +1468,43 @@
 
   .mota-fly-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mota-diff-picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .mota-diff-card {
+    padding: 6px 7px;
+    gap: 2px;
+  }
+
+  .mota-diff-desc {
+    font-size: 10.5px;
+    line-height: 1.3;
+  }
+
+  .mota-modal--title {
+    gap: 6px;
+    padding: 10px 10px;
+  }
+
+  .mota-title-art {
+    gap: 10px;
+  }
+
+  .mota-title-art .mota-portrait-svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .mota-boot-title {
+    font-size: 36px;
+  }
+
+  .mota-boot-credit {
+    display: none;
   }
 }
 

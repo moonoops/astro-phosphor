@@ -2,14 +2,36 @@
 import TypedText from '../components/interactive/TypedText';
 import pageCopy from '../data/page-copy.json';
 import DesktopLayout from '../layouts/DesktopLayout.astro';
-import { SITE_NAME } from '../site';
+import { OWNER_HANDLE, SITE_NAME, withBase } from '../site';
 import '../styles/home.css';
 
-const { home } = pageCopy;
+const { home, about } = pageCopy;
+const statusTags = about.tags.slice(0, 4);
 ---
 
 <DesktopLayout title={SITE_NAME}>
   <section class="desktop-home" aria-labelledby="desktop-heading">
+    <div class="os-desktop-widget" role="complementary" aria-label="Status note">
+      <header class="os-widget-header">
+        <span class="os-widget-filename">NOW.txt</span>
+        <span class="os-widget-badge" aria-hidden="true">●</span>
+      </header>
+      <div class="os-widget-body">
+        <p class="os-widget-kicker">{home.ticker}</p>
+        <p class="os-widget-title">{SITE_NAME}</p>
+        <p class="os-widget-note">{home.intro}</p>
+        <ul class="os-widget-tags" aria-label={`${OWNER_HANDLE} roles`}>
+          {statusTags.map((tag) => (
+            <li>{tag}</li>
+          ))}
+        </ul>
+      </div>
+      <footer class="os-widget-footer">
+        <a href={withBase('/about')} class="os-widget-link">{about.windowTitle}</a>
+        <a href={withBase('/work')} class="os-widget-link">{about.workAction}</a>
+        <a href={withBase('/contact')} class="os-widget-link">{about.contactAction}</a>
+      </footer>
+    </div>
     <div class="desktop-home-wallpaper">
       <TypedText text={home.intro} client:idle />
       <h1 class="hero-title" id="desktop-heading">{SITE_NAME}</h1>

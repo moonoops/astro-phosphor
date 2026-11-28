@@ -1,0 +1,1341 @@
+/* ==========================================================================
+   CLI OS (data-os="cli") — Prompt OS Faithful Chrome & Shared UI Styling
+   Strictly scoped to html[data-os="cli"] (zero leakage into peer OSes)
+   ========================================================================== */
+
+@keyframes cli-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+@keyframes cli-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* 1. Chrome Slot Visibility & Base Focus / Typography */
+html[data-os="cli"] .os-topbar {
+  display: none;
+}
+
+html[data-os="cli"] .screen-plane {
+  --taskbar-height: 66px;
+  --wmax-bottom: calc(var(--taskbar-height) + 8px);
+  --window-left: 276px;
+  --window-top: 26px;
+  --window-right: 40px;
+  --window-bottom: 76px;
+  --rail-left: 44px;
+  --rail-top: 30px;
+}
+
+html[data-os="cli"] :focus-visible {
+  outline: 2px solid var(--cli-accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+html[data-os="cli"] :where(input, textarea) {
+  caret-color: var(--cli-accent);
+}
+
+html[data-os="cli"] .hero-title,
+html[data-os="cli"] .page-title,
+html[data-os="cli"] .section-title,
+html[data-os="cli"] .prose :is(h2, h3, h4) {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+html[data-os="cli"] .hero-title {
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+html[data-os="cli"] .page-title {
+  line-height: 1.15;
+}
+
+html[data-os="cli"] .section-title {
+  line-height: 1.25;
+}
+
+html[data-os="cli"] .prose h2 { line-height: 1.25; }
+html[data-os="cli"] .prose h3 { line-height: 1.35; }
+html[data-os="cli"] .prose h4 { line-height: 1.4; }
+html[data-os="cli"] .prose :lang(zh) :is(h1, h2, h3, h4) { letter-spacing: -0.01em; }
+
+html[data-os="cli"] .prose a:not(.pixel-key) {
+  color: var(--cli-accent);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+
+html[data-os="cli"] .prose a:not(.pixel-key):hover {
+  color: var(--cli-accent);
+  background: transparent;
+  border-bottom-color: var(--cli-accent);
+}
+
+html[data-os="cli"] .prose blockquote {
+  border-inline-start: 2px solid var(--cli-accent);
+  padding-inline-start: 16px;
+  color: var(--cli-dim);
+}
+
+html[data-os="cli"] .prose pre {
+  background: var(--cli-surface);
+  border: 1px solid var(--cli-border);
+  border-radius: var(--cli-radius-md);
+  padding: 14px 18px;
+  font: 13.5px / 1.55 var(--font-mono);
+}
+
+html[data-os="cli"] .prose :not(pre) > code {
+  background: var(--cli-surface);
+  border: 1px solid var(--cli-border-subtle);
+  border-radius: var(--cli-radius-sm);
+  padding: 1px 5px;
+  font-size: 0.92em;
+}
+
+/* Keep photographs crisp & true-color in CLI OS */
+html[data-os="cli"] .phosphor-picture img,
+html[data-os="cli"] .work-card-image,
+html[data-os="cli"] .work-media-image,
+html[data-os="cli"] .article-card-image,
+html[data-os="cli"] .journal-cover img {
+  filter: none;
+}
+
+/* 2. Flat 1px Hairline Buttons (zero 3D pixel keycap extrusion) */
+html[data-os="cli"] .pixel-key {
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--cli-border);
+  border-radius: var(--cli-radius-md);
+  background: transparent;
+  color: var(--cli-fg);
+  font-size: 13.5px;
+  font-weight: 500;
+  box-shadow: none;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 80ms ease;
+}
+
+html[data-os="cli"] .pixel-key:hover {
+  background: var(--cli-surface);
+  border-color: var(--cli-accent);
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"] .pixel-key--primary {
+  background: var(--cli-accent);
+  border-color: var(--cli-accent);
+  color: var(--cli-accent-ink);
+  font-weight: 600;
+}
+
+html[data-os="cli"] .pixel-key--primary:hover {
+  background: var(--cli-accent-hover);
+  border-color: var(--cli-accent-hover);
+  color: var(--cli-accent-ink);
+}
+
+html[data-os="cli"] .pixel-key:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+html[data-os="cli"] .pixel-key--icon {
+  padding: 0;
+}
+
+/* 3. Desktop App Command Rail (Left Column: Read(apps/)) */
+html[data-os="cli"] .desktop-icons {
+  grid-template-columns: 1fr;
+  gap: 2px;
+  width: 204px;
+  counter-reset: cli-app;
+}
+
+html[data-os="cli"] .desktop-icons::before {
+  content: "~/astro-phosphor $ ls apps/";
+  display: block;
+  padding: 0 8px 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--cli-border-subtle);
+  color: var(--cli-dim);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+html[data-os="cli"] .desktop-icon {
+  counter-increment: cli-app;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--cli-radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: left;
+  text-decoration: none;
+  color: var(--cli-fg);
+  transition: background-color 110ms ease, border-color 110ms ease, color 110ms ease;
+}
+
+html[data-os="cli"] .desktop-icon::before {
+  content: "0" counter(cli-app);
+  flex: none;
+  width: 18px;
+  color: var(--cli-accent);
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+html[data-os="cli"] .desktop-icon svg {
+  width: 16px;
+  height: 16px;
+  color: var(--cli-dim);
+  filter: none;
+  flex: none;
+}
+
+html[data-os="cli"] .desktop-icon span {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html[data-os="cli"] .desktop-icon span::before {
+  content: "./";
+  color: var(--cli-dim);
+  font-weight: 400;
+}
+
+html[data-os="cli"] .desktop-icon:is(:hover, :focus-visible, [aria-current="location"]) {
+  background: var(--cli-surface);
+  border-color: var(--cli-border-subtle);
+}
+
+html[data-os="cli"] .desktop-icon:is(:hover, :focus-visible, [aria-current="location"]) svg {
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"] .desktop-icon:is(:hover, :focus-visible, [aria-current="location"]) span {
+  background: transparent;
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"] .desktop-icon:is(:hover, :focus-visible, [aria-current="location"]) span::before {
+  color: var(--cli-accent);
+}
+
+/* 4. Desktop "/" Prompt OS Welcome Box (.os-desktop-widget) & Hero Transcript */
+html[data-os="cli"] .os-desktop-widget {
+  display: flex;
+  inset-block-start: 30px;
+  inset-inline-start: 288px;
+  inset-inline-end: 56px;
+  width: auto;
+  max-width: 560px;
+  border: 1px solid var(--cli-accent);
+  border-radius: var(--cli-radius-md);
+  background: var(--cli-bg);
+  color: var(--cli-fg);
+  box-shadow: none;
+}
+
+html[data-os="cli"][data-theme="matrix"] .os-desktop-widget {
+  box-shadow: 0 0 14px var(--cli-glow);
+}
+
+html[data-os="cli"] .os-widget-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--cli-border-subtle);
+  background: transparent;
+  color: var(--cli-fg);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+html[data-os="cli"] .os-widget-filename::before {
+  content: "✻ Welcome · ";
+  color: var(--cli-accent);
+  font-weight: 500;
+}
+
+html[data-os="cli"] .os-widget-badge {
+  color: var(--cli-ok);
+  font-size: 11px;
+  animation: cli-pulse 2.4s ease-in-out infinite;
+}
+
+html[data-os="cli"] .os-widget-body {
+  padding: 12px 16px;
+  gap: 8px;
+}
+
+html[data-os="cli"] .os-widget-kicker {
+  color: var(--cli-dim);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+html[data-os="cli"] .os-widget-kicker::before {
+  content: "✓ cwd: ~/astro-phosphor · ";
+  color: var(--cli-ok);
+}
+
+html[data-os="cli"] .os-widget-title {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--cli-fg);
+  letter-spacing: -0.02em;
+}
+
+/* Avoid duplicating home.intro (already rendered in the hero transcript below) */
+html[data-os="cli"] .os-widget-note {
+  display: none;
+}
+
+html[data-os="cli"] .os-widget-tags {
+  gap: 6px;
+  margin-top: 2px;
+}
+
+html[data-os="cli"] .os-widget-tags li {
+  padding: 2px 8px;
+  border: 1px solid var(--cli-border-subtle);
+  border-radius: var(--cli-radius-sm);
+  background: var(--cli-surface);
+  color: var(--cli-dim);
+  font-size: 12px;
+}
+
+html[data-os="cli"] .os-widget-footer {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 9px 16px;
+  border-top: 1px solid var(--cli-border-subtle);
+  font-size: 13px;
+}
+
+html[data-os="cli"] .os-widget-link {
+  color: var(--cli-accent);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+
+html[data-os="cli"] .os-widget-link::before {
+  content: "/";
+  opacity: 0.75;
+}
+
+html[data-os="cli"] .os-widget-link:hover {
+  background: transparent;
+  color: var(--cli-accent);
+  border-bottom-color: var(--cli-accent);
+}
+
+/* Desktop Hero Transcript positioned directly under the Welcome Box */
+html[data-os="cli"] .desktop-home-wallpaper {
+  inset-block-start: 228px;
+  inset-block-end: 58px;
+  inset-inline-start: 288px;
+  inset-inline-end: 56px;
+  inline-size: auto;
+  max-inline-size: 660px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 14px;
+  text-align: left;
+}
+
+html[data-os="cli"] .desktop-home-wallpaper::before {
+  content: "> whoami && ls ~/desk";
+  order: 0;
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  border-radius: var(--cli-radius-sm);
+  background: var(--cli-surface);
+  color: var(--cli-dim);
+  font-size: 13.5px;
+  line-height: 1.5;
+  pointer-events: auto;
+}
+
+html[data-os="cli"] .desktop-home-wallpaper .hero-title {
+  order: 1;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+  color: var(--cli-fg);
+  white-space: normal;
+}
+
+html[data-os="cli"] .desktop-home-wallpaper .hero-title::before {
+  content: "●";
+  flex: none;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--cli-accent);
+  transform: translateY(-0.22em);
+}
+
+html[data-os="cli"] .desktop-home-wallpaper .typed-text {
+  order: 2;
+  inline-size: 100%;
+  max-inline-size: 58ch;
+  padding-inline-start: 24px;
+  color: var(--cli-dim);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+html[data-os="cli"] .typed-marker::after {
+  width: 0.6em;
+  height: 1.12em;
+  background: var(--cli-fg);
+  box-shadow: none;
+  animation: cli-blink 1s steps(1) infinite;
+}
+
+html[data-os="cli"] .desktop-wallpaper {
+  opacity: 0.14;
+  color: var(--cli-dim);
+  font-size: 36px;
+  letter-spacing: -0.03em;
+}
+
+html[data-os="cli"] .desktop-home-footer {
+  inset-inline-start: 288px;
+  inset-block-end: 18px;
+  gap: 12px;
+}
+
+html[data-os="cli"] .desktop-home-hint {
+  color: var(--cli-dim);
+  font-size: 12.5px;
+}
+
+html[data-os="cli"] .desktop-like-btn {
+  padding: 3px 9px;
+  border: 1px solid var(--cli-border);
+  border-radius: var(--cli-radius-sm);
+  background: transparent;
+  color: var(--cli-dim);
+  font-size: 12.5px;
+}
+
+html[data-os="cli"] .desktop-like-btn svg {
+  filter: none;
+}
+
+html[data-os="cli"] .desktop-like-btn:is(:hover, :focus-visible, [aria-pressed="true"]) {
+  border-color: var(--cli-accent);
+  background: var(--cli-surface);
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"] .desktop-like-btn:is(:hover, :focus-visible) .desktop-like-count {
+  background: transparent;
+  color: var(--cli-accent);
+}
+
+/* 5. Flat Terminal Pane Windows (.os-window) */
+html[data-os="cli"] .os-window {
+  border-radius: var(--cli-radius-lg);
+  background: var(--cli-bg);
+  box-shadow: var(--os-window-shadow);
+  overflow: hidden;
+}
+
+html[data-os="cli"] .os-window[data-wfocus="off"] {
+  --frame-ink: var(--cli-border);
+  opacity: 0.94;
+}
+
+html[data-os="cli"] .os-window[data-wmax="on"] {
+  inset: 14px 16px max(8px, calc(var(--wmax-bottom) - var(--taskbar-height)));
+}
+
+html[data-os="cli"] .window-titlebar {
+  min-height: 38px;
+  padding: 6px 10px 6px 14px;
+  border-radius: 0;
+  background-color: var(--cli-surface);
+  background-image: none;
+  color: var(--cli-fg);
+  box-shadow: inset 0 -1px var(--cli-border-subtle);
+}
+
+html[data-os="cli"] .os-window[data-wfocus="off"] .window-titlebar {
+  background-color: var(--cli-bg);
+  color: var(--cli-dim);
+  box-shadow: inset 0 -1px var(--cli-border-subtle);
+}
+
+html[data-os="cli"] .window-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+html[data-os="cli"] .window-title::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cli-ok);
+  flex: none;
+}
+
+html[data-os="cli"] .os-window[data-wfocus="off"] .window-title::before {
+  background: var(--cli-dim);
+}
+
+html[data-os="cli"] .os-window--error .window-title::before {
+  background: var(--cli-danger);
+}
+
+html[data-os="cli"] .window-actions {
+  gap: 6px;
+}
+
+html[data-os="cli"] .window-actions .pixel-key {
+  --key-size: 26px;
+  border: 1px solid var(--cli-border);
+  border-radius: var(--cli-radius-sm);
+  background: transparent;
+  color: var(--cli-dim);
+}
+
+html[data-os="cli"] .window-actions .pixel-key::before {
+  display: none;
+}
+
+html[data-os="cli"] .window-actions .pixel-key svg {
+  transform: none;
+  width: 14px;
+  height: 14px;
+}
+
+html[data-os="cli"] .window-actions .pixel-key:hover {
+  border-color: var(--cli-accent);
+  background: color-mix(in srgb, var(--cli-accent) 12%, transparent);
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"] .window-actions .pixel-key:active {
+  transform: scale(0.94);
+}
+
+html[data-os="cli"] .window-actions .pixel-key:active svg {
+  transform: none;
+}
+
+html[data-os="cli"] .window-actions .pixel-key:focus-visible {
+  outline-color: var(--cli-accent);
+}
+
+/* Breadcrumb tree prefix ("⎿") & Status Bar */
+html[data-os="cli"] .window-path {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--cli-dim);
+  background: var(--cli-bg);
+  box-shadow: inset 0 -1px var(--cli-border-subtle);
+}
+
+html[data-os="cli"] .window-path ol::before {
+  content: "⎿";
+  color: var(--cli-dim);
+  margin-right: 2px;
+  flex: none;
+}
+
+html[data-os="cli"] .window-path a {
+  opacity: 1;
+  color: var(--cli-dim);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+
+html[data-os="cli"] .window-path a:hover {
+  color: var(--cli-accent);
+  border-bottom-color: var(--cli-accent);
+  text-decoration: none;
+}
+
+html[data-os="cli"] .window-path [aria-current="page"] {
+  color: var(--cli-fg);
+}
+
+html[data-os="cli"] .window-scroll {
+  scrollbar-color: color-mix(in srgb, var(--cli-border) 55%, transparent) transparent;
+}
+
+html[data-os="cli"] .window-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--cli-border) 55%, transparent);
+  border-radius: 3px;
+}
+
+html[data-os="cli"] .window-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--cli-accent);
+}
+
+html[data-os="cli"] .window-status {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--cli-dim);
+  background: var(--cli-bg);
+  box-shadow: inset 0 1px var(--cli-border-subtle);
+}
+
+html[data-os="cli"] .window-status > * {
+  opacity: 1;
+}
+
+html[data-os="cli"] .window-status [data-window-status] {
+  color: var(--cli-accent);
+}
+
+/* 6. Pinned Bottom Prompt OS Command Dock (.taskbar) */
+html[data-os="cli"] .taskbar {
+  --start-menu-offset: 12px;
+  isolation: isolate;
+  gap: 8px;
+  padding: 12px 34px 12px 34px;
+  background: linear-gradient(transparent, var(--cli-bg) 14px);
+  box-shadow: none;
+}
+
+html[data-os="cli"] .taskbar::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 8px 24px 8px 24px;
+  border: 1px solid var(--cli-border);
+  border-radius: var(--cli-radius-lg);
+  background: var(--cli-bg);
+  pointer-events: none;
+  transition: border-color 140ms ease, left 0.95s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+html[data-os="cli"] .taskbar:focus-within::before {
+  border-color: var(--cli-accent);
+}
+
+html[data-os="cli"][data-zoom="fullscreen"] .taskbar {
+  padding-left: 78px;
+}
+
+html[data-os="cli"][data-zoom="fullscreen"] .taskbar::before {
+  left: 68px;
+}
+
+/* Keep bottom command dock edges safely clear of curved CRT bezel corners in room/close views */
+@media (min-width: 1000px) and (min-aspect-ratio: 6/5) {
+  html[data-os="cli"]:not([data-zoom="fullscreen"]) .taskbar {
+    padding: 10px 58px 16px;
+  }
+
+  html[data-os="cli"]:not([data-zoom="fullscreen"]) .taskbar::before {
+    inset: 6px 48px 12px;
+  }
+}
+
+html[data-os="cli"] .taskbar-start {
+  gap: 8px;
+}
+
+html[data-os="cli"] .taskbar-menu,
+html[data-os="cli"] .taskbar-launch {
+  padding-right: 8px;
+  box-shadow: inset -1px 0 var(--cli-border-subtle);
+}
+
+html[data-os="cli"] .taskbar-launch {
+  gap: 3px;
+}
+
+/* Command prompt "/" Menu trigger button */
+html[data-os="cli"] .taskbar-menu-button {
+  height: 30px;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--cli-border);
+  border-radius: 5px;
+  background: var(--cli-surface);
+  color: var(--cli-accent);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+html[data-os="cli"] .taskbar-menu-button::before {
+  display: none;
+}
+
+html[data-os="cli"] .taskbar-menu-face {
+  transform: none;
+  gap: 6px;
+}
+
+html[data-os="cli"] .taskbar-menu-button:hover {
+  border-color: var(--cli-accent);
+  background: color-mix(in srgb, var(--cli-accent) 14%, var(--cli-surface));
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"] .taskbar-menu-button:active .taskbar-menu-face,
+html[data-os="cli"] .taskbar-menu-button[aria-expanded="true"] .taskbar-menu-face {
+  transform: none;
+}
+
+html[data-os="cli"] .taskbar-menu-button[aria-expanded="true"] {
+  border-color: var(--cli-accent);
+  background: var(--cli-accent);
+  color: var(--cli-accent-ink);
+}
+
+/* Quick-launch, OS switcher & Audio icon buttons */
+html[data-os="cli"] .taskbar .taskbar-key {
+  --key-size: 30px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--cli-dim);
+  transition: background-color 110ms ease, border-color 110ms ease, color 110ms ease;
+}
+
+html[data-os="cli"] .taskbar .taskbar-key::before {
+  display: none;
+}
+
+html[data-os="cli"] .taskbar .taskbar-key svg {
+  transform: none;
+  width: 17px;
+  height: 17px;
+}
+
+html[data-os="cli"] .taskbar .taskbar-key:hover,
+html[data-os="cli"] .taskbar .taskbar-key[aria-current="page"],
+html[data-os="cli"] .taskbar .taskbar-key[aria-expanded="true"] {
+  background: var(--cli-surface);
+  border-color: var(--cli-border);
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"] .taskbar .taskbar-key[aria-current="page"] {
+  border-color: var(--cli-accent);
+}
+
+html[data-os="cli"] .taskbar .taskbar-key:active svg {
+  transform: none;
+}
+
+html[data-os="cli"] .taskbar-tooltip {
+  bottom: calc(100% + 10px);
+  padding: 3px 8px;
+  border: 1px solid var(--cli-accent);
+  border-radius: var(--cli-radius-sm);
+  background: var(--cli-surface);
+  color: var(--cli-fg);
+  font-size: 12px;
+}
+
+/* Active Window Tabs */
+html[data-os="cli"] .taskbar-tab {
+  height: 30px;
+  padding: 0 10px;
+  gap: 6px;
+  border: 1px solid var(--cli-accent);
+  border-radius: 5px;
+  background: var(--cli-surface);
+  color: var(--cli-fg);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+html[data-os="cli"] .taskbar-tab::before,
+html[data-os="cli"] .taskbar-tab--parent::before,
+html[data-os="cli"] .screen-stage:has(.os-window--child[data-wfocus="off"]) .taskbar-tab--front::before,
+html[data-os="cli"] .screen-stage:has(.os-window--child[data-wfocus="off"]) .taskbar-tab--parent::before {
+  display: none;
+}
+
+html[data-os="cli"] .taskbar .taskbar-tab--parent,
+html[data-os="cli"] .screen-stage:has(.os-window--child[data-wfocus="off"]) .taskbar-tab--front {
+  padding: 0 10px;
+  border-color: var(--cli-border);
+  background: transparent;
+  color: var(--cli-dim);
+}
+
+html[data-os="cli"] .screen-stage:has(.os-window--child[data-wfocus="off"]) .taskbar-tab--parent {
+  padding: 0 10px;
+  border-color: var(--cli-accent);
+  background: var(--cli-surface);
+  color: var(--cli-fg);
+}
+
+html[data-os="cli"] .taskbar-ticker {
+  color: var(--cli-dim);
+  font-size: 12.5px;
+  letter-spacing: 0;
+}
+
+html[data-os="cli"] .taskbar-music {
+  border: 1px solid var(--cli-border);
+  border-radius: 5px;
+  background: var(--cli-surface);
+  overflow: hidden;
+}
+
+html[data-os="cli"] .taskbar-music[data-playing="true"] {
+  border-color: var(--cli-ok);
+}
+
+html[data-os="cli"] .taskbar-music-toggle,
+html[data-os="cli"] .taskbar-music-link {
+  height: 28px;
+  color: var(--cli-fg);
+}
+
+html[data-os="cli"] .taskbar-music-toggle {
+  width: 28px;
+  border-right-color: var(--cli-border-subtle);
+}
+
+html[data-os="cli"] .taskbar-music-toggle:hover,
+html[data-os="cli"] .taskbar-music-link:hover {
+  background: color-mix(in srgb, var(--cli-accent) 16%, var(--cli-surface));
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"] .taskbar-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  color: var(--cli-accent);
+  opacity: 1;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+html[data-os="cli"] .taskbar-clock::before {
+  content: "●";
+  font-size: 9px;
+  line-height: 1;
+  color: var(--cli-accent);
+  animation: cli-pulse 2.4s ease-in-out infinite;
+}
+
+html[data-os="cli"] .sound-toast {
+  border: 1px solid var(--cli-accent);
+  border-radius: var(--cli-radius-md);
+  background: var(--cli-bg);
+  color: var(--cli-fg);
+  bottom: 44px;
+}
+
+/* 7. Slash-Command Palette Style Popovers (.start-menu, .start-submenu, .taskbar-os-menu) */
+html[data-os="cli"] .start-menu,
+html[data-os="cli"] .start-submenu,
+html[data-os="cli"] .taskbar-os-menu {
+  border: 1px solid var(--cli-border-strong);
+  border-radius: var(--cli-radius-lg);
+  background: var(--cli-bg);
+  box-shadow: none;
+  color: var(--cli-fg);
+}
+
+html[data-os="cli"] .start-menu {
+  width: min(286px, calc(100cqw - 24px));
+}
+
+html[data-os="cli"] .start-menu-spine {
+  display: none;
+}
+
+html[data-os="cli"] .start-menu-list-scroll {
+  padding: 5px;
+}
+
+html[data-os="cli"] .start-menu-group {
+  border-top: 1px solid var(--cli-border-subtle);
+}
+
+html[data-os="cli"] .start-menu-item {
+  min-height: 34px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  color: var(--cli-dim);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 100ms ease, color 100ms ease;
+}
+
+html[data-os="cli"] .start-menu-item[aria-current="page"],
+html[data-os="cli"] .start-menu-folder-trigger[data-folder-active="true"] {
+  background: var(--cli-surface);
+  color: var(--cli-fg);
+}
+
+html[data-os="cli"] .start-menu-folder[data-open="true"] > .start-menu-folder-trigger,
+html[data-os="cli"] .start-menu-item:not(:disabled):is(:hover, :focus-visible) {
+  background: var(--cli-surface);
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"] .start-menu-active {
+  border-radius: 50%;
+  background: var(--cli-ok);
+}
+
+html[data-os="cli"] .start-menu-state,
+html[data-os="cli"] .start-menu-badge {
+  border-radius: var(--cli-radius-sm);
+  border-color: var(--cli-border);
+  color: var(--cli-dim);
+  font-size: 11px;
+}
+
+html[data-os="cli"] .start-menu-item[aria-pressed="true"] .start-menu-state {
+  background: var(--cli-accent);
+  border-color: var(--cli-accent);
+  color: var(--cli-accent-ink);
+}
+
+html[data-os="cli"] .start-menu-os-swatch {
+  border-radius: 3px;
+  border-color: var(--cli-border);
+}
+
+html[data-os="cli"] .start-menu-footer {
+  border-top: 1px solid var(--cli-border-subtle);
+  background: var(--cli-bg);
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+
+/* 8. Shared App Inputs, Cards, KPI Boxes, Chips & 404 Terminal Error Pane */
+html[data-os="cli"] :is(
+  .gb-input,
+  .gb-textarea,
+  .journal-search input,
+  .journal-tag select,
+  .journal-share input,
+  .specimen-fields input,
+  .specimen-fields select,
+  .contact-field input,
+  .contact-field textarea,
+  .contact-field select,
+  .chat-composer textarea,
+  .jstream-textarea,
+  .jstream-input
+) {
+  border: 1px solid var(--cli-border);
+  border-radius: var(--cli-radius-lg);
+  background: var(--cli-bg);
+  color: var(--cli-fg);
+}
+
+html[data-os="cli"] :is(
+  .gb-input,
+  .gb-textarea,
+  .journal-search input,
+  .journal-tag select,
+  .journal-share input,
+  .specimen-fields input,
+  .specimen-fields select,
+  .contact-field input,
+  .contact-field textarea,
+  .contact-field select,
+  .chat-composer textarea,
+  .jstream-textarea,
+  .jstream-input
+):focus {
+  border-color: var(--cli-accent);
+}
+
+html[data-os="cli"] :is(
+  .work-meta,
+  .gb-stats,
+  .gb-composer,
+  .gb-notice,
+  .chat-gate,
+  .chat-notice,
+  .journal-tools,
+  .music-deck-bar,
+  .video-monitor-bar,
+  .arcade-toolbar,
+  .arcade-led,
+  .browser-address-bar,
+  .browser-switcher,
+  .about-avatar-frame
+) {
+  border-radius: var(--cli-radius-md);
+  box-shadow: none;
+}
+
+html[data-os="cli"] .work-card,
+html[data-os="cli"] .article-card {
+  border: 1px solid transparent;
+  border-radius: var(--cli-radius-md);
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+html[data-os="cli"] .work-card:is(:hover, :focus-visible),
+html[data-os="cli"] .article-card:is(:hover, :focus-visible) {
+  background: var(--cli-surface);
+  border-color: var(--cli-border);
+}
+
+html[data-os="cli"] .work-card:is(:hover, :focus-visible) h2,
+html[data-os="cli"] .article-card:is(:hover, :focus-visible) .article-card-title {
+  background: transparent;
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"] .work-card-image,
+html[data-os="cli"] .work-media-image,
+html[data-os="cli"] .article-card-media,
+html[data-os="cli"] .journal-cover img {
+  border-radius: var(--cli-radius-sm);
+  border-color: var(--cli-border);
+}
+
+html[data-os="cli"] .journal-chip,
+html[data-os="cli"] .arcade-chip,
+html[data-os="cli"] .music-mode-chip,
+html[data-os="cli"] .about-handle-badge,
+html[data-os="cli"] .about-tags li {
+  border-radius: var(--cli-radius-sm);
+}
+
+html[data-os="cli"] .journal-chip[aria-pressed="true"],
+html[data-os="cli"] .arcade-chip[aria-pressed="true"],
+html[data-os="cli"] .arcade-chip[data-active="true"] {
+  background: var(--cli-accent);
+  border-color: var(--cli-accent);
+  color: var(--cli-accent-ink);
+}
+
+html[data-os="cli"] .journal-contents a[aria-current="location"] {
+  background: var(--cli-surface);
+  color: var(--cli-accent);
+  border-radius: var(--cli-radius-sm);
+}
+
+html[data-os="cli"] .music-signal-dot,
+html[data-os="cli"] .video-signal-dot {
+  border-radius: 50%;
+}
+
+html[data-os="cli"] .music-signal-dot[data-live="on"],
+html[data-os="cli"] .video-signal-dot[data-live="on"] {
+  background: var(--cli-ok);
+  border-color: var(--cli-ok);
+  box-shadow: none;
+  animation: cli-pulse 1.8s ease-in-out infinite;
+}
+
+/* 404 Terminal Error Pane */
+html[data-os="cli"] .os-window--error {
+  --frame-ink: var(--cli-accent);
+  height: auto;
+  min-height: 256px;
+}
+
+html[data-os="cli"] .os-window--error:focus {
+  outline: none;
+}
+
+html[data-os="cli"] .os-window--error .error-message {
+  padding: 20px;
+}
+
+html[data-os="cli"] .os-window--error .error-copy h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--cli-fg);
+}
+
+html[data-os="cli"] .os-window--error .error-copy h1::before {
+  content: "404 · ";
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"] .os-window--error .error-copy p {
+  color: var(--cli-dim);
+}
+
+/* Floating camera pill tuned for both room & fullscreen views across dark & light CLI presets */
+html[data-os="cli"][data-theme="light"]:not([data-zoom="fullscreen"]) .camera {
+  background: rgba(250, 249, 245, 0.92);
+  box-shadow: inset 0 0 0 1px var(--cli-border), 0 8px 24px rgba(43, 40, 34, 0.22);
+}
+
+html[data-os="cli"][data-theme="light"]:not([data-zoom="fullscreen"]) .camera button {
+  color: var(--cli-fg);
+}
+
+html[data-os="cli"][data-theme="light"]:not([data-zoom="fullscreen"]) .camera svg {
+  filter: none;
+}
+
+html[data-os="cli"][data-zoom="fullscreen"] .camera {
+  border-radius: var(--cli-radius-lg);
+  background: var(--cli-surface);
+  box-shadow: inset 0 0 0 1px var(--cli-border);
+}
+
+html[data-os="cli"][data-zoom="fullscreen"] .camera button {
+  color: var(--cli-fg);
+}
+
+html[data-os="cli"][data-zoom="fullscreen"] .camera button:hover:enabled {
+  background: color-mix(in srgb, var(--cli-accent) 16%, transparent);
+  color: var(--cli-accent);
+}
+
+html[data-os="cli"][data-zoom="fullscreen"] .camera svg {
+  filter: none;
+}
+
+/* 9. Tablet & Narrow Responsive Fit (810px – 1199px, e.g. 900×900) */
+@media (min-width: 810px) and (max-width: 1199.98px) {
+  html[data-os="cli"] .screen-plane {
+    --taskbar-height: 62px;
+    --window-left: 244px;
+    --window-top: 22px;
+    --window-right: 20px;
+    --window-bottom: 70px;
+    --rail-left: 24px;
+    --rail-top: 24px;
+  }
+
+  html[data-os="cli"] .desktop-icons {
+    width: 194px;
+  }
+
+  html[data-os="cli"] .os-desktop-widget {
+    inset-block-start: 24px;
+    inset-inline-start: 246px;
+    inset-inline-end: 24px;
+    max-width: none;
+  }
+
+  html[data-os="cli"] .desktop-home-wallpaper {
+    inset-block-start: 226px;
+    inset-inline-start: 246px;
+    inset-inline-end: 24px;
+  }
+
+  html[data-os="cli"] .desktop-home-footer {
+    inset-inline-start: 246px;
+    inset-block-end: 14px;
+  }
+
+  html[data-os="cli"] .taskbar {
+    padding: 10px 22px 10px 22px;
+    gap: 6px;
+  }
+
+  html[data-os="cli"] .taskbar::before {
+    inset: 6px 14px 6px 14px;
+  }
+
+  html[data-os="cli"][data-zoom="fullscreen"] .taskbar {
+    padding-left: 72px;
+  }
+
+  html[data-os="cli"][data-zoom="fullscreen"] .taskbar::before {
+    left: 62px;
+  }
+
+  html[data-os="cli"] .taskbar-launch {
+    gap: 1px;
+    padding-right: 6px;
+  }
+
+  html[data-os="cli"] .taskbar .taskbar-key {
+    --key-size: 28px;
+  }
+}
+
+/* 10. Phone Responsive Fit (<= 809px, e.g. 390×844 — zero overflow, zero overlap) */
+@media (max-width: 809px) {
+  html[data-os="cli"] .screen-plane {
+    --taskbar-height: 60px;
+  }
+
+  html[data-os="cli"] .desktop-icons {
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    width: auto;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  html[data-os="cli"] .desktop-icons::before {
+    grid-column: 1 / -1;
+    padding: 0 2px 5px;
+    margin-bottom: 0;
+  }
+
+  html[data-os="cli"] .desktop-icon {
+    flex-direction: row;
+    gap: 5px;
+    min-height: 36px;
+    padding: 6px 7px;
+    border: 1px solid var(--cli-border);
+    border-radius: var(--cli-radius-md);
+    background: var(--cli-surface);
+  }
+
+  html[data-os="cli"] .desktop-icon::before {
+    display: none;
+  }
+
+  html[data-os="cli"] .desktop-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  html[data-os="cli"] .desktop-icon span {
+    font-size: 12px;
+  }
+
+  html[data-os="cli"] .desktop-icon span::before {
+    display: none;
+  }
+
+  html[data-os="cli"] .os-desktop-widget {
+    inset: 170px 14px auto;
+    width: auto;
+    max-width: none;
+  }
+
+  html[data-os="cli"] .os-widget-header {
+    padding: 8px 12px;
+    font-size: 12.5px;
+  }
+
+  html[data-os="cli"] .os-widget-body {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  html[data-os="cli"] .os-widget-footer {
+    padding: 8px 12px;
+    gap: 12px;
+    font-size: 12.5px;
+  }
+
+  html[data-os="cli"] .desktop-home-wallpaper {
+    inset: 374px 14px 48px;
+    max-inline-size: none;
+    gap: 10px;
+    overflow-y: auto;
+  }
+
+  html[data-os="cli"] .desktop-home-wallpaper::before {
+    padding: 6px 10px;
+    font-size: 12.5px;
+  }
+
+  html[data-os="cli"] .desktop-home-wallpaper .hero-title {
+    font-size: 24px;
+    text-align: left;
+  }
+
+  html[data-os="cli"] .desktop-home-wallpaper .typed-text {
+    padding-inline-start: 18px;
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+
+  html[data-os="cli"] .desktop-home-footer {
+    inset-inline: 14px;
+    inset-block-end: 8px;
+    justify-content: space-between;
+  }
+
+  html[data-os="cli"] .os-window:not(.os-window--error) {
+    inset: 12px 8px 4px !important;
+  }
+
+  /* Keep mobile titlebar path-end action (e.g. Article filter toggle) legible on dark/light CLI titlebar */
+  html[data-os="cli"] .window-path {
+    color: var(--cli-fg);
+    background: transparent;
+    box-shadow: none;
+    right: 42px;
+    height: 38px;
+  }
+
+  html[data-os="cli"] .journal-filter-toggle {
+    color: var(--cli-fg);
+  }
+
+  html[data-os="cli"] .journal-filter-toggle:is(:hover, [aria-expanded="true"], [data-filtered]) {
+    color: var(--cli-accent);
+    box-shadow: inset 0 0 0 1px var(--cli-accent);
+  }
+
+  html[data-os="cli"] .taskbar {
+    --start-menu-offset: 10px;
+    padding: 10px 18px 10px 18px;
+    gap: 6px;
+  }
+
+  html[data-os="cli"] .taskbar::before {
+    inset: 6px 10px 6px 10px;
+  }
+
+  html[data-os="cli"] .taskbar-menu {
+    padding-right: 6px;
+  }
+
+  html[data-os="cli"] .taskbar-launch {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-os="cli"] .os-widget-badge,
+  html[data-os="cli"] .taskbar-clock::before,
+  html[data-os="cli"] .typed-marker::after,
+  html[data-os="cli"] .music-signal-dot[data-live="on"],
+  html[data-os="cli"] .video-signal-dot[data-live="on"] {
+    animation: none !important;
+  }
+}

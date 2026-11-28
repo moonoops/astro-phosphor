@@ -1,0 +1,99 @@
+/* Phosphor CRT OS — Single-Hue Phosphor Tokens & Semantic Bridge */
+:root,
+html[data-os="phosphor"] {
+  --lit: #ffb648;
+  --ground: #020b14;
+  --ground-fullscreen: #121418;
+  --lit-28: color-mix(in srgb, var(--lit) 28%, transparent);
+  --lit-10: color-mix(in srgb, var(--lit) 10%, transparent);
+  --lit-72: color-mix(in srgb, var(--lit) 72%, transparent);
+  --hi: color-mix(in srgb, var(--lit) 50%, white);
+  --side: color-mix(in srgb, var(--lit) 45%, var(--ground));
+
+  /* Semantic OS Surfaces */
+  --os-desktop-bg: var(--ground);
+  --os-desktop-pattern: none;
+  --os-desktop-pattern-size: auto;
+  --os-surface: var(--ground);
+  --os-surface-alt: var(--lit-10);
+  --os-surface-elevated: var(--ground);
+  --os-taskbar-bg: var(--ground);
+  --os-topbar-bg: var(--ground);
+
+  /* Semantic OS Inks */
+  --os-ink: var(--lit);
+  --os-ink-muted: var(--lit-72);
+  --os-ink-inverse: var(--ground);
+
+  /* Semantic OS Borders, Shadows & Radii */
+  --os-border: var(--lit-28);
+  --os-border-strong: var(--lit);
+  --os-window-shadow: none;
+  --os-menu-shadow: 4px 4px 0 var(--side);
+  --os-radius-window: 0px;
+  --os-radius-control: 0px;
+  --os-radius-pill: 0px;
+
+  /* Semantic OS Accents & Status */
+  --os-accent: var(--lit);
+  --os-accent-hover: var(--hi);
+  --os-accent-ink: var(--ground);
+  --os-status-ok: var(--lit);
+
+  /* Semantic OS Window Titlebar */
+  --os-titlebar-bg: var(--lit);
+  --os-titlebar-ink: var(--ground);
+  --os-titlebar-pattern: none;
+  --os-titlebar-inactive-bg: var(--ground);
+  --os-titlebar-inactive-ink: var(--lit);
+
+  /* Typography */
+  --font-display: "Jersey 10", "PingFang SC", "Noto Sans SC", sans-serif;
+  --font-sans: var(--font-mono);
+  --font-mono: "Chivo Mono Variable", "Sarasa Mono SC", "LXGW WenKai Mono", "PingFang SC", "Noto Sans SC", monospace;
+  --os-font-body: var(--font-mono);
+  --os-font-features: "blwf" on, "cv03" on, "cv04" on, "cv09" on, "cv11" on;
+
+  /* Dynamic Cursor Tokens */
+  --os-cursor-fill: var(--lit);
+  --os-cursor-stroke: var(--ground);
+  --os-cursor-hi: var(--hi);
+  --os-cursor-side: var(--side);
+
+  /* Chrome Layout */
+  --topbar-height: 0px;
+
+  /* Hardware CRT Optics Profile */
+  --crt-bloom-opacity: 1;
+  --crt-contour-opacity: 1;
+  --crt-screen-blend: screen;
+  --scanline-alpha: 0.16;
+  --vignette-alpha: 0.6;
+  --flicker-display: block;
+  --glass-glare-opacity: 1;
+  --text-glow-body:
+    0 0 3px color-mix(in srgb, currentColor 60%, transparent),
+    0 0 14px color-mix(in srgb, currentColor 40%, transparent);
+  --text-glow-heading:
+    0 0 2px color-mix(in srgb, currentColor 90%, white),
+    0 0 16px color-mix(in srgb, currentColor 72%, transparent),
+    0 0 52px color-mix(in srgb, currentColor 38%, transparent);
+
+  /* Shiki Monochrome Code Highlighting */
+  --astro-code-color-text: var(--lit);
+  --astro-code-color-background: var(--lit-10);
+  --astro-code-token-constant: var(--hi);
+  --astro-code-token-string: var(--lit);
+  --astro-code-token-comment: var(--lit-72);
+  --astro-code-token-keyword: var(--hi);
+  --astro-code-token-parameter: var(--lit);
+  --astro-code-token-function: var(--lit);
+  --astro-code-token-string-expression: var(--lit-72);
+  --astro-code-token-punctuation: color-mix(in srgb, var(--lit) 55%, transparent);
+  --astro-code-token-link: var(--hi);
+}
+
+html[data-os="phosphor"][data-theme="amber"] { --lit: #ffb648; }
+html[data-os="phosphor"][data-theme="green"] { --lit: #4af626; }
+html[data-os="phosphor"][data-theme="blue"] { --lit: #5cc8ff; }
+html[data-os="phosphor"][data-theme="white"] { --lit: #e8ecf2; }

@@ -13,6 +13,109 @@
   pointer-events: none;
 }
 
+/* Optional peer-OS desktop status note widget (hidden in Phosphor via CSS). */
+.os-desktop-widget {
+  display: none;
+  position: absolute;
+  z-index: 2;
+  inset-block-start: 36px;
+  inset-inline-end: 64px;
+  flex-direction: column;
+  width: min(300px, calc(100% - 48px));
+  border: 1px solid var(--os-border-strong, var(--lit));
+  border-radius: var(--os-radius-window, 0px);
+  background: var(--os-surface-elevated, var(--ground));
+  color: var(--os-ink, var(--lit));
+  box-shadow: var(--os-window-shadow, none);
+  pointer-events: auto;
+  text-shadow: none;
+}
+
+.os-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--os-border, var(--lit-28));
+  background: var(--os-surface-alt, var(--lit-10));
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.os-widget-badge {
+  color: var(--os-status-ok, var(--lit));
+  font-size: 10px;
+  line-height: 1;
+}
+
+.os-widget-body {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+
+.os-widget-kicker {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--os-ink-muted, var(--lit-72));
+}
+
+.os-widget-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.15;
+}
+
+.os-widget-note {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.os-widget-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.os-widget-tags li {
+  padding: 2px 7px;
+  border: 1px solid var(--os-border, var(--lit-28));
+  border-radius: var(--os-radius-pill, 0px);
+  background: var(--os-surface-alt, var(--lit-10));
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.os-widget-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--os-border, var(--lit-28));
+  font-size: 13px;
+}
+
+.os-widget-link {
+  color: var(--os-accent, var(--lit));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.os-widget-link:hover {
+  color: var(--os-accent-ink, var(--ground));
+  background: var(--os-accent, var(--lit));
+}
+
 .desktop-home-wallpaper,
 .desktop-wallpaper {
   position: absolute;
@@ -65,6 +168,58 @@
   margin: 0;
 }
 
+.desktop-like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--lit-72);
+  font-size: var(--type-quiet);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.desktop-like-btn svg {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--lit) 45%, transparent));
+}
+
+.desktop-like-count {
+  padding: 1px 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.desktop-like-btn:is(:hover, :focus-visible) {
+  color: var(--lit);
+}
+
+.desktop-like-btn:is(:hover, :focus-visible) svg {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--lit) 65%, transparent));
+}
+
+.desktop-like-btn:is(:hover, :focus-visible) .desktop-like-count {
+  background: var(--lit);
+  color: var(--ground);
+  text-shadow: none;
+}
+
+.desktop-like-btn[aria-pressed="true"] {
+  color: var(--lit);
+}
+
+.desktop-like-btn[aria-pressed="true"] svg {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--lit) 60%, transparent));
+}
+
+.desktop-like-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.desktop-like-btn:disabled {
+  opacity: 0.6;
+}
+
 @media (max-width: 1199px) {
   .desktop-space {
     --wallpaper-end: 56px;
@@ -83,6 +238,11 @@
 }
 
 @media (max-width: 809px) {
+  .os-desktop-widget {
+    inset: auto 24px 72px;
+    width: auto;
+  }
+
   .desktop-wallpaper {
     inset: 432px 24px auto;
     inline-size: auto;
@@ -120,6 +280,12 @@
   }
 
   .desktop-home-hint {
+    font-size: 13px;
+  }
+
+  .desktop-like-btn {
+    min-height: 36px;
+    padding: 4px 6px;
     font-size: 13px;
   }
 }

@@ -1,0 +1,259 @@
+/* ==========================================================================
+   CLI OS (data-os="cli") — Prompt OS Faithful Token & Semantic Bridge
+   Sub-themes via data-theme: claude (default) | light | dark | matrix
+   ========================================================================== */
+
+html[data-os="cli"],
+html[data-os="cli"][data-theme="claude"] {
+  color-scheme: dark;
+
+  /* 1. Prompt OS Native Tokens (Claude Warm Charcoal — Default) */
+  --cli-bg: #1b1a17;
+  --cli-surface: #262420;
+  --cli-fg: #e9e6dc;
+  --cli-dim: #9d9789;
+  --cli-accent: #d97757;
+  --cli-accent-hover: #e4896b;
+  --cli-accent-ink: #1b1a17;
+  --cli-border: #77715f;
+  --cli-border-subtle: color-mix(in srgb, var(--cli-border) 45%, transparent);
+  --cli-ok: #7fb069;
+  --cli-danger: #e06c58;
+  --cli-glow: transparent;
+
+  /* 2. Platform Peer-OS Semantic Contract (--os-*) */
+  --os-desktop-bg: var(--cli-bg);
+  --os-desktop-pattern: none;
+  --os-desktop-pattern-size: auto;
+  --os-surface: var(--cli-bg);
+  --os-surface-alt: var(--cli-surface);
+  --os-surface-elevated: var(--cli-surface);
+  --os-taskbar-bg: var(--cli-bg);
+  --os-topbar-bg: transparent;
+  --os-window-bar-bg: var(--cli-bg);
+  --topbar-height: 0px;
+
+  --os-ink: var(--cli-fg);
+  --os-ink-muted: var(--cli-dim);
+  --os-ink-inverse: var(--cli-bg);
+
+  --os-border: var(--cli-border);
+  --os-border-strong: var(--cli-accent);
+  --os-window-shadow: none;
+  --os-menu-shadow: none;
+  --os-radius-window: 8px;
+  --os-radius-control: 6px;
+  --os-radius-pill: 4px;
+
+  --cli-radius-sm: 4px;
+  --cli-radius-md: 6px;
+  --cli-radius-lg: 8px;
+  --cli-radius-chip: 10px;
+  --cli-max-width: 960px;
+
+  --os-accent: var(--cli-accent);
+  --os-accent-hover: var(--cli-accent-hover);
+  --os-accent-ink: var(--cli-accent-ink);
+  --os-status-ok: var(--cli-ok);
+
+  --os-titlebar-bg: var(--cli-surface);
+  --os-titlebar-ink: var(--cli-fg);
+  --os-titlebar-pattern: none;
+  --os-titlebar-inactive-bg: var(--cli-bg);
+  --os-titlebar-inactive-ink: var(--cli-dim);
+
+  /* 3. Dynamic Terminal-Mono Cursor Tokens */
+  --os-cursor-fill: var(--cli-fg);
+  --os-cursor-stroke: var(--cli-bg);
+  --os-cursor-hi: var(--cli-accent);
+  --os-cursor-side: var(--cli-border);
+
+  /* 4. Legacy App Compatibility Bridge (All 20+ shared apps & 6 games) */
+  --ground: var(--cli-bg);
+  --ground-fullscreen: var(--cli-bg);
+  --lit: var(--cli-fg);
+  --lit-72: var(--cli-dim);
+  --lit-28: color-mix(in srgb, var(--cli-border) 68%, transparent);
+  --lit-10: var(--cli-surface);
+  --hi: color-mix(in srgb, var(--cli-fg) 88%, white);
+  --side: color-mix(in srgb, var(--cli-border) 42%, var(--cli-bg));
+
+  /* 5. Typography (100% Unified IBM Plex Mono + CJK Monospace Fallbacks) */
+  --font-display:
+    "IBM Plex Mono", "Sarasa Mono SC", "LXGW WenKai Mono", "PingFang SC",
+    "Noto Sans SC", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-display);
+  --os-font-body: var(--font-mono);
+  --os-font-features: normal;
+
+  --type-h1: 46px;
+  --type-h2: 30px;
+  --type-h3: 22px;
+  --type-article-h2: 24px;
+  --type-article-h3: 18px;
+  --type-article-h4: 15px;
+  --type-lead: 16px;
+  --type-body: 14px;
+  --type-label: 13px;
+  --type-quote: 15px;
+  --type-nav: 13.5px;
+  --type-quiet: 12.5px;
+  --type-table: 13.5px;
+  --hero-line: 1.1;
+  --body-line: 1.65;
+
+  /* 6. Clean Terminal CRT Optics Profile */
+  --crt-bloom-opacity: 0.14;
+  --crt-contour-opacity: 0.95;
+  --crt-screen-blend: normal;
+  --scanline-alpha: 0.15;
+  --crt-grille-alpha: 0.055;
+  --crt-aging-tint: transparent;
+  --crt-vignette-rgb: 0 0 0;
+  --vignette-alpha: 0.26;
+  --flicker-display: none;
+  --glass-glare-opacity: 1;
+  --text-glow-body: none;
+  --text-glow-heading: none;
+
+  /* 7. 4-Hue CLI Shiki Code Highlighting Bridge */
+  --astro-code-color-text: var(--cli-fg);
+  --astro-code-color-background: var(--cli-surface);
+  --astro-code-token-constant: var(--cli-accent);
+  --astro-code-token-string: var(--cli-ok);
+  --astro-code-token-comment: var(--cli-dim);
+  --astro-code-token-keyword: var(--cli-accent);
+  --astro-code-token-parameter: var(--cli-fg);
+  --astro-code-token-function: var(--cli-fg);
+  --astro-code-token-string-expression: var(--cli-ok);
+  --astro-code-token-punctuation: var(--cli-dim);
+  --astro-code-token-link: var(--cli-accent);
+}
+
+/* Factory Preset 2: Light (Warm Parchment Paper × Burnt Terracotta) */
+html[data-os="cli"][data-theme="light"] {
+  color-scheme: light;
+  --cli-bg: #faf9f5;
+  --cli-surface: #f0ede3;
+  --cli-fg: #2b2822;
+  --cli-dim: #675f52;
+  --cli-accent: #b04629;
+  --cli-accent-hover: #973a21;
+  --cli-accent-ink: #faf9f5;
+  --cli-border: #8a8372;
+  --cli-ok: #3f7d2c;
+  --cli-danger: #b53519;
+  --cli-glow: transparent;
+  --hi: color-mix(in srgb, var(--cli-fg) 88%, black);
+  --crt-bloom-opacity: 0;
+  --crt-contour-opacity: 0.88;
+  --crt-screen-blend: normal;
+  --scanline-alpha: 0.12;
+  --crt-grille-alpha: 0.05;
+  --crt-aging-tint: rgb(36 32 26 / 0.04);
+  --crt-vignette-rgb: 28 24 20;
+  --vignette-alpha: 0.15;
+  --glass-glare-opacity: 1;
+}
+
+/* Factory Preset 3: Dark (Pure Jet Black × Coral) */
+html[data-os="cli"][data-theme="dark"] {
+  color-scheme: dark;
+  --cli-bg: #000000;
+  --cli-surface: #111111;
+  --cli-fg: #e8e8e8;
+  --cli-dim: #8c8c8c;
+  --cli-accent: #ff7a59;
+  --cli-accent-hover: #ff9479;
+  --cli-accent-ink: #000000;
+  --cli-border: #5c5c5c;
+  --cli-ok: #6fcf97;
+  --cli-danger: #ff6b6b;
+  --cli-glow: transparent;
+  --crt-bloom-opacity: 0.12;
+  --crt-contour-opacity: 0.95;
+  --crt-screen-blend: normal;
+  --scanline-alpha: 0.15;
+  --crt-grille-alpha: 0.055;
+  --crt-aging-tint: transparent;
+  --crt-vignette-rgb: 0 0 0;
+  --vignette-alpha: 0.28;
+  --glass-glare-opacity: 1;
+}
+
+/* Factory Preset 4: Matrix (Phosphor Terminal Green × Soft CRT Glow) */
+html[data-os="cli"][data-theme="matrix"] {
+  color-scheme: dark;
+  --cli-bg: #000000;
+  --cli-surface: #03140a;
+  --cli-fg: #3dff6e;
+  --cli-dim: #22b04f;
+  --cli-accent: #8dffa9;
+  --cli-accent-hover: #b4ffca;
+  --cli-accent-ink: #000000;
+  --cli-border: #16863c;
+  --cli-ok: #3dff6e;
+  --cli-danger: #8dffa9;
+  --cli-glow: rgba(61, 255, 110, 0.55);
+  --os-window-shadow: 0 0 14px var(--cli-glow);
+  --crt-bloom-opacity: 0.52;
+  --crt-contour-opacity: 0.95;
+  --crt-screen-blend: screen;
+  --scanline-alpha: 0.15;
+  --crt-grille-alpha: 0.055;
+  --crt-aging-tint: transparent;
+  --crt-vignette-rgb: 0 0 0;
+  --vignette-alpha: 0.30;
+  --glass-glare-opacity: 1;
+  --text-glow-body: 0 0 7px var(--cli-glow);
+  --text-glow-heading: 0 0 10px var(--cli-glow);
+}
+
+/* Reading Mode & Fullscreen Overrides */
+html[data-os="cli"][data-reading="on"] {
+  --crt-bloom-opacity: 0;
+  --crt-contour-opacity: 0.1;
+  --scanline-alpha: 0;
+  --crt-grille-alpha: 0;
+  --crt-aging-tint: transparent;
+  --vignette-alpha: 0.08;
+  --glass-glare-opacity: 0;
+  --text-glow-body: none;
+  --text-glow-heading: none;
+}
+
+html[data-os="cli"][data-zoom="fullscreen"] {
+  --ground: var(--cli-bg);
+}
+
+/* Responsive Type Scale */
+@media (max-width: 1199px) {
+  html[data-os="cli"] {
+    --type-h1: 36px;
+    --type-h2: 26px;
+    --type-h3: 20px;
+    --type-article-h2: 22px;
+    --type-article-h3: 17px;
+    --type-lead: 15px;
+    --type-table: 13px;
+  }
+}
+
+@media (max-width: 809px) {
+  html[data-os="cli"] {
+    --type-h1: 24px;
+    --type-h2: 22px;
+    --type-h3: 18px;
+    --type-article-h2: 20px;
+    --type-article-h3: 16px;
+    --type-article-h4: 15px;
+    --type-lead: 15px;
+    --type-body: 14px;
+    --type-label: 13px;
+    --type-quote: 14px;
+    --type-nav: 13px;
+    --type-quiet: 12px;
+    --type-table: 12.5px;
+  }
+}

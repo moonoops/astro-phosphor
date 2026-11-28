@@ -86,7 +86,9 @@ export default function TubeOptics({ glass }: { glass: RefObject<HTMLDivElement 
         : `matrix(${expand * sx} 0 0 ${expand * sy} ${0.5 - 0.5 * expand} ${0.5 - 0.5 * expand})`;
       if (transform !== previousApertureTransform) {
         clipUse.setAttribute('transform', transform);
-        document.querySelector('#tube-raster g')?.setAttribute('transform', rasterMaskTransform(fullProgress));
+        const maskTransform = rasterMaskTransform(fullProgress);
+        document.querySelector('#tube-raster g')?.setAttribute('transform', maskTransform);
+        document.querySelector('#tube-raster-tight g')?.setAttribute('transform', maskTransform);
         previousApertureTransform = transform;
       }
     };

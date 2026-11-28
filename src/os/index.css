@@ -1,0 +1,50 @@
+@import "./phosphor/tokens.css";
+@import "./phosphor/chrome.css";
+
+@import "./coffee/tokens.css";
+@import "./coffee/chrome.css";
+
+@import "./rainbow/tokens.css";
+@import "./rainbow/chrome.css";
+
+@import "./cli/tokens.css";
+@import "./cli/chrome.css";
+
+@import "./pixel/tokens.css";
+@import "./pixel/chrome.css";
+
+/* Cross-OS state overrides (higher specificity than html[data-os="<id>"]) */
+html[data-os][data-zoom="fullscreen"] {
+  --ground: var(--ground-fullscreen);
+}
+
+html[data-os][data-crt-flat="on"] {
+  --scanline-alpha: 0;
+  --crt-grille-alpha: 0;
+  --crt-aging-tint: transparent;
+  --vignette-alpha: 0;
+  --glass-glare-opacity: 0;
+}
+
+html:where([data-os])[data-reading="on"] {
+  --scanline-alpha: 0.04;
+  --crt-grille-alpha: 0;
+  --crt-aging-tint: transparent;
+  --vignette-alpha: 0.28;
+  --flicker-display: none;
+  --glass-glare-opacity: 0;
+  --text-glow-body: none;
+  --text-glow-heading: none;
+}
+
+html[data-os="phosphor"][data-reading="on"] {
+  --text-glow-body: 0 0 2px color-mix(in srgb, currentColor 25%, transparent);
+  --text-glow-heading: var(--text-glow-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-os],
+  :root {
+    --flicker-display: none;
+  }
+}

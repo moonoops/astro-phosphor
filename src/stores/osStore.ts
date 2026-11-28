@@ -1,7 +1,20 @@
 import { atom, map } from 'nanostores';
+import {
+  DEFAULT_OS,
+  getOsDefinition,
+  isOsId,
+  osIds,
+  resolveOsTheme,
+  type OsId,
+} from '../os/registry';
+
+export { osIds, type OsId };
 
 export const themes = ['amber', 'green', 'blue', 'white'] as const;
-export type Theme = (typeof themes)[number];
+export const phosphorThemes = themes;
+export type PhosphorTheme = (typeof themes)[number];
+export type Theme = string;
+
 export const zoomModes = ['room', 'close', 'fullscreen'] as const;
 export type Zoom = (typeof zoomModes)[number];
 export type RoomZoom = 'room' | 'close';
@@ -10,8 +23,10 @@ export const roomScenes = [...dayScenes, 'night'] as const;
 export type RoomScene = (typeof roomScenes)[number];
 export type DayScene = (typeof dayScenes)[number];
 
-type Preferences = {
+export type Preferences = {
+  os: OsId;
   theme: Theme;
+  osThemes: Partial<Record<OsId, string>>;
   scene: RoomScene;
   dayScene: DayScene;
   reading: boolean;
@@ -28,8 +43,12 @@ export const POWER_OFF_MS = 1650;
 export const POWER_ON_MS = 1900;
 export const ENTRY_BOOT_MS = 1750;
 
+const defaultOsDef = getOsDefinition(DEFAULT_OS);
+
 const defaults: Preferences = {
-  theme: 'amber',
+  os: DEFAULT_OS,
+  theme: defaultOsDef.defaultTheme,
+  osThemes: { [DEFAULT_OS]: defaultOsDef.defaultTheme },
   scene: 'afternoon',
   dayScene: 'afternoon',
   reading: false,
@@ -38,7 +57,7 @@ const defaults: Preferences = {
   soundMuted: false,
 };
 
-export const $preferences = atom(defaults);
+export const $preferences = atom<Preferences>(defaults);
 export const $powered = atom(true);
 export const $entryBooting = atom(false);
 export const $windowGeometry = map<Record<string, { x: number; y: number } | undefined>>({});
@@ -47,6 +66,59 @@ export const $maximizedWindows = map<Record<string, boolean | undefined>>({});
 let initialized = false;
 let powerTimer: ReturnType<typeof setTimeout>;
 let entryTimer: ReturnType<typeof setTimeout>;
+
+function readStoredOsThemes(): Partial<Record<OsId, string>> {
+  try {
+    const raw = localStorage.getItem(preferenceKey);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as { osThemes?: Record<string, unknown> } | null;
+    if (!parsed?.osThemes || typeof parsed.osThemes !== 'object') return {};
+    const result: Partial<Record<OsId, string>> = {};
+    for (const id of osIds) {
+      const candidate = parsed.osThemes[id];
+      if (typeof candidate === 'string') {
+        result[id] = resolveOsTheme(id, candidate);
+      }
+    }
+    return result;
+  } catch {
+    return {};
+  }
+}
+
+function syncOsAttributes(next: Preferences) {
+  if (typeof document === 'undefined') return;
+  const def = getOsDefinition(next.os);
+  const { dataset } = document.documentElement;
+  dataset.os = next.os;
+  dataset.theme = next.theme;
+  dataset.reading = next.reading ? 'on' : 'off';
+  dataset.zoom = next.zoom;
+  dataset.prevZoom = next.previousZoom;
+  dataset.soundMuted = String(next.soundMuted);
+  if (def.flatOptics) {
+    dataset.osFlatOptics = 'on';
+  } else {
+    delete dataset.osFlatOptics;
+  }
+}
+
+function stripQueryParam(name: string) {
+  if (typeof location === 'undefined' || typeof history === 'undefined') return;
+  const url = new URL(location.href);
+  if (url.searchParams.has(name)) {
+    url.searchParams.delete(name);
+    history.replaceState(history.state, '', url);
+  }
+}
+
+function persistPreferences(next: Preferences) {
+  try {
+    localStorage.setItem(preferenceKey, JSON.stringify(next));
+  } catch {
+    // The current tab still retains preferences when storage is unavailable.
+  }
+}
 
 export function finishEntryBoot() {
   clearTimeout(entryTimer);
@@ -66,18 +138,35 @@ export function initializeOs() {
   initialized = true;
 
   const { dataset } = document.documentElement;
-  const theme = themes.find(value => value === dataset.theme) ?? defaults.theme;
+  const os: OsId = isOsId(dataset.os) ? dataset.os : defaults.os;
+  const theme = resolveOsTheme(os, dataset.theme);
+  const storedOsThemes = readStoredOsThemes();
+  const osThemes: Partial<Record<OsId, string>> = {
+    ...storedOsThemes,
+    [os]: theme,
+  };
   const zoom = zoomModes.find(value => value === dataset.zoom) ?? defaults.zoom;
   const previousZoom: RoomZoom = dataset.prevZoom === 'close' ? 'close' : (zoom === 'close' ? 'close' : 'room');
-  $preferences.set({
+
+  const initialPrefs: Preferences = {
+    os,
     theme,
+    osThemes,
     scene: roomScenes.find(scene => scene === dataset.scene) ?? defaults.scene,
     dayScene: dayScenes.find(scene => scene === dataset.dayScene) ?? defaults.dayScene,
     reading: dataset.reading === 'on',
     zoom,
     previousZoom,
     soundMuted: dataset.soundMuted === 'true',
-  });
+  };
+  $preferences.set(initialPrefs);
+  syncOsAttributes(initialPrefs);
+
+  const initialLinkedOs = new URLSearchParams(location.search).get('os');
+  if (isOsId(initialLinkedOs)) {
+    persistPreferences(initialPrefs);
+    stripQueryParam('os');
+  }
 
   if (dataset.entry === 'booting') {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -125,16 +214,66 @@ export function initializeOs() {
     }
   });
   document.addEventListener('astro:after-swap', () => {
-    const linked = new URLSearchParams(location.search).get('scene');
-    const scene = roomScenes.find(candidate => candidate === linked);
+    const params = new URLSearchParams(location.search);
+    const linkedScene = params.get('scene');
+    const scene = roomScenes.find(candidate => candidate === linkedScene);
     if (scene && scene !== $preferences.get().scene) setPreference('scene', scene);
+
+    const linkedOs = params.get('os');
+    if (isOsId(linkedOs)) {
+      if (linkedOs !== $preferences.get().os) {
+        setOs(linkedOs);
+      } else {
+        stripQueryParam('os');
+      }
+    }
   });
+}
+
+export function setOs(targetOs: OsId) {
+  initializeOs();
+  const os = getOsDefinition(targetOs).id;
+  const current = $preferences.get();
+  const nextOsThemes: Partial<Record<OsId, string>> = {
+    ...current.osThemes,
+    [current.os]: current.theme,
+  };
+  const nextTheme = resolveOsTheme(os, nextOsThemes[os]);
+  nextOsThemes[os] = nextTheme;
+
+  const next: Preferences = {
+    ...current,
+    os,
+    theme: nextTheme,
+    osThemes: nextOsThemes,
+  };
+  $preferences.set(next);
+  syncOsAttributes(next);
+  stripQueryParam('os');
+  persistPreferences(next);
 }
 
 export function setPreference<K extends keyof Preferences>(key: K, value: Preferences[K]) {
   initializeOs();
+  if (key === 'os') {
+    setOs(value as OsId);
+    return;
+  }
+
   const current = $preferences.get();
   let next: Preferences = { ...current, [key]: value };
+
+  if (key === 'theme') {
+    const resolved = resolveOsTheme(current.os, value as string);
+    next = {
+      ...current,
+      theme: resolved,
+      osThemes: {
+        ...current.osThemes,
+        [current.os]: resolved,
+      },
+    };
+  }
 
   if (key === 'zoom') {
     const target = value as Zoom;
@@ -156,28 +295,15 @@ export function setPreference<K extends keyof Preferences>(key: K, value: Prefer
 
   if (key === 'scene' && next.scene !== 'night') next.dayScene = next.scene;
   $preferences.set(next);
-  Object.assign(document.documentElement.dataset, {
-    theme: next.theme,
-    reading: next.reading ? 'on' : 'off',
-    zoom: next.zoom,
-    prevZoom: next.previousZoom,
-    soundMuted: String(next.soundMuted),
-  });
+  syncOsAttributes(next);
+
   if (key === 'scene') {
     document.documentElement.dataset.scene = next.scene;
     document.documentElement.dataset.dayScene = next.dayScene;
-    const url = new URL(location.href);
-    if (url.searchParams.has('scene')) {
-      url.searchParams.delete('scene');
-      history.replaceState(history.state, '', url);
-    }
+    stripQueryParam('scene');
   }
 
-  try {
-    localStorage.setItem(preferenceKey, JSON.stringify(next));
-  } catch {
-    // The current tab still retains preferences when storage is unavailable.
-  }
+  persistPreferences(next);
 }
 
 export function exitFullscreen() {

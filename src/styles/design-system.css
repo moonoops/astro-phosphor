@@ -7,12 +7,28 @@
   min-width: 0;
 }
 
-.specimen-section { border-top: 1px solid var(--lit-28); padding-top: 20px; }
-.display-preferences,
+.specimen-section { border-top: 1px solid var(--os-border, var(--lit-28)); padding-top: 20px; }
+.display-preferences {
+  display: grid;
+  gap: 14px;
+  padding-bottom: 4px;
+}
+.display-pref-row,
+.os-presets,
 .theme-presets,
-.specimen-keys { display: flex; flex-wrap: wrap; gap: 12px; align-items: start; }
+.specimen-keys { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 
-.display-preferences { justify-content: space-between; padding-bottom: 4px; }
+.display-pref-row { justify-content: space-between; }
+.display-pref-group { display: grid; gap: 6px; }
+.display-pref-label { margin: 0; font-size: var(--type-quiet); color: var(--os-ink-muted, var(--lit-72)); }
+.os-preset-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 1px solid currentColor;
+  background: var(--os-swatch, currentColor);
+  flex: none;
+}
 .theme-presets .pixel-key { text-transform: capitalize; }
 
 .specimen-colors,

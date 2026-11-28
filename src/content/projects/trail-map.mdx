@@ -1,0 +1,25 @@
+---
+title: Trail Map
+year: 2025
+summary: Static-first MDX publishing workflow with scrollspy table of contents, bilingual Latin/CJK typography rules, and distraction-free Reading Mode.
+client: Open Source · MIT
+work: Editorial Publishing
+role: Typography & Tooling
+thumbnail: /media/work/trail-map.webp
+thumbnailAlt: Trail Map topographic editorial archive illustration
+featuredOrder: 3
+gallery:
+  - src: /media/work/trail-map.webp
+    alt: Trail Map editorial archive cover
+    caption: Long-form bilingual MDX articles with build-time syntax highlighting and Reading Mode
+---
+
+## Overview
+
+**Trail Map** demonstrates Astro Phosphor's static publishing workflow under `/journal`. Articles are authored as typed Astro Content Collection MDX entries with build-time Shiki syntax highlighting, heading extraction, and client-side tag/category/keyword filtering.
+
+## Publishing Workflow
+
+- **Strict Content Schemas:** Frontmatter validated by Zod at build time (`src/content.config.ts`) so broken dates or missing metadata never ship.
+- **Bilingual CJK Support:** Dedicated `lang: zh-CN` typography spacing, optical line heights, and fallback CJK font stacks across all 5 OSes.
+- **Reading Mode:** One click softens CRT scanlines, edge vignette, glass glare, and barrel curvature for calm long-form reading.

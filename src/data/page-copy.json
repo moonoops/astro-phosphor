@@ -1,18 +1,18 @@
 {
   "site": {
     "name": "Phosphor",
-    "description": "A 1990s CRT monitor & monochrome phosphor desktop personal site built with Astro 5, React 19, and Tailwind CSS v4.",
+    "description": "A 100% static 1990s CRT desk personal site with 5 switchable retro desktop OS styles (20 theme presets), bilingual MDX, and 5 offline games — built with Astro 5, React 19, and Tailwind CSS v4.",
     "desktopLabel": "Desktop"
   },
   "home": {
-    "intro": "Welcome to Astro Phosphor. A lightweight retro CRT desktop template built for fast static sites, essays, case studies, and offline arcade games.",
-    "hint": "Press Menu to switch phosphor themes, toggle Reading Mode, or open a window.",
-    "ticker": "Astro Phosphor // 1990s CRT Desktop Theme"
+    "intro": "Welcome to Astro Phosphor. Five pluggable retro desktop OS styles inside a sunlit 1990s CRT monitor — built for fast static sites, essays, case studies, and offline arcade games.",
+    "hint": "Switch between Rainbow, Phosphor, Coffee, CLI, and Pixel OS via the OS button or Menu → System.",
+    "ticker": "Astro Phosphor // 5 Retro OS Styles × 20 Presets"
   },
   "system": {
     "title": "Design System",
     "shortTitle": "Design",
-    "description": "Live single-hue phosphor tokens, responsive pixel type scale, 3D keycaps, and interactive component specimens."
+    "description": "Live multi-OS style switcher (Rainbow, Phosphor, Coffee, CLI, Pixel), shared semantic tokens, responsive typography, and interactive component specimens."
   },
   "about": {
     "title": "About",
@@ -20,17 +20,17 @@
     "description": "About the maker behind {siteName} — profile, specifications, workflow, timeline, and FAQ.",
     "handle": "phosphor",
     "tags": [
-      "Product Builder",
-      "UI Systems",
+      "Multi-OS UI",
+      "Design Systems",
       "Open Source",
       "Retro Computing"
     ],
     "contactAction": "Get in touch",
     "workAction": "Browse work",
     "story": {
-      "lead": "Independent product designer and engineer crafting tactile interfaces, calm documentation systems, and personal AI tooling.",
+      "lead": "Independent product designer and engineer crafting tactile interfaces, multi-theme design systems, and calm static web tooling.",
       "paragraphs": [
-        "Astro Phosphor turns a static personal website into a responsive 1990s monochrome desktop inside a sunlit Macintosh LC monitor — with zero backend required."
+        "Astro Phosphor turns a static personal website into a sunlit 1990s Macintosh LC desk hosting five peer pluggable retro desktop OS styles — Rainbow, Phosphor, Coffee, CLI, and Pixel — with zero backend required."
       ]
     },
     "specs": {
@@ -43,15 +43,15 @@
           "value": "@phosphor"
         },
         {
-          "label": "Focus",
-          "value": "Agent Harness · Design Systems · Static Web"
+          "label": "OS Styles",
+          "value": "Rainbow · Phosphor · Coffee · CLI · Pixel (20 presets)"
         },
         {
           "label": "Stack",
           "value": "Astro 5 · React 19 · Tailwind CSS v4"
         },
         {
-          "label": "Open Source",
+          "label": "Sample Work",
           "value": "{projectCount}"
         }
       ]
@@ -61,43 +61,43 @@
     "timeline": [
       {
         "period": "2026",
+        "title": "Astro Phosphor v2.0 — 5 Peer OS Styles",
+        "detail": "Added the pluggable OS registry with Rainbow, Phosphor, Coffee, CLI, and Pixel styles, 5 dynamic cursor sets, curved CRT optics, and the add-os-style Agent Skill."
+      },
+      {
+        "period": "2026",
         "title": "Astro Phosphor v1.0",
-        "detail": "Released as a 100% static 1990s CRT desktop template with bilingual MDX and offline arcade games."
+        "detail": "Released as a 100% static 1990s CRT desktop template with bilingual MDX and five offline arcade games."
       },
       {
         "period": "2025",
-        "title": "Single-Hue Design System",
-        "detail": "Built mathematical color-mix() token derivation, four phosphor themes, and Reading Mode."
+        "title": "Single-Hue Token Architecture",
+        "detail": "Built mathematical color-mix() token derivation, four phosphor presets, and distraction-free Reading Mode."
       },
       {
         "period": "2024",
         "title": "Five-Scene Room Optics",
         "detail": "Calibrated 1672×941 aperture geometry, curved glass shaders, and local-clock desk lighting."
-      },
-      {
-        "period": "2023",
-        "title": "Static Islands Architecture",
-        "detail": "Paired Astro static routes with persistent OS chrome and lightweight interactive islands."
       }
     ],
     "practices": {
       "title": "Principles",
       "items": [
         {
-          "title": "Single-Hue Clarity",
-          "text": "Every border, tint, bevel highlight, shadow, glow, and cursor derives mathematically from one CSS variable (--lit)."
+          "title": "Three-Layer Separation",
+          "text": "Layer 1 physical CRT desk shell, Layer 2 isolated peer OS styles, and Layer 3 shared apps consuming semantic --os-* tokens."
         },
         {
           "title": "Controlled Nostalgia",
-          "text": "Crisp 0px pixel chrome for atmosphere, paired with one-click Reading Mode for long-form Latin and CJK essays."
+          "text": "Authentic CRT optics, aperture grille, and dynamic SVG cursors paired with one-click Reading Mode for long-form Latin and CJK essays."
         },
         {
           "title": "Static First",
-          "text": "Zero required server runtime. Deploy dist/ to Cloudflare Pages, Vercel, Netlify, or GitHub Pages in seconds."
+          "text": "Zero required server runtime. Deploy dist/ to GitHub Pages, Cloudflare Pages, Vercel, or Netlify in seconds."
         },
         {
-          "title": "AI-Ready Spec",
-          "text": "Ships with AGENTS.md, docs/DESIGN.md, and a custom room-artwork Agent Skill so AI assistants can customize safely."
+          "title": "AI-Ready Specs & Skills",
+          "text": "Ships with AGENTS.md, docs/DESIGN.md, 5 per-OS design specs, and add-os-style + room-backdrop Agent Skills."
         }
       ]
     },
@@ -120,8 +120,8 @@
         },
         {
           "label": "Verify",
-          "title": "Check every breakpoint and theme",
-          "text": "Test room framing, compact bezels, mobile layout, Reading Mode, and keyboard navigation."
+          "title": "Check every OS, breakpoint, and theme",
+          "text": "Test room framing, all 5 peer OSes, mobile layout, Reading Mode, and keyboard navigation."
         },
         {
           "label": "Ship",
@@ -135,15 +135,15 @@
       "items": [
         {
           "question": "Does Astro Phosphor require a backend server or database?",
-          "answer": "No. Every page, project showcase, MDX journal post, design specimen, and offline arcade game compiles to 100% static files in dist/."
+          "answer": "No. Every page, OS style, project showcase, MDX journal post, design specimen, and offline arcade game compiles to 100% static files in dist/."
         },
         {
-          "question": "Can I switch the phosphor color or tone down the CRT scanlines?",
-          "answer": "Open Menu -> System (or visit /design-system) to cycle between Amber, Green, Blue, and White phosphor presets, or enable Reading Mode for calm long-form reading."
+          "question": "How do I switch between the 5 retro desktop OS styles and 20 presets?",
+          "answer": "Click the OS button in the top menu bar or bottom dock, open Menu → System, visit /design-system, or append ?os=rainbow|phosphor|coffee|cli|pixel to any URL."
         },
         {
-          "question": "How do I replace the desk background with my own retro monitor photo?",
-          "answer": "Follow the built-in crt-room-artwork Agent Skill in .agents/skills/crt-room-artwork/SKILL.md and run npm run art:room to generate responsive WebP plates."
+          "question": "How do I add a new OS style or replace the desk monitor photo?",
+          "answer": "Use the built-in Agent Skills in .agents/skills/add-os-style/SKILL.md and .agents/skills/room-backdrop/SKILL.md, backed by AGENTS.md and docs/DESIGN.md."
         }
       ]
     }
@@ -252,7 +252,7 @@
   },
   "work": {
     "title": "Work",
-    "description": "Selected open-source AI agent systems and engineering case studies on {siteName}.",
+    "description": "Sample case studies and design engineering specimens built with {siteName}.",
     "sortStatus": "Featured",
     "empty": "No projects added yet.",
     "projectSingle": "{count} project",
@@ -272,8 +272,8 @@
     "title": "Games",
     "windowTitle": "Offline Arcade",
     "menuAll": "All Games",
-    "description": "Five 100% offline retro CRT mini-games built with pure TypeScript, Canvas, Web Audio, and localStorage.",
-    "lead": "Five pure-frontend offline games running directly inside monochrome phosphor windows — zero backend, local high scores & saves.",
+    "description": "Five 100% offline retro CRT mini-games built with pure TypeScript, Canvas, Web Audio, and localStorage — adapting live across all 5 OS styles.",
+    "lead": "Five pure-frontend offline games running directly inside retro desktop windows — zero backend, OS-aware palettes, and local high scores & saves.",
     "status": "5 offline games"
   },
   "minesweeper": {
@@ -282,7 +282,7 @@
     "windowTitle": "Minesweeper",
     "folderLabel": "Games",
     "cardSummary": "Beginner, Intermediate, and Expert boards with safe first click, flag mode, and chord reveal.",
-    "description": "Classic 1990s monochrome CRT Minesweeper with three board sizes and local best times on {siteName}.",
+    "description": "Classic 1990s CRT Minesweeper with three board sizes, OS-aware tiles, and local best times on {siteName}.",
     "initialStatus": "Beginner 9×9 · 10 mines left",
     "noScript": "Enable JavaScript to play Minesweeper."
   },
@@ -291,8 +291,8 @@
     "menuTitle": "Tetris",
     "windowTitle": "Tetris",
     "folderLabel": "Games",
-    "cardSummary": "10×20 monochrome falling blocks with distinct pixel patterns, ghost piece, hold slot, and 8-bit SFX.",
-    "description": "Classic monochrome phosphor Tetris with ghost piece, hold slot, and synthesized 8-bit sound on {siteName}.",
+    "cardSummary": "10×20 falling blocks with monochrome CRT textures or 16-bit color bevels, ghost drop, hold slot, and 8-bit SFX.",
+    "description": "Classic CRT Tetris with ghost piece, hold slot, OS-aware color palettes, and synthesized 8-bit sound on {siteName}.",
     "initialStatus": "Ready · Lv.01 · 000000",
     "noScript": "Enable JavaScript to play Tetris."
   },
@@ -302,7 +302,7 @@
     "windowTitle": "Snake",
     "folderLabel": "Games",
     "cardSummary": "Three speed tiers, optional wrap walls, timed bonus star fruit, and touch swipe support.",
-    "description": "Retro phosphor CRT Snake with speed modes, wrap walls, and bonus fruit on {siteName}.",
+    "description": "Retro CRT Snake with speed modes, wrap walls, OS-aware canvas palettes, and bonus fruit on {siteName}.",
     "initialStatus": "Ready · Score 000",
     "noScript": "Enable JavaScript to play Snake."
   },
@@ -311,8 +311,8 @@
     "menuTitle": "2048",
     "windowTitle": "2048",
     "folderLabel": "Games",
-    "cardSummary": "Monochrome sliding tile puzzle with keyboard/swipe controls and 20-step undo history.",
-    "description": "Monochrome phosphor 2048 puzzle with keyboard, touch swipe, and undo support on {siteName}.",
+    "cardSummary": "Sliding tile puzzle with monochrome or jewel-toned OS palettes, keyboard/swipe controls, and 20-step undo history.",
+    "description": "Retro 2048 puzzle with OS-aware tile palettes, keyboard, touch swipe, and undo support on {siteName}.",
     "initialStatus": "Score 0 · Best 0",
     "noScript": "Enable JavaScript to play 2048."
   },
@@ -321,8 +321,8 @@
     "menuTitle": "Magic Tower · 魔塔 21F",
     "windowTitle": "Magic Tower · 魔塔 21F",
     "folderLabel": "Games",
-    "cardSummary": "21-floor tactical pixel RPG inspired by classic Chinese Magic Tower (魔塔), with 4 local save slots.",
-    "description": "21-floor monochrome phosphor Magic Tower (魔塔) tactical RPG with local save slots on {siteName}.",
+    "cardSummary": "21-floor tactical pixel RPG with Standard & Hard difficulties, 9 monster traits, Hybrid/Full-Color modes, and 4 local save slots.",
+    "description": "21-floor Magic Tower (魔塔) tactical pixel RPG with dual difficulty, OS-aware palettes, and local save slots on {siteName}.",
     "initialStatus": "0F · Local Save",
     "noScript": "Enable JavaScript to play Magic Tower."
   },

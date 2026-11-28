@@ -12,9 +12,22 @@ import { aperture, glassPath, rasterPath, rasterMaskTransform } from '../../geom
     <filter id="phosphor-rolloff" filterUnits="userSpaceOnUse" x="-8" y="-8" width="396" height="301">
       <feGaussianBlur stdDeviation=".72" />
     </filter>
+    <filter id="phosphor-rolloff-soft" filterUnits="userSpaceOnUse" x="-8" y="-8" width="396" height="301">
+      <feGaussianBlur stdDeviation="1.05" />
+    </filter>
     <mask id="tube-raster" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox" x="0" y="0" width="1" height="1">
       <g transform={rasterMaskTransform(0)}>
         <use href="#raster-profile" fill="white" filter="url(#phosphor-rolloff)" />
+      </g>
+    </mask>
+    <mask id="tube-raster-tight" maskUnits="objectBoundingBox" maskContentUnits="objectBoundingBox" x="0" y="0" width="1" height="1">
+      <g transform={rasterMaskTransform(0)}>
+        <use
+          href="#raster-profile"
+          transform={`translate(${aperture.width / 2} ${aperture.height / 2}) scale(1.014 1.018) translate(${-aperture.width / 2} ${-aperture.height / 2})`}
+          fill="white"
+          filter="url(#phosphor-rolloff-soft)"
+        />
       </g>
     </mask>
   </defs>

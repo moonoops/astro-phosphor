@@ -1,16 +1,20 @@
+import type { ColorMode } from './types';
+
 /**
- * Pure 16x16 4-tone phosphor pixel-art sprite catalog for Magic Tower CRT.
+ * 16x16 pixel-art sprite catalog for Magic Tower CRT.
  *
- * Designed strictly for single-hue monochrome phosphor displays (amber / green / blue / white):
- * - Terrain & walls stay in dim '0'/'1' tones so bright '2'/'3' entities pop immediately.
- * - Every monster, key, gem, potion, and weapon uses a distinct SILHOUETTE (never color-only variants).
+ * Supports two switchable visual modes:
+ * - 'hybrid' (default): CRT phosphor dungeon & characters (tracks active amber/green/blue/white theme)
+ *   paired with vivid semantic retro colors on doors, keys, gems, potions, equipment, and relics.
+ * - 'color': Full retro pixel-art palette across terrain, hero, all 32 monsters, NPCs, shops, and items.
  *
  * Tone symbols:
  *   '.' = transparent
- *   '0' = --ground (deep CRT tube floor / outlines / eyes)
- *   '1' = --side   (dim phosphor shadow / recessed masonry)
- *   '2' = --lit    (primary glowing phosphor)
- *   '3' = --hi     (specular phosphor highlight)
+ *   '0' = dark outline / ground tone
+ *   '1' = shadow / recessed tone
+ *   '2' = primary body tone
+ *   '3' = specular highlight tone
+ *   'y' / 'b' / 'r' = optional explicit gold/cyan/crimson accent pixels (e.g., 3-key chest)
  */
 
 export interface PhosphorPalette {
@@ -20,7 +24,57 @@ export interface PhosphorPalette {
   hi: string;
   lit28: string;
   lit10: string;
+  stageBg: string;
+  floorDot: string;
+  wallMortar: string;
+  wallBrick: string;
+  wallHi: string;
+  entityOutline: string;
+  entityShadow: string;
+  entityInk: string;
+  entityHi: string;
+  badgeBg: string;
+  pathDot: string;
+  reticle: string;
 }
+
+export interface SpriteRamp {
+  c0: string;
+  c1: string;
+  c2: string;
+  c3: string;
+}
+
+export const SEMANTIC_COLORS = {
+  yellowKey: '#ffd24a',
+  yellowKeyDim: '#b37d14',
+  blueKey: '#4ed8ff',
+  blueKeyDim: '#1d75a8',
+  redKey: '#ff5268',
+  redKeyDim: '#a82034',
+  specialDoor: '#cf75ff',
+  atkGem: '#ff5568',
+  defGem: '#4cc4ff',
+  potion: '#42f288',
+  holy: '#5cffe8',
+  gold: '#ffca3a',
+  feather: '#df8cff',
+  safeDmg: '#42f288',
+  warnDmg: '#ffd24a',
+  highDmg: '#ff8a3d',
+  lethalDmg: '#ff4757',
+  specialTag: {
+    firstStrike: '#ffd24a',
+    magic: '#cf75ff',
+    solid: '#4ed8ff',
+    doubleHit: '#ff8a3d',
+    tripleHit: '#ff6b4a',
+    vampire: '#ff5268',
+    armorBreak: '#ff9f43',
+    berserk: '#ff4757',
+    thorns: '#7cf56c',
+  },
+} as const;
 
 export type SpriteBitmap = ReadonlyArray<string>;
 
@@ -299,8 +353,8 @@ const SPRITES: Readonly<Record<string, SpriteBitmap>> = {
     '..000000000000..',
     '..033333333330..',
     '..032222222230..',
-    '..032333333230..',
-    '..032223322230..',
+    '..032yybbbrr30..',
+    '..032yybbbrr30..',
     '..000003300000..',
     '..022223322220..',
     '..021113311120..',
@@ -1627,6 +1681,154 @@ const SPRITES: Readonly<Record<string, SpriteBitmap>> = {
   ],
 };
 
+// Semantic high-contrast ramps active in BOTH 'hybrid' and 'color' modes (doors, keys, gems, potions, gear, relics).
+const SEMANTIC_ITEM_RAMPS: Readonly<Record<string, SpriteRamp>> = {
+  // Doors & Keys — unmistakable gold / ice-blue / ruby-red / arcane-violet
+  door_yellow: { c0: '#181104', c1: '#8c5e0f', c2: '#f0b429', c3: '#fff1a6' },
+  door_blue:   { c0: '#061524', c1: '#186494', c2: '#42cfff', c3: '#d1f7ff' },
+  door_red:    { c0: '#21070c', c1: '#991d30', c2: '#ff475e', c3: '#ffc4cc' },
+  door_special:{ c0: '#170924', c1: '#6e309c', c2: '#c96eff', c3: '#f2d9ff' },
+  key_yellow:  { c0: '#181104', c1: '#a87212', c2: '#ffd24a', c3: '#fff5ba' },
+  key_blue:    { c0: '#061524', c1: '#1d75a8', c2: '#4ed8ff', c3: '#d6f8ff' },
+  key_red:     { c0: '#21070c', c1: '#a82034', c2: '#ff5268', c3: '#ffc9d0' },
+  key_box:     { c0: '#1a1205', c1: '#8c5d16', c2: '#e8ad38', c3: '#fff0ad' },
+
+  // Gems & Potions — Red=ATK, Blue=DEF, Emerald=HP, Aqua-Gold=Holy Water (zero hue collisions!)
+  gem_red:      { c0: '#24070c', c1: '#a82034', c2: '#ff4d63', c3: '#ffd1d8' },
+  gem_red_big:  { c0: '#24070c', c1: '#bd1e36', c2: '#ff3d57', c3: '#ffe680' },
+  gem_blue:     { c0: '#061626', c1: '#1b6bb3', c2: '#47beff', c3: '#d6f2ff' },
+  gem_blue_big: { c0: '#061626', c1: '#1c5ec4', c2: '#3db8ff', c3: '#ffffff' },
+  potion_small: { c0: '#061f12', c1: '#1a8c4a', c2: '#3cf080', c3: '#ccffde' },
+  potion_big:   { c0: '#061f14', c1: '#16875a', c2: '#36f29e', c3: '#ffe57a' },
+  holy_water:   { c0: '#071d24', c1: '#1fa1b0', c2: '#5cffe8', c3: '#fff9c4' },
+
+  // 5-tier Equipment progression: Iron -> Silver -> Knight Blue -> Sacred Gold -> Divine Aqua
+  sword_1:  { c0: '#11161e', c1: '#69788a', c2: '#b2c1d1', c3: '#edf4fc' },
+  shield_1: { c0: '#11161e', c1: '#69788a', c2: '#b2c1d1', c3: '#edf4fc' },
+  sword_2:  { c0: '#0c1624', c1: '#6893bd', c2: '#c7e3ff', c3: '#ffffff' },
+  shield_2: { c0: '#0c1624', c1: '#6893bd', c2: '#c7e3ff', c3: '#ffffff' },
+  sword_3:  { c0: '#0a1529', c1: '#2a66b8', c2: '#5ca8ff', c3: '#d9eeff' },
+  shield_3: { c0: '#0a1529', c1: '#2a66b8', c2: '#5ca8ff', c3: '#d9eeff' },
+  sword_4:  { c0: '#211505', c1: '#b88218', c2: '#ffd24a', c3: '#fff7c7' },
+  shield_4: { c0: '#211505', c1: '#b88218', c2: '#ffd24a', c3: '#fff7c7' },
+  sword_5:  { c0: '#081f24', c1: '#24a69a', c2: '#66ffea', c3: '#ffffff' },
+  shield_5: { c0: '#081f24', c1: '#24a69a', c2: '#66ffea', c3: '#ffffff' },
+
+  // Relics & Treasures
+  book:          { c0: '#1f0c0e', c1: '#9e3540', c2: '#f0b849', c3: '#fff0be' },
+  fly:           { c0: '#091b29', c1: '#2c84b8', c2: '#66e0ff', c3: '#e6fbff' },
+  cross:         { c0: '#211604', c1: '#c48e1a', c2: '#ffe066', c3: '#ffffff' },
+  pickaxe:       { c0: '#171412', c1: '#9c6630', c2: '#9fb6cc', c3: '#eef7ff' },
+  coin:          { c0: '#211604', c1: '#b37d14', c2: '#ffca3a', c3: '#fff4b8' },
+  gold_bag:      { c0: '#211604', c1: '#a87014', c2: '#ffca3a', c3: '#fff4b8' },
+  feather_small: { c0: '#1e0c26', c1: '#8e3eb0', c2: '#df8cff', c3: '#ffebb3' },
+  feather_big:   { c0: '#1e0c26', c1: '#a338c4', c2: '#f08cff', c3: '#ffe57a' },
+};
+
+// Additional full-color retro dungeon, hero, NPC, shop, and 32-monster ramps (active in 'color' mode).
+const FULL_COLOR_RAMPS: Readonly<Record<string, SpriteRamp>> = {
+  // Terrain
+  floor:        { c0: '#0b111b', c1: '#1a2638', c2: '#24354c', c3: '#344b69' },
+  wall:         { c0: '#0e1624', c1: '#354b69', c2: '#557299', c3: '#819fc7' },
+  cracked_wall: { c0: '#0e1624', c1: '#354b69', c2: '#557299', c3: '#a8f2ff' },
+  lava_0:       { c0: '#290904', c1: '#b5310e', c2: '#ff7a1a', c3: '#ffe566' },
+  lava_1:       { c0: '#290904', c1: '#b5310e', c2: '#ff7a1a', c3: '#ffe566' },
+  stairs_up:    { c0: '#140f08', c1: '#785024', c2: '#c99347', c3: '#ffe19c' },
+  stairs_down:  { c0: '#140f08', c1: '#694620', c2: '#b8843d', c3: '#ffd685' },
+
+  // Hero
+  hero_down:  { c0: '#0a111c', c1: '#2b67b5', c2: '#6bc4ff', c3: '#f2f8ff' },
+  hero_up:    { c0: '#0a111c', c1: '#2b67b5', c2: '#6bc4ff', c3: '#f2f8ff' },
+  hero_left:  { c0: '#0a111c', c1: '#2b67b5', c2: '#6bc4ff', c3: '#f2f8ff' },
+  hero_right: { c0: '#0a111c', c1: '#2b67b5', c2: '#6bc4ff', c3: '#f2f8ff' },
+
+  // NPCs & Shops
+  npc_fairy:    { c0: '#0b1b24', c1: '#269e80', c2: '#6cf5d0', c3: '#fff5b8' },
+  npc_sage:     { c0: '#121324', c1: '#4d5d9c', c2: '#9cb2f0', c3: '#f5f7ff' },
+  npc_merchant: { c0: '#1f1408', c1: '#a36824', c2: '#ebb04b', c3: '#fff0c2' },
+  npc_thief:    { c0: '#0c1c12', c1: '#2a7846', c2: '#57d47d', c3: '#ffe082' },
+  npc_princess: { c0: '#240e19', c1: '#b5487c', c2: '#ff9cc4', c3: '#fff3cc' },
+  shop_altar:   { c0: '#180b24', c1: '#69329c', c2: '#b66eff', c3: '#ffe58a' },
+
+  // 32 Monsters — distinct RPG species families
+  slime_green:      { c0: '#071f10', c1: '#1e8c45', c2: '#4cf07a', c3: '#d1ffe0' },
+  slime_red:        { c0: '#24080c', c1: '#a62334', c2: '#ff5266', c3: '#ffd1d7' },
+  slime_dark:       { c0: '#170b24', c1: '#5a2e8a', c2: '#9c5ce0', c3: '#e0c7ff' },
+  slime_king:       { c0: '#1a1405', c1: '#2b8c55', c2: '#ffd042', c3: '#fff7c2' },
+  bat_small:        { c0: '#140d21', c1: '#563a80', c2: '#8e6ec2', c3: '#dfd1ff' },
+  bat_big:          { c0: '#1c0c24', c1: '#752d8a', c2: '#ba63d4', c3: '#f3d1ff' },
+  bat_red:          { c0: '#26070b', c1: '#9c1b2b', c2: '#ff3b52', c3: '#ffc2c9' },
+  skeleton:         { c0: '#12161f', c1: '#707e8f', c2: '#d1dbe6', c3: '#ffffff' },
+  skeleton_soldier: { c0: '#111824', c1: '#537396', c2: '#c5d8ed', c3: '#ffffff' },
+  skeleton_captain: { c0: '#1f160b', c1: '#996a2a', c2: '#e8d8b5', c3: '#fff6d6' },
+  mage:             { c0: '#0b1429', c1: '#2e5db3', c2: '#5ea0ff', c3: '#d9ebff' },
+  mage_high:        { c0: '#190d29', c1: '#703ab3', c2: '#bf82ff', c3: '#fff0b3' },
+  wizard:           { c0: '#1f0a21', c1: '#872377', c2: '#e058c0', c3: '#ffd4f4' },
+  wizard_high:      { c0: '#260917', c1: '#a31f53', c2: '#ff528c', c3: '#ffe599' },
+  orc:              { c0: '#161c0b', c1: '#5b7528', c2: '#9cc24a', c3: '#e6f5b5' },
+  orc_warrior:      { c0: '#21140b', c1: '#8c4b23', c2: '#d98a4a', c3: '#ffe5b8' },
+  rock:             { c0: '#17181c', c1: '#646b75', c2: '#9ca4b0', c3: '#ffd257' },
+  guard:            { c0: '#0f1824', c1: '#4d6f8f', c2: '#8fb4d6', c3: '#e6f2ff' },
+  guard_mid:        { c0: '#1c150c', c1: '#8c6532', c2: '#d4a666', c3: '#fff0cc' },
+  guard_high:       { c0: '#240d14', c1: '#a3334b', c2: '#f06980', c3: '#ffe899' },
+  magic_guard:      { c0: '#0d1c24', c1: '#247b87', c2: '#5ae0e6', c3: '#f0b3ff' },
+  knight:           { c0: '#0e1629', c1: '#3d5ea3', c2: '#7ca3f0', c3: '#e6f0ff' },
+  knight_high:      { c0: '#1c0d1f', c1: '#6e2c6e', c2: '#c25eb8', c3: '#ffd4e6' },
+  swordsman:        { c0: '#1f0e14', c1: '#963648', c2: '#d6e2ed', c3: '#ff8093' },
+  dark_soldier:     { c0: '#120c1c', c1: '#4f3578', c2: '#9876cc', c3: '#e6dbff' },
+  ghost_mage:       { c0: '#071c21', c1: '#1b7987', c2: '#4be6e6', c3: '#d4ffff' },
+  ghost_captain:    { c0: '#081d26', c1: '#236e96', c2: '#5cbfff', c3: '#e0f6ff' },
+  ghost_warrior:    { c0: '#091f1d', c1: '#1f8a7a', c2: '#52f0cc', c3: '#e0fff6' },
+  shadow_warrior:   { c0: '#0d0a1a', c1: '#3f2969', c2: '#8357cc', c3: '#ff5c77' },
+  demon_red:        { c0: '#290805', c1: '#b52515', c2: '#ff5e2b', c3: '#ffe066' },
+  demon_ghost:      { c0: '#0a1a1c', c1: '#218273', c2: '#52ffd8', c3: '#e6b3ff' },
+  demon_boss:       { c0: '#17071f', c1: '#781c50', c2: '#ff477e', c3: '#ffe37a' },
+};
+
+const EXPLICIT_ACCENT: Readonly<Record<string, string>> = {
+  y: SEMANTIC_COLORS.yellowKey,
+  b: SEMANTIC_COLORS.blueKey,
+  r: SEMANTIC_COLORS.redKey,
+};
+
+export function getSpriteColorRamp(name: string, colorMode: ColorMode): SpriteRamp | null {
+  if (SEMANTIC_ITEM_RAMPS[name]) return SEMANTIC_ITEM_RAMPS[name];
+  if (colorMode === 'color' && FULL_COLOR_RAMPS[name]) return FULL_COLOR_RAMPS[name];
+  return null;
+}
+
+export function getItemTagAccent(itemId: string): { text: string; bar: string } {
+  switch (itemId) {
+    case 'yellowKey': return { text: SEMANTIC_COLORS.yellowKey, bar: SEMANTIC_COLORS.yellowKey };
+    case 'blueKey':   return { text: SEMANTIC_COLORS.blueKey, bar: SEMANTIC_COLORS.blueKey };
+    case 'redKey':    return { text: SEMANTIC_COLORS.redKey, bar: SEMANTIC_COLORS.redKey };
+    case 'keyBox':    return { text: SEMANTIC_COLORS.yellowKey, bar: SEMANTIC_COLORS.blueKey };
+    case 'redGem':
+    case 'bigRedGem': return { text: SEMANTIC_COLORS.atkGem, bar: SEMANTIC_COLORS.atkGem };
+    case 'blueGem':
+    case 'bigBlueGem':return { text: SEMANTIC_COLORS.defGem, bar: SEMANTIC_COLORS.defGem };
+    case 'redPotion':
+    case 'bluePotion':return { text: SEMANTIC_COLORS.potion, bar: SEMANTIC_COLORS.potion };
+    case 'holyWater': return { text: SEMANTIC_COLORS.holy, bar: SEMANTIC_COLORS.holy };
+    case 'goldBag':
+    case 'coin':
+    case 'cross':     return { text: SEMANTIC_COLORS.gold, bar: SEMANTIC_COLORS.gold };
+    case 'featherSmall':
+    case 'featherBig':return { text: SEMANTIC_COLORS.feather, bar: SEMANTIC_COLORS.feather };
+    case 'sword1':
+    case 'shield1':   return { text: '#d6e2ed', bar: '#8ea0b3' };
+    case 'sword2':
+    case 'shield2':   return { text: '#e3f1ff', bar: '#84b4e0' };
+    case 'sword3':
+    case 'shield3':   return { text: '#73b8ff', bar: '#478ce6' };
+    case 'sword4':
+    case 'shield4':   return { text: '#ffd24a', bar: '#d49a1e' };
+    case 'sword5':
+    case 'shield5':   return { text: '#66ffea', bar: '#29b8a8' };
+    default:          return { text: '#ffe8a3', bar: '#d49a1e' };
+  }
+}
+
 export function getSpriteBitmap(name: string): SpriteBitmap {
   return SPRITES[name] ?? SPRITES.floor;
 }
@@ -1654,13 +1856,30 @@ export function readPhosphorPalette(element: HTMLElement | null): PhosphorPalett
     return resolved || fallback;
   };
 
+  const groundResolved = resolveColor('var(--ground)', ground);
+  const sideResolved = resolveColor('var(--side)', '#74582b');
+  const litResolved = resolveColor('var(--lit)', lit);
+  const hiResolved = resolveColor('var(--hi)', '#ffdba4');
+
   return {
-    ground: resolveColor('var(--ground)', ground),
-    side: resolveColor('var(--side)', '#74582b'),
-    lit: resolveColor('var(--lit)', lit),
-    hi: resolveColor('var(--hi)', '#ffdba4'),
+    ground: groundResolved,
+    side: sideResolved,
+    lit: litResolved,
+    hi: hiResolved,
     lit28: resolveColor('var(--lit-28)', 'rgba(255,182,72,0.28)'),
     lit10: resolveColor('var(--lit-10)', 'rgba(255,182,72,0.10)'),
+    stageBg: resolveColor('var(--game-stage-bg, var(--ground))', groundResolved),
+    floorDot: resolveColor('var(--game-floor-dot, var(--side))', sideResolved),
+    wallMortar: resolveColor('var(--game-wall-mortar, var(--ground))', groundResolved),
+    wallBrick: resolveColor('var(--game-wall-brick, var(--side))', sideResolved),
+    wallHi: resolveColor('var(--game-wall-hi, var(--hi))', hiResolved),
+    entityOutline: resolveColor('var(--game-entity-outline, var(--ground))', groundResolved),
+    entityShadow: resolveColor('var(--game-entity-shadow, var(--side))', sideResolved),
+    entityInk: resolveColor('var(--game-entity-ink, var(--lit))', litResolved),
+    entityHi: resolveColor('var(--game-entity-hi, var(--hi))', hiResolved),
+    badgeBg: resolveColor('var(--game-badge-bg, var(--ground))', groundResolved),
+    pathDot: resolveColor('var(--game-path-dot, var(--lit))', litResolved),
+    reticle: resolveColor('var(--game-reticle, var(--hi))', hiResolved),
   };
 }
 
@@ -1672,20 +1891,44 @@ export function drawSprite(
   tileSize: number,
   palette: PhosphorPalette,
   bobOffset = 0,
+  colorMode: ColorMode = 'hybrid',
 ): void {
   const bitmap = getSpriteBitmap(name);
   const px = tileSize / 16;
+  const ramp = getSpriteColorRamp(name, colorMode);
+
+  // Special case: cracked_wall in hybrid keeps dungeon masonry + bright ice-cyan crack line!
+  const hybridCrack = colorMode === 'hybrid' && name === 'cracked_wall';
 
   for (let row = 0; row < 16; row += 1) {
     const line = bitmap[row];
     for (let col = 0; col < 16; col += 1) {
       const ch = line[col];
       if (ch === '.') continue;
-      if (ch === '0') ctx.fillStyle = palette.ground;
-      else if (ch === '1') ctx.fillStyle = palette.side;
-      else if (ch === '2') ctx.fillStyle = palette.lit;
-      else if (ch === '3') ctx.fillStyle = palette.hi;
-      else continue;
+      if (EXPLICIT_ACCENT[ch]) {
+        ctx.fillStyle = EXPLICIT_ACCENT[ch];
+      } else if (ramp) {
+        if (ch === '0') ctx.fillStyle = ramp.c0;
+        else if (ch === '1') ctx.fillStyle = ramp.c1;
+        else if (ch === '2') ctx.fillStyle = ramp.c2;
+        else if (ch === '3') ctx.fillStyle = ramp.c3;
+        else continue;
+      } else if (name === 'floor') {
+        if (ch === '1') ctx.fillStyle = palette.floorDot;
+        else continue;
+      } else if (name === 'wall' || name === 'cracked_wall') {
+        if (ch === '0') ctx.fillStyle = palette.wallMortar;
+        else if (ch === '1') ctx.fillStyle = palette.wallBrick;
+        else if (ch === '2') ctx.fillStyle = palette.entityInk;
+        else if (ch === '3') ctx.fillStyle = hybridCrack ? '#a8f2ff' : palette.wallHi;
+        else continue;
+      } else {
+        if (ch === '0') ctx.fillStyle = palette.entityOutline;
+        else if (ch === '1') ctx.fillStyle = palette.entityShadow;
+        else if (ch === '2') ctx.fillStyle = palette.entityInk;
+        else if (ch === '3') ctx.fillStyle = hybridCrack ? '#a8f2ff' : palette.entityHi;
+        else continue;
+      }
       ctx.fillRect(
         Math.round(dx + col * px),
         Math.round(dy + row * px + bobOffset),
@@ -1697,18 +1940,37 @@ export function drawSprite(
 }
 
 /**
- * Generates a tiny crisp inline SVG data/element representation for HUD portraits (Monster Manual, Dialogue, Inspector).
+ * Generates crisp inline SVG rects for HUD portraits (Monster Manual, Dialogue, Inspector, Key Bar),
+ * synchronized with the active color mode ('hybrid' or 'color').
  */
-export function spriteToRects(name: string): Array<{ x: number; y: number; tone: '0' | '1' | '2' | '3' }> {
+export function spriteToRects(
+  name: string,
+  colorMode: ColorMode = 'hybrid',
+): Array<{ x: number; y: number; fill: string }> {
   const bitmap = getSpriteBitmap(name);
-  const rects: Array<{ x: number; y: number; tone: '0' | '1' | '2' | '3' }> = [];
+  const ramp = getSpriteColorRamp(name, colorMode);
+  const hybridCrack = colorMode === 'hybrid' && name === 'cracked_wall';
+  const rects: Array<{ x: number; y: number; fill: string }> = [];
   for (let y = 0; y < 16; y += 1) {
     const line = bitmap[y];
     for (let x = 0; x < 16; x += 1) {
       const ch = line[x];
-      if (ch === '0' || ch === '1' || ch === '2' || ch === '3') {
-        rects.push({ x, y, tone: ch });
+      if (ch === '.') continue;
+      let fill: string | null = null;
+      if (EXPLICIT_ACCENT[ch]) {
+        fill = EXPLICIT_ACCENT[ch];
+      } else if (ramp) {
+        if (ch === '0') fill = ramp.c0;
+        else if (ch === '1') fill = ramp.c1;
+        else if (ch === '2') fill = ramp.c2;
+        else if (ch === '3') fill = ramp.c3;
+      } else {
+        if (ch === '0') fill = 'var(--game-entity-outline, var(--ground))';
+        else if (ch === '1') fill = 'var(--game-entity-shadow, var(--side))';
+        else if (ch === '2') fill = 'var(--game-entity-ink, var(--lit))';
+        else if (ch === '3') fill = hybridCrack ? '#a8f2ff' : 'var(--game-entity-hi, var(--hi))';
       }
+      if (fill) rects.push({ x, y, fill });
     }
   }
   return rects;

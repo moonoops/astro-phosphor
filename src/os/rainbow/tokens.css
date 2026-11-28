@@ -1,0 +1,261 @@
+/* ==========================================================================
+   Rainbow OS — Daylight CMY-Pop Creative Canvas Tokens & Semantic Bridge
+   Strictly scoped to html[data-os="rainbow"] (Amara Makes faithful extraction)
+   ========================================================================== */
+
+@supports (corner-shape: superellipse(2)) {
+  html[data-os="rainbow"] {
+    --rb-squircle: 1;
+  }
+}
+
+html[data-os="rainbow"] {
+  /* Native Amara Makes surfaces & drafting canvas */
+  --rb-white: #ffffff;
+  --rb-cream: #faf4e3;
+  --rb-cream-deep: #f5efdd;
+  --rb-ivory: #fffbf0;
+  --rb-sand: #eee9db;
+  --rb-chrome-grad: linear-gradient(180deg, #ffffff 0%, #e2e2e2 100%);
+  --rb-grid-line: rgba(87, 72, 42, 0.17);
+
+  /* Ink & calibrated alpha ramp */
+  --rb-ink: #000000;
+  --rb-ink-80: #000000cc;
+  --rb-ink-72: #000000b8;
+  --rb-ink-56: #0000008f;
+  --rb-ink-46: #00000075;
+  --rb-ink-30: #0000004d;
+  --rb-ink-10: rgba(0, 0, 0, 0.055);
+  --rb-ink-05: rgba(0, 0, 0, 0.04);
+
+  /* CMY-Pop signature accents (all WCAG AAA 7.9:1-14.1:1 with #000000 ink) */
+  --rb-pink: #ff54dd;
+  --rb-pink-ink: #c7158d; /* 4.9:1 AA on #FAF4E3 for legacy var(--hi) text */
+  --rb-yellow: #ffcb2e;
+  --rb-blue: #8cbcff;
+  --rb-orange: #f7aa45;
+  --rb-cobalt: #0099ff;
+  --rb-cobalt-ink: #0057c2; /* 6.4:1 AA on #FAF4E3 */
+  --rb-green: #61bb46;
+
+  /* Interactive tints */
+  --rb-pink-tint: rgba(255, 84, 221, 0.14);
+  --rb-yellow-tint: rgba(255, 203, 46, 0.35);
+  --rb-blue-tint: rgba(140, 188, 255, 0.35);
+  --rb-selection: rgba(140, 188, 255, 0.65);
+
+  /* Geometry, borders, elevation & motion */
+  --rb-radius-window: calc(28px * var(--rb-squircle, 0.785)); /* 22px fallback, 28px squircle */
+  --rb-radius-card: 16px;
+  --rb-radius-control: 10px;
+  --rb-radius-pill: 999px;
+  --rb-shadow-window: 0 14px 34px rgba(34, 22, 10, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
+  --rb-shadow-window-idle: 0 4px 12px rgba(34, 22, 10, 0.08);
+  --rb-shadow-float: 0 12px 28px rgba(0, 0, 0, 0.16);
+  --rb-shadow-dock: 0 8px 22px rgba(0, 0, 0, 0.14);
+  --rb-shadow-key: 0 2px 0 #000000;
+  --rb-ease-spring: cubic-bezier(0.2, 0.9, 0.25, 1.2);
+  --rb-ease-out: cubic-bezier(0.2, 0.8, 0.3, 1);
+
+  /* Legacy app compatibility bridge (1,300+ shared app declarations) */
+  --ground: var(--rb-cream);
+  --ground-fullscreen: var(--rb-cream);
+  --lit: var(--rb-ink);
+  --lit-72: var(--rb-ink-72);
+  --lit-28: var(--rb-ink-30);
+  --lit-10: var(--rb-ink-10);
+  --hi: var(--rb-pink-ink);
+  --side: var(--rb-ink);
+
+  /* Shared Semantic OS Surfaces */
+  --os-desktop-bg: var(--rb-cream);
+  --os-desktop-pattern:
+    linear-gradient(to right, var(--rb-grid-line) 0px, var(--rb-grid-line) 0.5px, transparent 0.5px),
+    linear-gradient(to bottom, var(--rb-grid-line) 0px, var(--rb-grid-line) 0.5px, transparent 0.5px);
+  --os-desktop-pattern-size: 15px 15px;
+  --os-surface: var(--rb-cream);
+  --os-surface-alt: var(--rb-cream-deep);
+  --os-surface-elevated: var(--rb-white);
+  --os-window-bar-bg: var(--rb-white);
+  --os-taskbar-bg: var(--rb-chrome-grad);
+  --os-topbar-bg: var(--rb-white);
+
+  /* Shared Semantic OS Inks */
+  --os-ink: var(--rb-ink);
+  --os-ink-muted: var(--rb-ink-72);
+  --os-ink-inverse: var(--rb-white);
+
+  /* Shared Semantic OS Borders, Shadows & Radii */
+  --os-border: var(--rb-ink-30);
+  --os-border-strong: var(--rb-ink);
+  --os-window-shadow: var(--rb-shadow-window);
+  --os-menu-shadow: var(--rb-shadow-float);
+  --os-radius-window: var(--rb-radius-window);
+  --os-radius-control: var(--rb-radius-control);
+  --os-radius-pill: var(--rb-radius-pill);
+
+  /* Shared Semantic OS Accents & Status */
+  --os-accent: var(--rb-pink);
+  --os-accent-hover: var(--rb-yellow);
+  --os-accent-ink: var(--rb-ink);
+  --os-status-ok: var(--rb-green);
+
+  /* Shared Semantic OS Window Titlebar */
+  --os-titlebar-bg: var(--rb-pink);
+  --os-titlebar-ink: var(--rb-ink);
+  --os-titlebar-pattern: none;
+  --os-titlebar-inactive-bg: var(--rb-sand);
+  --os-titlebar-inactive-ink: var(--rb-ink-56);
+
+  /* Per-section default titlebar dots (overridden per section in chrome.css) */
+  --rb-dot-1: var(--rb-white);
+  --rb-dot-2: var(--rb-yellow);
+  --rb-dot-3: var(--rb-blue);
+
+  /* Bundled Typography (Outfit Variable + Chivo Mono Variable + CJK pairings) */
+  --font-display: "Outfit Variable", "Outfit", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", system-ui, sans-serif;
+  --font-sans: "Outfit Variable", "Outfit", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", system-ui, sans-serif;
+  --font-mono: "Chivo Mono Variable", "Sarasa Mono SC", "LXGW WenKai Mono", "PingFang SC", "Noto Sans SC", ui-monospace, monospace;
+  --os-font-body: var(--font-sans);
+  --os-font-features: normal;
+
+  /* Responsive Type Scale (Desktop >= 1200px) */
+  --type-h1: 80px;
+  --type-h2: 52px;
+  --type-h3: 30px;
+  --type-article-h2: 32px;
+  --type-article-h3: 24px;
+  --type-article-h4: 19px;
+  --type-lead: 18px;
+  --type-body: 16px;
+  --type-label: 12.5px;
+  --type-quote: 17px;
+  --type-nav: 13px;
+  --type-quiet: 13px;
+  --type-table: 14px;
+  --hero-line: 0.98;
+  --body-line: 1.5;
+
+  /* Dynamic Vector Cursor Tokens (PixelCursors.tsx cursorStyle: 'soft-pointer') */
+  --os-cursor-fill: var(--rb-white);
+  --os-cursor-stroke: var(--rb-ink);
+  --os-cursor-hi: var(--rb-pink);
+  --os-cursor-side: var(--rb-pink);
+
+  /* Chrome Layout Dimensions */
+  --topbar-height: 46px;
+  --taskbar-height: 0px;
+
+  /* Daylight Color CRT Optics Profile */
+  --crt-bloom-opacity: 0;
+  --crt-contour-opacity: 0.85;
+  --crt-screen-blend: normal;
+  --scanline-alpha: 0.12;
+  --crt-grille-alpha: 0.05;
+  --crt-aging-tint: rgb(32 30 26 / 0.035);
+  --crt-vignette-rgb: 28 24 20;
+  --vignette-alpha: 0.15;
+  --flicker-display: none;
+  --glass-glare-opacity: 1;
+  --text-glow-body: none;
+  --text-glow-heading: none;
+
+  /* Accessible Print-CMY Shiki Syntax Highlighting on #F5EFDD */
+  --astro-code-color-text: #000000;
+  --astro-code-color-background: #f5efdd;
+  --astro-code-token-constant: #b80097;
+  --astro-code-token-string: #945400;
+  --astro-code-token-comment: rgba(0, 0, 0, 0.48);
+  --astro-code-token-keyword: #b80097;
+  --astro-code-token-parameter: #000000;
+  --astro-code-token-function: #0057c2;
+  --astro-code-token-string-expression: #945400;
+  --astro-code-token-punctuation: rgba(0, 0, 0, 0.56);
+  --astro-code-token-link: #0057c2;
+}
+
+/* Curated Rainbow Factory Presets */
+html[data-os="rainbow"][data-theme="marigold"] {
+  --os-accent: var(--rb-yellow);
+  --os-accent-hover: var(--rb-pink);
+  --os-titlebar-bg: var(--rb-yellow);
+  --os-cursor-hi: var(--rb-yellow);
+  --os-cursor-side: var(--rb-yellow);
+}
+
+html[data-os="rainbow"][data-theme="sky"] {
+  --os-accent: var(--rb-blue);
+  --os-accent-hover: var(--rb-yellow);
+  --os-titlebar-bg: var(--rb-blue);
+  --os-cursor-hi: var(--rb-blue);
+  --os-cursor-side: var(--rb-blue);
+}
+
+html[data-os="rainbow"][data-theme="classic"] {
+  --os-accent: var(--rb-green);
+  --os-accent-hover: var(--rb-yellow);
+  --os-titlebar-bg: var(--rb-green);
+  --os-cursor-hi: var(--rb-green);
+  --os-cursor-side: var(--rb-green);
+}
+
+/* Reading Mode inside Rainbow: crisp editorial print paper (higher specificity than os/index.css) */
+html[data-os="rainbow"][data-reading="on"] .screen-plane,
+html[data-os="rainbow"][data-reading="on"] {
+  --scanline-alpha: 0.02;
+  --crt-grille-alpha: 0;
+  --crt-aging-tint: transparent;
+  --vignette-alpha: 0.05;
+  --crt-contour-opacity: 0.15;
+  --glass-glare-opacity: 0;
+  --os-surface: #fffdf7;
+  --ground: #fffdf7;
+}
+
+/* Tablet scale (810px - 1199px) */
+@media (max-width: 1199px) {
+  html[data-os="rainbow"] {
+    --type-h1: 68px;
+    --type-h2: 44px;
+    --type-h3: 26px;
+    --type-article-h2: 28px;
+    --type-article-h3: 22px;
+    --type-lead: 17px;
+    --type-body: 15px;
+    --type-label: 12px;
+    --type-table: 14px;
+  }
+}
+
+/* Phone scale (<= 809px) */
+@media (max-width: 809px) {
+  html[data-os="rainbow"] {
+    --topbar-height: 48px;
+    --taskbar-height: 0px;
+    --rb-radius-window: 16px;
+    --type-h1: 44px;
+    --type-h2: 34px;
+    --type-h3: 22px;
+    --type-article-h2: 24px;
+    --type-article-h3: 20px;
+    --type-article-h4: 17px;
+    --type-lead: 15.5px;
+    --type-body: 15px;
+    --type-label: 12px;
+    --type-quote: 16px;
+    --type-nav: 13px;
+    --type-quiet: 12px;
+    --type-table: 13.5px;
+    --hero-line: 0.98;
+  }
+}
+
+/* 1x non-Retina subpixel anti-banding for the 15px graph-paper drafting grid */
+@media (max-resolution: 1.49dppx), (-webkit-max-device-pixel-ratio: 1.49) {
+  html[data-os="rainbow"] {
+    --os-desktop-pattern:
+      linear-gradient(to right, var(--rb-grid-line) 0px, transparent 0.67px, transparent 14.33px, var(--rb-grid-line) 15px),
+      linear-gradient(to bottom, var(--rb-grid-line) 0px, transparent 0.67px, transparent 14.33px, var(--rb-grid-line) 15px);
+  }
+}

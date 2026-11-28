@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type TouchEvent } from 'react';
+import { useStore } from '@nanostores/react';
 import {
   playArcadeCue,
   readPhosphorPalette,
@@ -6,6 +7,8 @@ import {
   writeStoredNumber,
   type PhosphorPalette,
 } from '../../games/arcadeSound';
+import { DEFAULT_OS } from '../../os/registry';
+import { $preferences } from '../../stores/osStore';
 import ButtonBase from '../ui/ButtonBase';
 
 type SpeedKey = 'chill' | 'arcade' | 'turbo';
@@ -72,10 +75,45 @@ function randomFreeCell(occupied: Point[]): Point | null {
   return free[Math.floor(Math.random() * free.length)]!;
 }
 
+interface SnakeVisualTheme {
+  isPhosphor: boolean;
+  stageBg: string;
+  stageGrid: string;
+  palette: PhosphorPalette;
+}
+
+function readSnakeTheme(element: HTMLElement | null): SnakeVisualTheme {
+  const palette = readPhosphorPalette(element);
+  if (typeof window === 'undefined' || typeof document === 'undefined') {
+    return { isPhosphor: DEFAULT_OS === 'phosphor', stageBg: palette.ground, stageGrid: palette.lit10, palette };
+  }
+  const activeOs = document.documentElement.dataset.os || DEFAULT_OS;
+  if (activeOs === 'phosphor') {
+    return { isPhosphor: true, stageBg: palette.ground, stageGrid: palette.lit10, palette };
+  }
+  const target = element ?? document.documentElement;
+  const resolveVar = (expr: string, fb: string) => {
+    const probe = document.createElement('span');
+    probe.style.color = expr;
+    probe.style.display = 'none';
+    target.appendChild(probe);
+    const resolved = getComputedStyle(probe).color;
+    probe.remove();
+    return resolved || fb;
+  };
+  return {
+    isPhosphor: false,
+    stageBg: resolveVar('var(--game-stage-bg, #161a29)', '#161a29'),
+    stageGrid: resolveVar('var(--game-stage-grid, rgba(255,255,255,0.1))', 'rgba(255,255,255,0.1)'),
+    palette,
+  };
+}
+
 export default function SnakeGame() {
   const hostRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const { os, theme } = useStore($preferences, { ssr: 'initial' });
 
   const snakeRef = useRef<Point[]>(initialSnake());
   const dirRef = useRef<Dir>('right');
@@ -86,7 +124,7 @@ export default function SnakeGame() {
   const scoreRef = useRef(0);
   const phaseRef = useRef<Phase>('ready');
   const wrapRef = useRef(false);
-  const paletteRef = useRef<PhosphorPalette>(readPhosphorPalette(null));
+  const visualThemeRef = useRef<SnakeVisualTheme>(readSnakeTheme(null));
 
   const [speed, setSpeed] = useState<SpeedKey>('arcade');
   const [wrapWalls, setWrapWalls] = useState(false);
@@ -120,7 +158,8 @@ export default function SnakeGame() {
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const palette = paletteRef.current;
+    const visual = visualThemeRef.current;
+    const { palette, isPhosphor } = visual;
     const dpr = window.devicePixelRatio || 1;
     if (canvas.width !== BOARD_SIZE * dpr || canvas.height !== BOARD_SIZE * dpr) {
       canvas.width = BOARD_SIZE * dpr;
@@ -132,10 +171,10 @@ export default function SnakeGame() {
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    ctx.fillStyle = palette.ground;
+    ctx.fillStyle = visual.stageBg;
     ctx.fillRect(0, 0, BOARD_SIZE, BOARD_SIZE);
 
-    ctx.strokeStyle = palette.lit10;
+    ctx.strokeStyle = visual.stageGrid;
     ctx.lineWidth = 1;
     for (let i = 1; i < GRID; i++) {
       ctx.beginPath();
@@ -151,22 +190,36 @@ export default function SnakeGame() {
     const food = foodRef.current;
     const fx = food.x * CELL;
     const fy = food.y * CELL;
-    ctx.fillStyle = palette.hi;
-    ctx.fillRect(fx + 4, fy + 4, CELL - 8, CELL - 8);
-    ctx.strokeStyle = palette.lit;
-    ctx.lineWidth = 2;
-    ctx.strokeRect(fx + 3, fy + 3, CELL - 6, CELL - 6);
-    ctx.fillStyle = palette.ground;
-    ctx.fillRect(fx + 8, fy + 8, 3, 3);
+    if (isPhosphor) {
+      ctx.fillStyle = palette.hi;
+      ctx.fillRect(fx + 4, fy + 4, CELL - 8, CELL - 8);
+      ctx.strokeStyle = palette.lit;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(fx + 3, fy + 3, CELL - 6, CELL - 6);
+      ctx.fillStyle = palette.ground;
+      ctx.fillRect(fx + 8, fy + 8, 3, 3);
+    } else {
+      ctx.fillStyle = '#ff475e';
+      ctx.fillRect(fx + 3, fy + 5, CELL - 6, CELL - 8);
+      ctx.fillRect(fx + 5, fy + 4, CELL - 10, CELL - 6);
+      ctx.fillStyle = '#ffc2ca';
+      ctx.fillRect(fx + 5, fy + 6, 3, 3);
+      ctx.fillStyle = '#63f788';
+      ctx.fillRect(fx + Math.floor(CELL / 2), fy + 2, 4, 2);
+      ctx.fillStyle = '#c48d47';
+      ctx.fillRect(fx + Math.floor(CELL / 2) - 1, fy + 2, 2, 3);
+    }
 
     const bonus = bonusRef.current;
     if (bonus) {
       const bx = bonus.pos.x * CELL;
       const by = bonus.pos.y * CELL;
-      ctx.fillStyle = bonus.ttl % 2 === 0 ? palette.hi : palette.lit;
+      ctx.fillStyle = isPhosphor
+        ? (bonus.ttl % 2 === 0 ? palette.hi : palette.lit)
+        : (bonus.ttl % 2 === 0 ? '#fff4b0' : '#ffd24a');
       ctx.fillRect(bx + 7, by + 2, 5, CELL - 4);
       ctx.fillRect(bx + 2, by + 7, CELL - 4, 5);
-      ctx.fillStyle = palette.ground;
+      ctx.fillStyle = visual.stageBg;
       ctx.fillRect(bx + 8, by + 8, 3, 3);
     }
 
@@ -176,9 +229,13 @@ export default function SnakeGame() {
       const sx = seg.x * CELL;
       const sy = seg.y * CELL;
       if (i === 0) {
-        ctx.fillStyle = palette.hi;
+        ctx.fillStyle = isPhosphor ? palette.hi : '#63f788';
         ctx.fillRect(sx + 1, sy + 1, CELL - 2, CELL - 2);
-        ctx.fillStyle = palette.ground;
+        if (!isPhosphor) {
+          ctx.fillStyle = '#c8ffd6';
+          ctx.fillRect(sx + 1, sy + 1, CELL - 2, 2);
+        }
+        ctx.fillStyle = isPhosphor ? palette.ground : '#09140d';
         const d = dirRef.current;
         if (d === 'right') {
           ctx.fillRect(sx + CELL - 6, sy + 4, 3, 3);
@@ -195,9 +252,11 @@ export default function SnakeGame() {
         }
       } else {
         const inset = i === snake.length - 1 ? 3 : 2;
-        ctx.fillStyle = i % 2 === 0 ? palette.lit : palette.lit72;
+        ctx.fillStyle = isPhosphor
+          ? (i % 2 === 0 ? palette.lit : palette.lit72)
+          : (i % 2 === 0 ? '#36cf64' : '#24ab4e');
         ctx.fillRect(sx + inset, sy + inset, CELL - inset * 2, CELL - inset * 2);
-        ctx.fillStyle = palette.ground;
+        ctx.fillStyle = isPhosphor ? palette.ground : '#85ffa8';
         ctx.fillRect(sx + Math.floor(CELL / 2) - 1, sy + Math.floor(CELL / 2) - 1, 2, 2);
       }
     }
@@ -221,17 +280,17 @@ export default function SnakeGame() {
 
   useEffect(() => {
     const refreshPalette = () => {
-      paletteRef.current = readPhosphorPalette(hostRef.current);
+      visualThemeRef.current = readSnakeTheme(hostRef.current);
       draw();
     };
     refreshPalette();
     const observer = new MutationObserver(refreshPalette);
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-theme', 'data-zoom', 'data-reading'],
+      attributeFilter: ['data-os', 'data-theme', 'data-zoom', 'data-reading'],
     });
     return () => observer.disconnect();
-  }, [draw]);
+  }, [draw, os, theme]);
 
   const startGame = useCallback(() => {
     const fresh = initialSnake();
@@ -379,7 +438,7 @@ export default function SnakeGame() {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
-      if (document.querySelector('#start-menu-panel:not([hidden])')) return;
+      if (document.querySelector('#start-menu-panel:not([hidden]), #topbar-start-menu-panel:not([hidden])')) return;
 
       switch (event.key) {
         case 'ArrowUp':

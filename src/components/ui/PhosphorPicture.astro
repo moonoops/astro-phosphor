@@ -19,14 +19,18 @@ const { src, class: className, loading = "lazy", decoding = "async", ...attribut
   }
 
   @media (hover: hover) and (pointer: fine) and (min-width: 810px) {
-    .phosphor-picture {
+    :global(html[data-os="phosphor"]) .phosphor-picture,
+    :global(html:not([data-os])) .phosphor-picture {
       filter: brightness(1.05) contrast(1.15);
       transition: filter 120ms linear;
     }
 
-    .phosphor-picture:hover,
-    :global(a:hover) .phosphor-picture,
-    :global(a:focus-visible) .phosphor-picture {
+    :global(html[data-os="phosphor"]) .phosphor-picture:hover,
+    :global(html[data-os="phosphor"] a:hover) .phosphor-picture,
+    :global(html[data-os="phosphor"] a:focus-visible) .phosphor-picture,
+    :global(html:not([data-os])) .phosphor-picture:hover,
+    :global(html:not([data-os]) a:hover) .phosphor-picture,
+    :global(html:not([data-os]) a:focus-visible) .phosphor-picture {
       filter: none;
     }
   }

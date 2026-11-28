@@ -1,7 +1,7 @@
 {
   "name": "astro-phosphor",
-  "version": "1.0.0",
-  "description": "A lightweight 100% static 1990s retro pixel OS personal site template built with Astro 5, React 19, and Tailwind CSS v4.",
+  "version": "2.0.0",
+  "description": "A 100% static 1990s CRT desk personal site template with 5 pluggable retro desktop OS styles (20 presets), curved CRT optics, bilingual MDX, and 5 offline games — built with Astro 5, React 19, and Tailwind CSS v4.",
   "repository": {
     "type": "git",
     "url": "https://github.com/moonoops/astro-phosphor.git"
@@ -24,6 +24,15 @@
     "@astrojs/mdx": "^4.3.14",
     "@astrojs/react": "^4.4.2",
     "@fontsource-variable/chivo-mono": "^5.2.8",
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource-variable/outfit": "^5.3.0",
+    "@fontsource-variable/pixelify-sans": "^5.3.0",
+    "@fontsource/dm-mono": "^5.3.0",
+    "@fontsource/geist-pixel": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/instrument-serif": "^5.3.0",
     "@fontsource/jersey-10": "^5.2.3",
     "@nanostores/react": "^1.0.0",
     "@tailwindcss/vite": "^4.1.0",

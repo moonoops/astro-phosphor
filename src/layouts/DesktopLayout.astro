@@ -3,6 +3,23 @@ import { ClientRouter } from 'astro:transitions';
 import '@fontsource/jersey-10/latin-400.css';
 import '@fontsource-variable/chivo-mono/wght.css';
 import '@fontsource-variable/chivo-mono/wght-italic.css';
+import '@fontsource/instrument-serif/latin-400.css';
+import '@fontsource/instrument-serif/latin-400-italic.css';
+import '@fontsource-variable/dm-sans/wght.css';
+import '@fontsource-variable/dm-sans/wght-italic.css';
+import '@fontsource/dm-mono/latin-400.css';
+import '@fontsource/dm-mono/latin-500.css';
+import '@fontsource-variable/outfit/wght.css';
+import '@fontsource/ibm-plex-mono/latin-400.css';
+import '@fontsource/ibm-plex-mono/latin-400-italic.css';
+import '@fontsource/ibm-plex-mono/latin-500.css';
+import '@fontsource/ibm-plex-mono/latin-600.css';
+import '@fontsource/ibm-plex-mono/latin-700.css';
+import '@fontsource/geist-pixel/latin-400.css';
+import '@fontsource-variable/pixelify-sans/wght.css';
+import '@fontsource-variable/geist/wght.css';
+import '@fontsource-variable/geist/wght-italic.css';
+import '@fontsource-variable/geist-mono/wght.css';
 import '../styles/global.css';
 import '../styles/home.css';
 import '../styles/tube-shape.css';
@@ -14,11 +31,13 @@ import { roomCoordinateSize } from '../geometry/room-crop.js';
 import room from '../assets/macintosh-lc-afternoon-desk-details.webp';
 import CRTScreen, { CRTScreenControls } from '../components/os/CRTScreen';
 import PixelCursors from '../components/os/PixelCursors';
+import OsTopBar from '../components/os/OsTopBar';
 import Taskbar from '../components/os/Taskbar';
 import Clock from '../components/os/Clock';
 import AfternoonSound from '../components/os/AfternoonSound';
 import DesktopIcons from '../components/ui/DesktopIcons.astro';
 import { type Section } from '../navigation';
+import { DEFAULT_OS, getOsDefinition, osBootstrapConfig } from '../os/registry';
 import { SITE_DESCRIPTION, SITE_NAME, withBase } from '../site';
 import { entryKey, introKey, preferenceKey, roomScenes, themes, zoomModes } from '../stores/osStore';
 import { roomMedia, roomSources } from '../room-scenes';
@@ -33,6 +52,7 @@ interface Props {
 }
 
 const { title, description = SITE_DESCRIPTION, section = 'desktop', activeLabel, lang = 'en', image } = Astro.props;
+const defaultTheme = getOsDefinition(DEFAULT_OS).defaultTheme;
 const pageTitle = section === 'desktop' ? SITE_NAME : `${title} · ${SITE_NAME}`;
 const hardwareGeometry = {
   '--photo-width': roomCoordinateSize.width, '--photo-height': roomCoordinateSize.height,
@@ -47,7 +67,7 @@ const socialImage = Astro.site && new URL(image ? withBase(image) : room.src, As
 ---
 
 <!doctype html>
-<html lang={lang} style={hardwareGeometry} data-theme="amber" data-reading="off" data-zoom="room" data-prev-zoom="room" data-power="on" data-sound-muted="false" transition:animate="none">
+<html lang={lang} style={hardwareGeometry} data-os={DEFAULT_OS} data-theme={defaultTheme} data-reading="off" data-zoom="room" data-prev-zoom="room" data-power="on" data-sound-muted="false" transition:animate="none">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -64,13 +84,17 @@ const socialImage = Astro.site && new URL(image ? withBase(image) : room.src, As
     <link rel="icon" href={withBase('/icon-512.png')} type="image/png" sizes="512x512" />
     <link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} sizes="180x180" />
     <title>{pageTitle}</title>
-    <script is:inline data-home-path={withBase('/')} data-preference-key={preferenceKey} data-intro-key={introKey} data-entry-key={entryKey} data-themes={themes.join(' ')} data-zoom-modes={zoomModes.join(' ')} data-scenes={roomScenes.join(' ')} data-room-media={roomMedia} data-room-sources={JSON.stringify(roomSources)}>
+    <script is:inline data-home-path={withBase('/')} data-preference-key={preferenceKey} data-intro-key={introKey} data-entry-key={entryKey} data-default-os={DEFAULT_OS} data-os-config={JSON.stringify(osBootstrapConfig)} data-themes={themes.join(' ')} data-zoom-modes={zoomModes.join(' ')} data-scenes={roomScenes.join(' ')} data-room-media={roomMedia} data-room-sources={JSON.stringify(roomSources)}>
       const root = document.documentElement;
       const settings = document.currentScript.dataset;
       const params = new URLSearchParams(location.search);
       const scenes = settings.scenes.split(' ');
       const requested = params.get('scene');
       const linkedScene = scenes.includes(requested) ? requested : null;
+      const defaultOs = settings.defaultOs || 'rainbow';
+      const osConfig = JSON.parse(settings.osConfig || '{}');
+      const requestedOs = params.get('os');
+      const linkedOs = requestedOs && Object.hasOwn(osConfig, requestedOs) ? requestedOs : null;
       function localScene(hour) {
         if (hour < 5 || hour >= 20) return 'night';
         if (hour < 11) return 'morning';
@@ -93,17 +117,58 @@ const socialImage = Astro.site && new URL(image ? withBase(image) : room.src, As
         const savedDay = savedScene === 'night' ? preferences?.dayScene : savedScene;
         const lastDay = savedDay && savedDay !== 'night' && scenes.includes(savedDay) ? savedDay : clockDayScene;
         root.dataset.dayScene = root.dataset.scene === 'night' ? lastDay : root.dataset.scene;
-        root.dataset.theme = settings.themes.split(' ').includes(preferences?.theme) ? preferences.theme : 'amber';
+
+        const savedOs = preferences?.os && Object.hasOwn(osConfig, preferences.os) ? preferences.os : null;
+        const activeOs = linkedOs || savedOs || defaultOs;
+        const spec = osConfig[activeOs] || osConfig[defaultOs] || { defaultTheme: 'studio', themes: ['studio'], flatOptics: false };
+        const validThemes = Array.isArray(spec.themes) ? spec.themes : [];
+        const savedOsThemes = preferences?.osThemes && typeof preferences.osThemes === 'object' ? preferences.osThemes : {};
+        let candidateTheme = null;
+        if (linkedOs && linkedOs !== preferences?.os) {
+          candidateTheme = savedOsThemes[linkedOs];
+        } else {
+          candidateTheme = preferences?.theme ?? savedOsThemes[activeOs];
+        }
+        const activeTheme = validThemes.includes(candidateTheme)
+          ? candidateTheme
+          : (validThemes.includes(savedOsThemes[activeOs]) ? savedOsThemes[activeOs] : spec.defaultTheme);
+
+        root.dataset.os = activeOs;
+        root.dataset.theme = activeTheme;
+        if (spec.flatOptics) root.dataset.osFlatOptics = 'on';
+        else delete root.dataset.osFlatOptics;
+
         root.dataset.reading = preferences?.reading === true ? 'on' : 'off';
         root.dataset.zoom = zoom;
         root.dataset.prevZoom = prevZoom;
         if (zoom === 'fullscreen') root.dataset.crtFlat = 'on';
         root.dataset.soundMuted = String(preferences?.soundMuted === true);
+
+        const nextStored = { ...preferences };
+        let shouldPersist = false;
         if (linkedScene && (linkedScene !== preferences?.scene || root.dataset.dayScene !== preferences?.dayScene)) {
-          localStorage.setItem(settings.preferenceKey, JSON.stringify({ ...preferences, scene: linkedScene, dayScene: root.dataset.dayScene }));
+          nextStored.scene = linkedScene;
+          nextStored.dayScene = root.dataset.dayScene;
+          shouldPersist = true;
+        }
+        if (linkedOs && (linkedOs !== preferences?.os || activeTheme !== preferences?.theme)) {
+          nextStored.os = activeOs;
+          nextStored.theme = activeTheme;
+          nextStored.osThemes = { ...savedOsThemes, [activeOs]: activeTheme };
+          shouldPersist = true;
+        }
+        if (shouldPersist) {
+          localStorage.setItem(settings.preferenceKey, JSON.stringify(nextStored));
         }
       } catch {
         // The attributes above already provide first-paint defaults.
+        if (linkedOs) {
+          const spec = osConfig[linkedOs];
+          root.dataset.os = linkedOs;
+          if (spec?.defaultTheme) root.dataset.theme = spec.defaultTheme;
+          if (spec?.flatOptics) root.dataset.osFlatOptics = 'on';
+          else delete root.dataset.osFlatOptics;
+        }
       }
       root.dataset.photoScene = root.dataset.scene;
 
@@ -142,7 +207,7 @@ const socialImage = Astro.site && new URL(image ? withBase(image) : room.src, As
         const next = event.newDocument.documentElement;
         delete root.dataset.entry;
         delete root.dataset.entryStart;
-        for (const attribute of ['theme', 'reading', 'zoom', 'prevZoom', 'crtFlat', 'power', 'soundMuted', 'intro', 'warming', 'cooling', 'scene', 'dayScene', 'photoScene', 'roomReady']) {
+        for (const attribute of ['os', 'osFlatOptics', 'theme', 'reading', 'zoom', 'prevZoom', 'crtFlat', 'power', 'soundMuted', 'intro', 'warming', 'cooling', 'scene', 'dayScene', 'photoScene', 'roomReady']) {
           const value = root.dataset[attribute];
           if (value === undefined) delete next.dataset[attribute];
           else next.dataset[attribute] = value;
@@ -163,7 +228,8 @@ const socialImage = Astro.site && new URL(image ? withBase(image) : room.src, As
       <PixelCursors client:load transition:persist="pixel-cursors" />
       <div class="crt-emission">
         <div class="crt-raster">
-          <div class="screen-stage">
+          <div class="screen-stage" data-section={section} data-active-label={activeLabel || undefined}>
+            <OsTopBar section={section} activeLabel={activeLabel} client:load transition:persist="os-topbar" />
             <div class="desktop-space">
               {section !== 'desktop' && <p class="desktop-wallpaper hero-title" aria-hidden="true">{SITE_NAME}</p>}
               <DesktopIcons section={section} />

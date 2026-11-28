@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '@nanostores/react';
-import { $preferences } from '../../stores/osStore';
+import { DEFAULT_OS, isOsId, type OsId } from '../../os/registry';
+import { $preferences, initializeOs } from '../../stores/osStore';
 import {
   SPECIAL_META,
   formatCompactDamage,
@@ -9,7 +10,14 @@ import {
   getEffectiveEnemyStats,
   getNextCritical,
 } from '../../games/mota/combat';
-import { ITEMS, MONSTERS, SHOPS } from '../../games/mota/data';
+import {
+  DIFFICULTY_META,
+  ITEMS,
+  SHOPS,
+  formatShopCostText,
+  getMonsterDef,
+  getShopOptionCost,
+} from '../../games/mota/data';
 import {
   advanceDialogue,
   buildSaveSummary,
@@ -30,8 +38,17 @@ import {
 } from '../../games/mota/engine';
 import { FLOORS, MAP_SIZE } from '../../games/mota/floors';
 import { playMotaSfx } from '../../games/mota/sfx';
-import { drawSprite, readPhosphorPalette, spriteToRects, type PhosphorPalette } from '../../games/mota/sprites';
+import {
+  SEMANTIC_COLORS,
+  drawSprite,
+  getItemTagAccent,
+  readPhosphorPalette,
+  spriteToRects,
+  type PhosphorPalette,
+} from '../../games/mota/sprites';
 import type {
+  ColorMode,
+  Difficulty,
   Direction,
   GameState,
   NpcId,
@@ -46,6 +63,37 @@ import ButtonBase from '../ui/ButtonBase';
 const LOCAL_SAVES_KEY = 'astro-phosphor:mota:saves:v1';
 const SFX_PREF_KEY = 'astro-phosphor:mota:sfx:v1';
 const TAGS_PREF_KEY = 'astro-phosphor:mota:tags:v1';
+const COLOR_MODE_OS_PREF_KEY = 'astro-phosphor:mota:color-mode:v2';
+
+function defaultMotaColorMode(activeOs: OsId): ColorMode {
+  return activeOs === 'phosphor' ? 'hybrid' : 'color';
+}
+
+function readStoredMotaColorMode(activeOs: OsId): ColorMode | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(COLOR_MODE_OS_PREF_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Record<string, unknown> | null;
+    const saved = parsed?.[activeOs];
+    return saved === 'color' || saved === 'hybrid' ? saved : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredMotaColorMode(activeOs: OsId, mode: ColorMode): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = localStorage.getItem(COLOR_MODE_OS_PREF_KEY);
+    const parsed = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+    const next = parsed && typeof parsed === 'object' ? { ...parsed, [activeOs]: mode } : { [activeOs]: mode };
+    localStorage.setItem(COLOR_MODE_OS_PREF_KEY, JSON.stringify(next));
+  } catch {
+    // Ignore storage errors.
+  }
+}
+
 const TILE_PX = 64;
 const CANVAS_PX = MAP_SIZE * TILE_PX;
 const MAX_UNDO = 40;
@@ -53,8 +101,12 @@ const SPECIAL_SHORT_TAG: Readonly<Record<string, string>> = {
   firstStrike: '先',
   magic: '魔',
   solid: '固',
-  doubleHit: '连',
+  doubleHit: '2连',
+  tripleHit: '3连',
   vampire: '吸',
+  armorBreak: '破',
+  berserk: '狂',
+  thorns: '反',
 };
 const SAVE_SLOTS: ReadonlyArray<{ id: SaveSlotId; label: string }> = [
   { id: 'auto', label: '自动存档' },
@@ -67,17 +119,17 @@ type OverlayMode = 'none' | 'title' | 'book' | 'fly' | 'quickShop' | 'saves' | '
 
 const NPC_SPRITE: Readonly<Record<NpcId, { sprite: string; name: string; hint: string }>> = {
   fairy0f: { sprite: 'npc_fairy', name: '守塔仙子', hint: '开启塔门 / 交付十字架' },
-  sage1f: { sprite: 'npc_sage', name: '引路老人', hint: '基础操作与图鉴提示' },
-  blacksmith2f: { sprite: 'npc_sage', name: '铁匠大师', hint: '获救后赠予攻击 +30' },
-  armorer2f: { sprite: 'npc_merchant', name: '护甲匠', hint: '获救后赠予防御 +30' },
+  sage1f: { sprite: 'npc_sage', name: '引路老人', hint: '基础操作、商店涨价与图鉴提示' },
+  blacksmith2f: { sprite: 'npc_sage', name: '铁匠大师', hint: '获救后赠予攻击 +15' },
+  armorer2f: { sprite: 'npc_merchant', name: '护甲匠', hint: '获救后赠予防御 +15' },
   thief4f: { sprite: 'npc_thief', name: '盗贼杰克', hint: '解锁 2F 囚室与 18F 密门' },
-  guide7f: { sprite: 'npc_sage', name: '守望学者', hint: '三段式攻略与十字架提示' },
+  guide7f: { sprite: 'npc_sage', name: '守望学者', hint: '四段式攻略与十字架提交时机' },
   guide10f: { sprite: 'npc_sage', name: '老兵向导', hint: '特殊怪物与破墙镐提示' },
-  sage15fAtk: { sprite: 'npc_sage', name: '剑道宗师', hint: '500 经验 → 攻击 +120' },
-  sage15fDef: { sprite: 'npc_merchant', name: '铁壁商神', hint: '500 金币 → 防御 +120' },
+  sage15fAtk: { sprite: 'npc_sage', name: '剑道宗师', hint: '500 经验 → 攻击 +90' },
+  sage15fDef: { sprite: 'npc_merchant', name: '铁壁商神', hint: '500 金币 → 防御 +90' },
   decoy18f: { sprite: 'npc_princess', name: '镜像幻影', hint: '解开 18F 东南楼梯封印' },
-  warning20f: { sprite: 'npc_sage', name: '塔顶信使', hint: '决战前最终提醒' },
-  princess21f: { sprite: 'npc_princess', name: '塔顶守望者', hint: '击败大魔王后即可解救' },
+  warning20f: { sprite: 'npc_sage', name: '塔顶信使', hint: '决战前最终准备提醒' },
+  princess21f: { sprite: 'npc_princess', name: '塔顶守望者', hint: '击败暗影大魔王后即可解救' },
 };
 
 function readLocalSaves(): Partial<Record<SaveSlotId, StoredSaveRecord>> {
@@ -112,21 +164,36 @@ function formatTimestamp(iso: string): string {
   return `${mo}-${da} ${hh}:${mm}`;
 }
 
-function computeRank(hp: number): { grade: string; note: string } {
-  if (hp >= 30000) return { grade: 'S', note: '传奇魔塔大师 · 完美控血通关' };
-  if (hp >= 15000) return { grade: 'A', note: '资深勇者 · 路线规划精妙' };
+function computeRank(hp: number, difficulty: Difficulty): { grade: string; note: string } {
+  if (difficulty === 'hard') {
+    if (hp >= 6000) return { grade: 'S', note: '红海传说 · 极限算步征服困难魔塔' };
+    if (hp >= 2500) return { grade: 'A', note: '硬核拆塔宗师 · 完美控血登顶' };
+    if (hp >= 800) return { grade: 'B', note: '钢铁勇者 · 突围红海终克魔王' };
+    return { grade: 'C', note: '刀尖起舞 · 丝血绝杀暗影大魔王' };
+  }
+  if (hp >= 24000) return { grade: 'S', note: '传奇魔塔大师 · 完美临界与控血' };
+  if (hp >= 14000) return { grade: 'A', note: '资深勇者 · 商店与钥匙规划精妙' };
   if (hp >= 6000) return { grade: 'B', note: '稳健登顶 · 成功驱散塔顶阴霾' };
   return { grade: 'C', note: '险中求胜 · 终克暗影大魔王' };
 }
 
-function PixelPortrait({ sprite, size = 32 }: { sprite: string; size?: number }) {
-  const rects = useMemo(() => spriteToRects(sprite), [sprite]);
-  const toneFill: Record<'0' | '1' | '2' | '3', string> = {
-    '0': 'var(--ground)',
-    '1': 'var(--side)',
-    '2': 'var(--lit)',
-    '3': 'var(--hi)',
-  };
+function getDamageTier(damage: number | null, heroHp: number): 'safe' | 'normal' | 'high' | 'lethal' {
+  if (damage === null || damage >= heroHp) return 'lethal';
+  if (damage === 0) return 'safe';
+  if (damage >= heroHp * 0.4) return 'high';
+  return 'normal';
+}
+
+function PixelPortrait({
+  sprite,
+  size = 32,
+  colorMode = 'hybrid',
+}: {
+  sprite: string;
+  size?: number;
+  colorMode?: ColorMode;
+}) {
+  const rects = useMemo(() => spriteToRects(sprite, colorMode), [sprite, colorMode]);
   return (
     <svg
       className="mota-portrait-svg"
@@ -137,7 +204,7 @@ function PixelPortrait({ sprite, size = 32 }: { sprite: string; size?: number })
       aria-hidden="true"
     >
       {rects.map((r, idx) => (
-        <rect key={idx} x={r.x} y={r.y} width={1} height={1} fill={toneFill[r.tone]} />
+        <rect key={idx} x={r.x} y={r.y} width={1} height={1} fill={r.fill} />
       ))}
     </svg>
   );
@@ -148,13 +215,17 @@ export default function MagicTowerGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const walkQueueRef = useRef<Direction[]>([]);
   const walkTimerRef = useRef<number | null>(null);
-  const stateRef = useRef<GameState>(createInitialState());
+  const stateRef = useRef<GameState>(createInitialState('standard'));
   const paletteRef = useRef<PhosphorPalette | null>(null);
   const animFrameRef = useRef<number>(0);
 
-  const { theme } = useStore($preferences, { ssr: 'initial' });
+  const { os, theme } = useStore($preferences, { ssr: 'initial' });
+  const [activeOs, setActiveOs] = useState<OsId>(DEFAULT_OS);
+  const manualColorByOsRef = useRef<Partial<Record<OsId, ColorMode>>>({});
 
-  const [game, setGame] = useState<GameState>(() => createInitialState());
+  const [game, setGame] = useState<GameState>(() => createInitialState('standard'));
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('standard');
+  const [colorMode, setColorMode] = useState<ColorMode>(() => defaultMotaColorMode(DEFAULT_OS));
   const [undoStack, setUndoStack] = useState<GameState[]>([]);
   const [overlay, setOverlay] = useState<OverlayMode>('title');
   const [hoverTile, setHoverTile] = useState<{ x: number; y: number } | null>(null);
@@ -162,10 +233,8 @@ export default function MagicTowerGame() {
   const [showMapTags, setShowMapTags] = useState<boolean>(true);
   const [showDpad, setShowDpad] = useState<boolean>(false);
   const [animTick, setAnimTick] = useState<number>(0);
-
-  // Local browser save slots state
   const [saves, setSaves] = useState<Partial<Record<SaveSlotId, StoredSaveRecord>>>({});
-  const [syncNotice, setSyncNotice] = useState<string>('');
+  const [saveNotice, setSaveNotice] = useState<string>('');
 
   useEffect(() => {
     stateRef.current = game;
@@ -179,12 +248,11 @@ export default function MagicTowerGame() {
     if (status && status.textContent !== text) status.textContent = text;
   }, []);
 
-  // Update window status bar cleanly.
   useEffect(() => {
-    updateWindowStatus(`${floorDef.name} · HP ${game.hero.hp} · 本地存档`);
-  }, [floorDef.name, game.hero.hp, updateWindowStatus]);
+    const diffTag = DIFFICULTY_META[game.difficulty].shortLabel;
+    updateWindowStatus(`${floorDef.name} · ${diffTag} · HP ${game.hero.hp} · 本地存档`);
+  }, [floorDef.name, game.difficulty, game.hero.hp, updateWindowStatus]);
 
-  // Load saved SFX preference and local saves on mount.
   useEffect(() => {
     try {
       const savedSfx = localStorage.getItem(SFX_PREF_KEY);
@@ -194,11 +262,9 @@ export default function MagicTowerGame() {
     } catch {
       // Ignore storage errors.
     }
-
     setSaves(readLocalSaves());
   }, []);
 
-  // Subtle idle animation ticker (disabled under prefers-reduced-motion).
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -208,18 +274,26 @@ export default function MagicTowerGame() {
     return () => window.clearInterval(id);
   }, []);
 
-  // Re-read phosphor palette whenever OS theme switches (amber/green/blue/white) via store or data-theme attr.
   useEffect(() => {
-    const syncPalette = () => {
+    initializeOs();
+    const syncPaletteAndOs = () => {
+      const domOs = document.documentElement.dataset.os;
+      const resolvedOs: OsId = isOsId(domOs) ? domOs : $preferences.get().os;
+      setActiveOs(resolvedOs);
+      const override = manualColorByOsRef.current[resolvedOs] ?? readStoredMotaColorMode(resolvedOs);
+      setColorMode(override ?? defaultMotaColorMode(resolvedOs));
       paletteRef.current = readPhosphorPalette(hostRef.current);
       setAnimTick((t) => t + 1);
     };
-    syncPalette();
+    syncPaletteAndOs();
     if (typeof MutationObserver === 'undefined') return;
-    const observer = new MutationObserver(syncPalette);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    const observer = new MutationObserver(syncPaletteAndOs);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-os', 'data-theme', 'data-reading'],
+    });
     return () => observer.disconnect();
-  }, [theme]);
+  }, [os, theme]);
 
   const stopWalk = useCallback(() => {
     walkQueueRef.current = [];
@@ -229,42 +303,31 @@ export default function MagicTowerGame() {
     }
   }, []);
 
-  useEffect(() => {
-    return () => {
-      stopWalk();
+  useEffect(() => stopWalk, [stopWalk]);
+
+  const persistSaveSlot = useCallback((slot: SaveSlotId, snapshot: GameState, silent = false) => {
+    const payload = serializeSavePayload(snapshot);
+    const summary = buildSaveSummary(snapshot);
+    const updatedAt = new Date().toISOString();
+    const localRecord: StoredSaveRecord = {
+      slot,
+      summary,
+      payload,
+      updatedAt,
+      source: 'local',
     };
-  }, [stopWalk]);
 
-  const persistSaveSlot = useCallback(
-    (slot: SaveSlotId, snapshot: GameState, silent = false) => {
-      const payload = serializeSavePayload(snapshot);
-      const summary = buildSaveSummary(snapshot);
-      const updatedAt = new Date().toISOString();
-      const localRecord: StoredSaveRecord = {
-        slot,
-        summary,
-        payload,
-        updatedAt,
-        source: 'local',
-      };
+    setSaves((prev) => {
+      const next = { ...prev, [slot]: localRecord };
+      writeLocalSaves(next);
+      return next;
+    });
 
-      setSaves((prev) => {
-        const next = { ...prev, [slot]: localRecord };
-        writeLocalSaves(next);
-        return next;
-      });
-
-      if (!silent) {
-        const label = SAVE_SLOTS.find((s) => s.id === slot)?.label ?? slot;
-        setSyncNotice(`已保存至 ${label}（本地）`);
-      }
-    },
-    [],
-  );
-
-  const scheduleAutoSave = useCallback((snapshot: GameState) => {
-    persistSaveSlot('auto', snapshot, true);
-  }, [persistSaveSlot]);
+    if (!silent) {
+      const label = SAVE_SLOTS.find((s) => s.id === slot)?.label ?? slot;
+      setSaveNotice(`已保存至 ${label}（本地浏览器）`);
+    }
+  }, []);
 
   const commitOutcome = useCallback(
     (prev: GameState, next: GameState, checkpoint: boolean, sound?: SoundCue) => {
@@ -278,12 +341,12 @@ export default function MagicTowerGame() {
       setGame(next);
       if (next.flags.victory && !prev.flags.victory) {
         setOverlay('victory');
-        scheduleAutoSave(next);
+        persistSaveSlot('auto', next, true);
       } else if (checkpoint) {
-        scheduleAutoSave(next);
+        persistSaveSlot('auto', next, true);
       }
     },
-    [sfxEnabled, scheduleAutoSave],
+    [sfxEnabled, persistSaveSlot],
   );
 
   const executeStep = useCallback(
@@ -295,7 +358,6 @@ export default function MagicTowerGame() {
         return false;
       }
       commitOutcome(current, outcome.state, outcome.checkpoint, outcome.sound);
-      // Stop queued path if dialogue/shop/floor change triggered.
       if (outcome.state.dialogue || outcome.state.activeShop || outcome.state.floor !== current.floor) {
         return false;
       }
@@ -349,41 +411,44 @@ export default function MagicTowerGame() {
       if (!rec) return;
       const restored = deserializeSavePayload(rec.payload);
       if (!restored) {
-        setSyncNotice('存档格式无效，无法读取。');
+        setSaveNotice('存档格式无效，无法读取。');
         playMotaSfx('error', sfxEnabled);
         return;
       }
       stopWalk();
       setUndoStack([]);
+      setSelectedDifficulty(restored.difficulty);
       setGame(restored);
       setOverlay('none');
-      setSyncNotice(`已读取 ${SAVE_SLOTS.find((s) => s.id === slot)?.label ?? slot}`);
+      setSaveNotice(`已读取 ${SAVE_SLOTS.find((s) => s.id === slot)?.label ?? slot} (${DIFFICULTY_META[restored.difficulty].shortLabel})`);
       playMotaSfx('stairs', sfxEnabled);
     },
     [saves, stopWalk, sfxEnabled],
   );
 
-  const handleDeleteSlot = useCallback(
-    (slot: SaveSlotId) => {
-      setSaves((prev) => {
-        const next = { ...prev };
-        delete next[slot];
-        writeLocalSaves(next);
-        return next;
-      });
-      setSyncNotice(`已清除 ${SAVE_SLOTS.find((s) => s.id === slot)?.label ?? slot}`);
-    },
-    [],
-  );
+  const handleDeleteSlot = useCallback((slot: SaveSlotId) => {
+    setSaves((prev) => {
+      const next = { ...prev };
+      delete next[slot];
+      writeLocalSaves(next);
+      return next;
+    });
+    setSaveNotice(`已清除 ${SAVE_SLOTS.find((s) => s.id === slot)?.label ?? slot}`);
+  }, []);
 
-  const handleNewGame = useCallback(() => {
-    stopWalk();
-    const fresh = createInitialState();
-    setUndoStack([]);
-    setGame(fresh);
-    setOverlay('none');
-    playMotaSfx('stairs', sfxEnabled);
-  }, [stopWalk, sfxEnabled]);
+  const handleNewGame = useCallback(
+    (diffOverride?: Difficulty) => {
+      stopWalk();
+      const targetDiff = diffOverride ?? selectedDifficulty;
+      const fresh = createInitialState(targetDiff);
+      setUndoStack([]);
+      setSaveNotice('');
+      setGame(fresh);
+      setOverlay('none');
+      playMotaSfx('stairs', sfxEnabled);
+    },
+    [stopWalk, sfxEnabled, selectedDifficulty],
+  );
 
   const toggleSfx = useCallback(() => {
     setSfxEnabled((prev) => {
@@ -410,7 +475,17 @@ export default function MagicTowerGame() {
     });
   }, []);
 
-  // Keyboard controls (capture Escape before WindowFrame when an in-game modal/shop/dialogue is open).
+  const toggleColorMode = useCallback(() => {
+    const domOs = typeof document !== 'undefined' ? document.documentElement.dataset.os : undefined;
+    const resolvedOs: OsId = isOsId(domOs) ? domOs : $preferences.get().os;
+    setColorMode((prev) => {
+      const next: ColorMode = prev === 'hybrid' ? 'color' : 'hybrid';
+      manualColorByOsRef.current[resolvedOs] = next;
+      writeStoredMotaColorMode(resolvedOs, next);
+      return next;
+    });
+  }, []);
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.isComposing || event.metaKey || event.ctrlKey || event.altKey) return;
@@ -418,9 +493,7 @@ export default function MagicTowerGame() {
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) {
         return;
       }
-      // Do not steal keys while Start Menu is expanded.
-      const startMenu = document.querySelector<HTMLElement>('#start-menu-panel');
-      if (startMenu && !startMenu.hidden) return;
+      if (document.querySelector('#start-menu-panel:not([hidden]), #topbar-start-menu-panel:not([hidden])')) return;
 
       const current = stateRef.current;
 
@@ -522,6 +595,11 @@ export default function MagicTowerGame() {
         toggleMapTags();
         return;
       }
+      if (lower === 'c') {
+        event.preventDefault();
+        toggleColorMode();
+        return;
+      }
 
       if (overlay !== 'none') return;
 
@@ -544,15 +622,13 @@ export default function MagicTowerGame() {
 
     window.addEventListener('keydown', onKeyDown, true);
     return () => window.removeEventListener('keydown', onKeyDown, true);
-  }, [overlay, saves.auto, sfxEnabled, handleLoadSlot, handleNewGame, handleUndo, handleManualMove, toggleMapTags]);
+  }, [overlay, saves.auto, sfxEnabled, handleLoadSlot, handleNewGame, handleUndo, handleManualMove, toggleMapTags, toggleColorMode]);
 
-  // Compute hovered path preview for canvas.
   const previewPath = useMemo(() => {
     if (!hoverTile || overlay !== 'none' || game.dialogue || game.activeShop) return null;
     return findPathToTile(game, hoverTile.x, hoverTile.y);
   }, [game, hoverTile, overlay]);
 
-  // Draw the 11×11 crisp pixel dungeon canvas.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -562,32 +638,33 @@ export default function MagicTowerGame() {
     const palette = paletteRef.current ?? readPhosphorPalette(hostRef.current);
     paletteRef.current = palette;
 
+    const tileGround = colorMode === 'color' ? '#0b111b' : palette.stageBg;
+    const badgeGround = colorMode === 'color' ? '#090e17' : palette.badgeBg;
+
     ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = palette.ground;
+    ctx.fillStyle = tileGround;
     ctx.fillRect(0, 0, CANVAS_PX, CANVAS_PX);
 
     const frameParity = animTick % 2;
 
-    // 1. Tiles
     for (let y = 0; y < MAP_SIZE; y += 1) {
       for (let x = 0; x < MAP_SIZE; x += 1) {
         const px = x * TILE_PX;
         const py = y * TILE_PX;
 
-        // Subtle CRT tile grid
-        ctx.fillStyle = palette.ground;
+        ctx.fillStyle = tileGround;
         ctx.fillRect(px, py, TILE_PX, TILE_PX);
-        drawSprite(ctx, 'floor', px, py, TILE_PX, palette);
+        drawSprite(ctx, 'floor', px, py, TILE_PX, palette, 0, colorMode);
 
         const tile: TileKind = getEffectiveTile(game, x, y);
         if (tile.type === 'wall') {
-          drawSprite(ctx, 'wall', px, py, TILE_PX, palette);
+          drawSprite(ctx, 'wall', px, py, TILE_PX, palette, 0, colorMode);
         } else if (tile.type === 'lava') {
-          drawSprite(ctx, frameParity === 0 ? 'lava_0' : 'lava_1', px, py, TILE_PX, palette);
+          drawSprite(ctx, frameParity === 0 ? 'lava_0' : 'lava_1', px, py, TILE_PX, palette, 0, colorMode);
         } else if (tile.type === 'stairsUp') {
-          drawSprite(ctx, 'stairs_up', px, py, TILE_PX, palette);
+          drawSprite(ctx, 'stairs_up', px, py, TILE_PX, palette, 0, colorMode);
         } else if (tile.type === 'stairsDown') {
-          drawSprite(ctx, 'stairs_down', px, py, TILE_PX, palette);
+          drawSprite(ctx, 'stairs_down', px, py, TILE_PX, palette, 0, colorMode);
         } else if (tile.type === 'door') {
           const spriteName =
             tile.door === 'yellow'
@@ -599,15 +676,15 @@ export default function MagicTowerGame() {
                   : tile.door === 'crackedWall'
                     ? 'cracked_wall'
                     : 'door_special';
-          drawSprite(ctx, spriteName, px, py, TILE_PX, palette);
+          drawSprite(ctx, spriteName, px, py, TILE_PX, palette, 0, colorMode);
         } else if (tile.type === 'item') {
           const item = ITEMS[tile.itemId];
-          // Subtle top corner dots mark collectible pickup tiles vs living creatures.
-          ctx.fillStyle = palette.lit28;
+          const accent = getItemTagAccent(tile.itemId);
+          ctx.fillStyle = accent.bar;
           ctx.fillRect(px + 3, py + 3, 3, 3);
           ctx.fillRect(px + TILE_PX - 6, py + 3, 3, 3);
 
-          drawSprite(ctx, item.sprite, px, py + 1, TILE_PX, palette);
+          drawSprite(ctx, item.sprite, px, py + 1, TILE_PX, palette, 0, colorMode);
 
           if (showMapTags && item.mapTag) {
             const isKey = item.kind === 'key' && item.mapTag.length === 1;
@@ -619,76 +696,76 @@ export default function MagicTowerGame() {
             const tagH = 19;
             const tx = Math.round(px + (TILE_PX - tagW) / 2);
             const ty = py + TILE_PX - tagH;
-            ctx.fillStyle = palette.ground;
+            ctx.fillStyle = badgeGround;
             ctx.fillRect(tx, ty, tagW, tagH);
-            // Underline-only pill distinguishes pickups from 4-sided monster combat boxes.
-            ctx.fillStyle = isKey ? palette.hi : palette.side;
+            ctx.fillStyle = accent.bar;
             ctx.fillRect(tx, ty + tagH - 2, tagW, 2);
-            ctx.fillStyle = isKey ? palette.hi : palette.lit;
+            ctx.fillStyle = accent.text;
             ctx.fillText(tagText, px + TILE_PX / 2, ty + tagH / 2 - 0.5);
           }
         } else if (tile.type === 'npc') {
           const npc = NPC_SPRITE[tile.npcId];
-          drawSprite(ctx, npc.sprite, px, py, TILE_PX, palette, frameParity === 1 ? -2 : 0);
+          drawSprite(ctx, npc.sprite, px, py, TILE_PX, palette, frameParity === 1 ? -2 : 0, colorMode);
           if (showMapTags) {
             const bx = px + TILE_PX - 19;
             const by = py + 2;
-            ctx.fillStyle = palette.ground;
+            ctx.fillStyle = badgeGround;
             ctx.fillRect(bx - 1, by - 1, 19, 19);
-            ctx.fillStyle = palette.hi;
+            ctx.fillStyle = colorMode === 'color' ? '#6cf5d0' : palette.entityHi;
             ctx.fillRect(bx, by, 17, 17);
             ctx.font = 'bold 14px "Chivo Mono", monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillStyle = palette.ground;
+            ctx.fillStyle = badgeGround;
             ctx.fillText('!', bx + 8.5, by + 9.5);
           }
         } else if (tile.type === 'shop') {
           const shop = SHOPS[tile.shopId];
-          drawSprite(ctx, shop.sprite, px, py, TILE_PX, palette);
+          drawSprite(ctx, shop.sprite, px, py, TILE_PX, palette, 0, colorMode);
           if (showMapTags) {
             const bx = px + TILE_PX - 19;
             const by = py + 2;
-            ctx.fillStyle = palette.ground;
+            ctx.fillStyle = badgeGround;
             ctx.fillRect(bx - 1, by - 1, 19, 19);
-            ctx.fillStyle = palette.hi;
+            ctx.fillStyle = SEMANTIC_COLORS.gold;
             ctx.fillRect(bx, by, 17, 17);
             ctx.font = 'bold 14px "Chivo Mono", monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillStyle = palette.ground;
+            ctx.fillStyle = badgeGround;
             ctx.fillText('$', bx + 8.5, by + 9.5);
           }
         } else if (tile.type === 'monster') {
-          const monster = MONSTERS[tile.monsterId];
+          const monster = getMonsterDef(tile.monsterId, game.difficulty);
           if (monster) {
-            drawSprite(ctx, monster.sprite, px, py + 1, TILE_PX, palette, frameParity === 1 ? -2 : 0);
+            drawSprite(ctx, monster.sprite, px, py + 1, TILE_PX, palette, frameParity === 1 ? -2 : 0, colorMode);
 
-            // Top-left special ability corner chip (先/魔/固/连/吸) so special enemies stand out immediately!
             if (showMapTags && monster.special && monster.special.length > 0) {
-              const glyph = SPECIAL_SHORT_TAG[monster.special[0]];
-              if (glyph) {
-                const sx = px + 2;
+              const shown = monster.special.slice(0, 2);
+              shown.forEach((sp, idx) => {
+                const glyph = SPECIAL_SHORT_TAG[sp];
+                if (!glyph) return;
+                const spColor = SEMANTIC_COLORS.specialTag[sp];
+                const chipW = glyph.length > 1 ? 24 : 19;
+                const sx = idx === 0 ? px + 2 : px + TILE_PX - chipW - 2;
                 const sy = py + 2;
-                ctx.fillStyle = palette.ground;
-                ctx.fillRect(sx, sy, 19, 19);
-                ctx.strokeStyle = palette.hi;
+                ctx.fillStyle = badgeGround;
+                ctx.fillRect(sx, sy, chipW, 19);
+                ctx.strokeStyle = spColor;
                 ctx.lineWidth = 1.5;
-                ctx.strokeRect(sx + 0.75, sy + 0.75, 17.5, 17.5);
-                ctx.font = 'bold 13px "Chivo Mono", "PingFang SC", monospace';
+                ctx.strokeRect(sx + 0.75, sy + 0.75, chipW - 1.5, 17.5);
+                ctx.font = glyph.length > 1 ? 'bold 11px "Chivo Mono", "PingFang SC", monospace' : 'bold 13px "Chivo Mono", "PingFang SC", monospace';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillStyle = palette.hi;
-                ctx.fillText(glyph, sx + 9.5, sy + 10);
-              }
+                ctx.fillStyle = spColor;
+                ctx.fillText(glyph, sx + chipW / 2, sy + 10);
+              });
             }
 
-            // Live on-map 4-sided combat damage box once Monster Manual is owned!
             if (game.relics.book) {
               const dmgInfo = getDamageInfo(monster, game.hero);
               const damage = dmgInfo ? dmgInfo.damage : null;
-              const lethal = damage === null || damage >= game.hero.hp;
-              const safe = damage !== null && damage === 0;
+              const tier = getDamageTier(damage, game.hero.hp);
               const label = formatCompactDamage(damage);
 
               ctx.font = 'bold 16px "Chivo Mono", monospace';
@@ -700,28 +777,25 @@ export default function MagicTowerGame() {
               const bx = Math.round(px + (TILE_PX - badgeW) / 2);
               const by = py + TILE_PX - badgeH - 1;
 
-              if (lethal) {
-                // High-contrast inverted bar for lethal / unbreakable monsters.
-                ctx.fillStyle = palette.lit;
+              if (tier === 'lethal') {
+                ctx.fillStyle = SEMANTIC_COLORS.lethalDmg;
                 ctx.fillRect(bx, by, badgeW, badgeH);
-                ctx.fillStyle = palette.ground;
+                ctx.fillStyle = '#090e17';
                 ctx.fillText(label, px + TILE_PX / 2, by + badgeH / 2 + 0.5);
-              } else if (safe) {
-                ctx.fillStyle = palette.ground;
-                ctx.fillRect(bx, by, badgeW, badgeH);
-                ctx.strokeStyle = palette.hi;
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(bx + 0.75, by + 0.75, badgeW - 1.5, badgeH - 1.5);
-                ctx.fillStyle = palette.hi;
-                ctx.fillText('0', px + TILE_PX / 2, by + badgeH / 2 + 0.5);
               } else {
-                ctx.fillStyle = palette.ground;
+                const tone =
+                  tier === 'safe'
+                    ? SEMANTIC_COLORS.safeDmg
+                    : tier === 'high'
+                      ? SEMANTIC_COLORS.highDmg
+                      : SEMANTIC_COLORS.warnDmg;
+                ctx.fillStyle = badgeGround;
                 ctx.fillRect(bx, by, badgeW, badgeH);
-                ctx.strokeStyle = damage >= game.hero.hp * 0.4 ? palette.hi : palette.lit;
+                ctx.strokeStyle = tone;
                 ctx.lineWidth = 1.5;
                 ctx.strokeRect(bx + 0.75, by + 0.75, badgeW - 1.5, badgeH - 1.5);
-                ctx.fillStyle = damage >= game.hero.hp * 0.4 ? palette.hi : palette.lit;
-                ctx.fillText(label, px + TILE_PX / 2, by + badgeH / 2 + 0.5);
+                ctx.fillStyle = tone;
+                ctx.fillText(tier === 'safe' ? '0' : label, px + TILE_PX / 2, by + badgeH / 2 + 0.5);
               }
             }
           }
@@ -729,11 +803,10 @@ export default function MagicTowerGame() {
       }
     }
 
-    // 2. Dotted path preview
     if (previewPath && previewPath.length > 0) {
       let cx = game.x;
       let cy = game.y;
-      ctx.fillStyle = palette.lit;
+      ctx.fillStyle = colorMode === 'color' ? '#6bc4ff' : palette.pathDot;
       for (let i = 0; i < previewPath.length; i += 1) {
         const d = previewPath[i];
         if (d === 'up') cy -= 1;
@@ -746,12 +819,10 @@ export default function MagicTowerGame() {
       }
     }
 
-    // 3. Hero sprite + crisp tactical corner reticle so hero never gets lost
     const hx = game.x * TILE_PX;
     const hy = game.y * TILE_PX;
-    const heroSprite = `hero_${game.dir}`;
-    drawSprite(ctx, heroSprite, hx, hy + 2, TILE_PX, palette);
-    ctx.fillStyle = palette.hi;
+    drawSprite(ctx, `hero_${game.dir}`, hx, hy + 2, TILE_PX, palette, 0, colorMode);
+    ctx.fillStyle = colorMode === 'color' ? '#f2f8ff' : palette.reticle;
     ctx.fillRect(hx + 2, hy + 2, 8, 2);
     ctx.fillRect(hx + 2, hy + 2, 2, 8);
     ctx.fillRect(hx + TILE_PX - 10, hy + 2, 8, 2);
@@ -761,11 +832,10 @@ export default function MagicTowerGame() {
     ctx.fillRect(hx + TILE_PX - 10, hy + TILE_PX - 4, 8, 2);
     ctx.fillRect(hx + TILE_PX - 4, hy + TILE_PX - 10, 2, 8);
 
-    // 4. Brief pixel combat slash flash
     if (game.lastCombat && Date.now() - game.lastCombat.tick < 240) {
       const sx = game.lastCombat.x * TILE_PX;
       const sy = game.lastCombat.y * TILE_PX;
-      ctx.strokeStyle = palette.hi;
+      ctx.strokeStyle = colorMode === 'color' ? '#ffe066' : palette.reticle;
       ctx.lineWidth = 4;
       ctx.beginPath();
       ctx.moveTo(sx + 10, sy + 10);
@@ -775,15 +845,14 @@ export default function MagicTowerGame() {
       ctx.stroke();
     }
 
-    // 5. Hover reticle
     if (hoverTile && overlay === 'none') {
-      ctx.strokeStyle = palette.hi;
+      ctx.strokeStyle = colorMode === 'color' ? '#6bc4ff' : palette.reticle;
       ctx.lineWidth = 3;
       ctx.strokeRect(hoverTile.x * TILE_PX + 1.5, hoverTile.y * TILE_PX + 1.5, TILE_PX - 3, TILE_PX - 3);
     }
 
     animFrameRef.current += 1;
-  }, [game, animTick, hoverTile, previewPath, overlay, showMapTags]);
+  }, [game, animTick, hoverTile, previewPath, overlay, showMapTags, colorMode]);
 
   function tileFromPointer(event: React.MouseEvent<HTMLCanvasElement>): { x: number; y: number } | null {
     const canvas = canvasRef.current;
@@ -810,12 +879,11 @@ export default function MagicTowerGame() {
     runWalkQueue();
   }
 
-  // Live Tile Inspector data
   const inspected = useMemo(() => {
     if (!hoverTile) return null;
     const tile = getEffectiveTile(game, hoverTile.x, hoverTile.y);
     if (tile.type === 'monster') {
-      const monster = MONSTERS[tile.monsterId];
+      const monster = getMonsterDef(tile.monsterId, game.difficulty);
       if (!monster) return null;
       const effective = getEffectiveEnemyStats(monster, game.hero);
       const dmg = getDamageInfo(monster, game.hero);
@@ -834,9 +902,9 @@ export default function MagicTowerGame() {
     }
     if (tile.type === 'door') {
       const labels: Record<typeof tile.door, { name: string; desc: string; sprite: string }> = {
-        yellow: { name: '铜门 [Y]', desc: '消耗 1 把铜钥匙 [Y] 开启', sprite: 'door_yellow' },
-        blue: { name: '银门 [B]', desc: '消耗 1 把银钥匙 [B] 开启', sprite: 'door_blue' },
-        red: { name: '金门 [R]', desc: '消耗 1 把金钥匙 [R] 开启', sprite: 'door_red' },
+        yellow: { name: '黄门 [Y]', desc: '消耗 1 把黄钥匙 [Y] 开启', sprite: 'door_yellow' },
+        blue: { name: '蓝门 [B]', desc: '消耗 1 把蓝钥匙 [B] 开启', sprite: 'door_blue' },
+        red: { name: '红门 [R]', desc: '消耗 1 把红钥匙 [R] 开启', sprite: 'door_red' },
         special: { name: '机关门', desc: '需要完成特定剧情或击败镇守开启', sprite: 'door_special' },
         crackedWall: { name: '裂纹暗墙', desc: '持有【破墙镐】时撞击即可击碎', sprite: 'cracked_wall' },
       };
@@ -847,15 +915,28 @@ export default function MagicTowerGame() {
 
   const activeShopDef = game.activeShop ? SHOPS[game.activeShop] : null;
   const hasAnySave = Boolean(saves.auto || saves['slot-1'] || saves['slot-2'] || saves['slot-3']);
-  const victoryRank = computeRank(game.hero.hp);
+  const victoryRank = computeRank(game.hero.hp, game.difficulty);
+  const activeDiffMeta = DIFFICULTY_META[game.difficulty];
+  const isPhosphorOs = activeOs === 'phosphor';
+  const hybridModeLabel = isPhosphorOs ? '荧光彩标' : '主题色调';
+  const colorModeLabel = '全彩像素';
 
   return (
-    <div className="mota-host" ref={hostRef} data-mota-floor={game.floor} data-mota-overlay={overlay}>
-      {/* Compact top control bar */}
+    <div
+      className="mota-host"
+      ref={hostRef}
+      data-mota-floor={game.floor}
+      data-mota-overlay={overlay}
+      data-mota-color={colorMode}
+      data-mota-difficulty={game.difficulty}
+    >
       <header className="mota-topbar">
         <div className="mota-floor-chip">
           <PixelIcon name="tower" size={16} />
           <strong className="mota-floor-name">{floorDef.name}</strong>
+          <span className="mota-diff-badge" data-diff={game.difficulty}>
+            {activeDiffMeta.shortLabel}
+          </span>
           <span className="mota-floor-meta">ACT {floorDef.act} · 步数 {game.steps}</span>
         </div>
 
@@ -865,10 +946,24 @@ export default function MagicTowerGame() {
             className="mota-pill-btn"
             data-synced="local"
             onClick={() => setOverlay((o) => (o === 'saves' ? 'none' : 'saves'))}
-            title="管理本地浏览器存档"
+            title="管理本地浏览器存档槽位 (G)"
           >
             <PixelIcon name="save" size={14} />
             <span>本地存档</span>
+          </button>
+
+          <button
+            type="button"
+            className="mota-pill-btn"
+            data-color-mode={colorMode}
+            onClick={toggleColorMode}
+            title={
+              isPhosphorOs
+                ? `切换视觉风格：${hybridModeLabel}（CRT地牢+彩色道具） / ${colorModeLabel}（全元素像素上色）(C)`
+                : `切换视觉风格：${colorModeLabel}（全元素像素上色） / ${hybridModeLabel}（随系统配色）(C)`
+            }
+          >
+            <span>{colorMode === 'hybrid' ? hybridModeLabel : colorModeLabel}</span>
           </button>
 
           <button
@@ -913,466 +1008,501 @@ export default function MagicTowerGame() {
         </div>
       </header>
 
-      {syncNotice && (
+      {saveNotice && (
         <div className="mota-toast-bar" role="status">
-          <span>{syncNotice}</span>
-          <button type="button" className="mota-toast-close" onClick={() => setSyncNotice('')} aria-label="关闭提示">
+          <span>{saveNotice}</span>
+          <button type="button" className="mota-toast-close" onClick={() => setSaveNotice('')} aria-label="关闭提示">
             ×
           </button>
         </div>
       )}
 
-      {/* Adaptive workspace: 3-col workstation on wide/maximized/fullscreen, 2-col standard, 1-col mobile */}
       <div className="mota-layout">
-        {/* Center/Left: 11x11 Pixel CRT Dungeon Viewport */}
         <div className="mota-stage-col">
           <div className="mota-stage-frame">
             <div className="mota-viewport">
-            <canvas
-              ref={canvasRef}
-              width={CANVAS_PX}
-              height={CANVAS_PX}
-              className="mota-canvas"
-              aria-label={`魔塔地图 ${floorDef.name}，勇者位于 (${game.x}, ${game.y})`}
-              onMouseMove={(e) => setHoverTile(tileFromPointer(e))}
-              onMouseLeave={() => setHoverTile(null)}
-              onClick={handleCanvasClick}
-            />
+              <canvas
+                ref={canvasRef}
+                width={CANVAS_PX}
+                height={CANVAS_PX}
+                className="mota-canvas"
+                aria-label={`魔塔地图 ${floorDef.name}，勇者位于 (${game.x}, ${game.y})`}
+                onMouseMove={(e) => setHoverTile(tileFromPointer(e))}
+                onMouseLeave={() => setHoverTile(null)}
+                onClick={handleCanvasClick}
+              />
 
-            {/* Title / Boot Screen Overlay */}
-            {overlay === 'title' && (
-              <div className="mota-modal mota-modal--title" role="dialog" aria-label="魔塔开始界面">
-                <div className="mota-title-art">
-                  <PixelPortrait sprite="demon_boss" size={44} />
-                  <PixelPortrait sprite="hero_down" size={44} />
-                  <PixelPortrait sprite="npc_fairy" size={44} />
-                </div>
-                <h1 className="mota-boot-title">MAGIC TOWER</h1>
-                <p className="mota-boot-sub">魔塔 21F · 经典数值体系 · 荧光 CRT 版</p>
-                <div className="mota-boot-actions">
-                  {saves.auto && (
-                    <ButtonBase variant="primary" type="button" onClick={() => handleLoadSlot('auto')}>
-                      <PixelIcon name="play" size={16} />
-                      <span>继续冒险 ({saves.auto.summary.floor}F)</span>
-                    </ButtonBase>
-                  )}
-                  <ButtonBase
-                    variant={saves.auto ? 'secondary' : 'primary'}
-                    type="button"
-                    onClick={handleNewGame}
-                  >
-                    <PixelIcon name="tower" size={16} />
-                    <span>{saves.auto ? '重新开始' : '开始攀登'}</span>
-                  </ButtonBase>
-                  {hasAnySave && (
-                    <ButtonBase variant="secondary" type="button" onClick={() => setOverlay('saves')}>
-                      <PixelIcon name="save" size={16} />
-                      <span>读取存档</span>
-                    </ButtonBase>
-                  )}
-                </div>
-                <p className="mota-boot-credit">
-                  战斗伤害 / 临界值 / 怪物特效算法参考开源项目 ckcz123/mota-js (BSD-3-Clause)
-                </p>
-              </div>
-            )}
-
-            {/* NPC Dialogue Overlay */}
-            {overlay === 'none' && game.dialogue && (
-              <div className="mota-dialogue" role="dialog" aria-label={game.dialogue.speaker}>
-                <div className="mota-dialogue-head">
-                  <PixelPortrait sprite={game.dialogue.sprite} size={28} />
-                  <strong>{game.dialogue.speaker}</strong>
-                  <span className="mota-dialogue-page">
-                    {game.dialogue.index + 1} / {game.dialogue.lines.length}
-                  </span>
-                </div>
-                <p className="mota-dialogue-text">{game.dialogue.lines[game.dialogue.index]}</p>
-                <div className="mota-dialogue-actions">
-                  {game.dialogue.index + 1 === game.dialogue.lines.length && game.dialogue.choice ? (
-                    <>
-                      <ButtonBase
-                        variant="primary"
-                        type="button"
-                        onClick={() => {
-                          const out = resolveDialogueChoice(game, true);
-                          commitOutcome(game, out.state, out.checkpoint, out.sound);
-                        }}
-                      >
-                        {game.dialogue.choice.confirmLabel}
-                      </ButtonBase>
-                      <ButtonBase
-                        variant="secondary"
-                        type="button"
-                        onClick={() => {
-                          const out = resolveDialogueChoice(game, false);
-                          setGame(out.state);
-                        }}
-                      >
-                        {game.dialogue.choice.cancelLabel}
-                      </ButtonBase>
-                    </>
-                  ) : (
-                    <ButtonBase
-                      variant="primary"
-                      type="button"
-                      onClick={() => {
-                        const out = advanceDialogue(game);
-                        if (out.sound) playMotaSfx(out.sound, sfxEnabled);
-                        setGame(out.state);
-                      }}
-                    >
-                      {game.dialogue.index + 1 < game.dialogue.lines.length ? '继续 (Enter)' : '关闭 (Enter)'}
-                    </ButtonBase>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Active Shop Modal */}
-            {overlay === 'none' && activeShopDef && (
-              <div className="mota-modal" role="dialog" aria-label={activeShopDef.name}>
-                <div className="mota-modal-head">
-                  <div className="mota-modal-title">
-                    <PixelPortrait sprite={activeShopDef.sprite} size={24} />
-                    <strong>{activeShopDef.speaker}</strong>
+              {overlay === 'title' && (
+                <div className="mota-modal mota-modal--title" role="dialog" aria-label="魔塔开始界面">
+                  <div className="mota-title-art">
+                    <PixelPortrait sprite="demon_boss" size={44} colorMode={colorMode} />
+                    <PixelPortrait sprite="hero_down" size={44} colorMode={colorMode} />
+                    <PixelPortrait sprite="npc_fairy" size={44} colorMode={colorMode} />
                   </div>
-                  <button
-                    type="button"
-                    className="mota-modal-close"
-                    onClick={() => setGame((g) => closeActiveShop(g))}
-                    aria-label="关闭商店"
-                  >
-                    ×
-                  </button>
-                </div>
-                <p className="mota-modal-desc">{activeShopDef.greeting}</p>
-                <div className="mota-shop-balance">
-                  <span>金币 {game.hero.gold}</span>
-                  <span>经验 {game.hero.exp}</span>
-                  <span>钥匙 {game.hero.yellowKeys}/{game.hero.blueKeys}/{game.hero.redKeys}</span>
-                </div>
-                <div className="mota-shop-list">
-                  {activeShopDef.options.map((opt) => {
-                    const balance =
-                      opt.currency === 'gold'
-                        ? game.hero.gold
-                        : opt.currency === 'exp'
-                          ? game.hero.exp
-                          : opt.currency === 'yellowKey'
-                            ? game.hero.yellowKeys
-                            : opt.currency === 'blueKey'
-                              ? game.hero.blueKeys
-                              : game.hero.redKeys;
-                    const affordable = balance >= opt.cost;
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        className="mota-shop-row"
-                        disabled={!affordable}
-                        onClick={() => {
-                          const out = buyShopOption(game, activeShopDef.id, opt.id);
-                          commitOutcome(game, out.state, out.checkpoint, out.sound);
-                        }}
-                      >
-                        <span>{opt.label}</span>
-                        <span className="mota-shop-cost">{opt.costText}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+                  <h1 className="mota-boot-title">MAGIC TOWER</h1>
+                  <p className="mota-boot-sub">魔塔 21F · 22 层独立格局 · 纯前端本地存档</p>
 
-            {/* Monster Manual (B) */}
-            {overlay === 'book' && (
-              <div className="mota-modal" role="dialog" aria-label="怪物手册">
-                <div className="mota-modal-head">
-                  <div className="mota-modal-title">
-                    <PixelIcon name="book" size={16} />
-                    <strong>怪物手册 · {floorDef.name}</strong>
-                  </div>
-                  <button type="button" className="mota-modal-close" onClick={() => setOverlay('none')} aria-label="关闭怪物手册">
-                    ×
-                  </button>
-                </div>
-                {floorMonsters.length === 0 ? (
-                  <p className="mota-modal-empty">当前楼层已无残留怪物。</p>
-                ) : (
-                  <div className="mota-book-list">
-                    {floorMonsters.map((entry) => {
-                      const eff = getEffectiveEnemyStats(entry.monster, game.hero);
-                      const lethal = !entry.canBeat;
-                      return (
-                        <div key={entry.monster.id} className="mota-book-row" data-lethal={lethal ? 'true' : undefined}>
-                          <PixelPortrait sprite={entry.monster.sprite} size={28} />
-                          <div className="mota-book-info">
-                            <div className="mota-book-top">
-                              <strong>
-                                {entry.monster.name}
-                                {entry.count > 1 ? ` ×${entry.count}` : ''}
-                              </strong>
-                              {entry.monster.special?.map((sp) => (
-                                <span key={sp} className="mota-tag" title={SPECIAL_META[sp].desc}>
-                                  {SPECIAL_META[sp].name}
-                                </span>
-                              ))}
-                              <span className="mota-book-dmg" data-lethal={lethal ? 'true' : undefined}>
-                                伤 {entry.damageInfo ? entry.damageInfo.damage : '???'}
-                              </span>
-                            </div>
-                            <div className="mota-book-stats">
-                              <span>血 {eff.hp}</span>
-                              <span>攻 {eff.atk}</span>
-                              <span>防 {eff.def}</span>
-                              <span>金 {entry.monster.gold * (game.relics.coin ? 2 : 1)}</span>
-                              <span>经 {entry.monster.exp}</span>
-                            </div>
-                            <div className="mota-book-crit">
-                              <span>
-                                临界:{' '}
-                                {entry.critical && entry.critical.atkNeeded > 0
-                                  ? `+${entry.critical.atkNeeded}攻 (${entry.critical.damageReduced >= 0 ? `-${entry.critical.damageReduced}伤` : `破防伤${-entry.critical.damageReduced}`})`
-                                  : '—'}
-                              </span>
-                              <span>+1防: {entry.defReduce !== null ? `-${entry.defReduce}伤` : '—'}</span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Floor Teleporter (F) */}
-            {overlay === 'fly' && (
-              <div className="mota-modal" role="dialog" aria-label="楼层传送器">
-                <div className="mota-modal-head">
-                  <div className="mota-modal-title">
-                    <PixelIcon name="stairs" size={16} />
-                    <strong>楼层传送器 (0F – {game.maxFloor}F)</strong>
-                  </div>
-                  <button type="button" className="mota-modal-close" onClick={() => setOverlay('none')} aria-label="关闭楼层传送器">
-                    ×
-                  </button>
-                </div>
-                <div className="mota-fly-grid">
-                  {FLOORS.map((f) => {
-                    const unlocked = game.visitedFloors.includes(f.floor);
-                    const isCurrent = f.floor === game.floor;
-                    return (
-                      <button
-                        key={f.floor}
-                        type="button"
-                        className="mota-fly-btn"
-                        data-current={isCurrent ? 'true' : undefined}
-                        disabled={!unlocked}
-                        onClick={() => {
-                          const out = flyToFloor(game, f.floor);
-                          if (out.changed) {
-                            commitOutcome(game, out.state, out.checkpoint, out.sound);
-                            setOverlay('none');
-                          }
-                        }}
-                      >
-                        <strong>{f.floor}F</strong>
-                        <span>{unlocked ? f.name.replace(/^\d+F · /, '') : '未抵达'}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Quick Shop List (V) */}
-            {overlay === 'quickShop' && (
-              <div className="mota-modal" role="dialog" aria-label="快捷商店">
-                <div className="mota-modal-head">
-                  <div className="mota-modal-title">
-                    <PixelIcon name="shop" size={16} />
-                    <strong>快捷商店</strong>
-                  </div>
-                  <button type="button" className="mota-modal-close" onClick={() => setOverlay('none')} aria-label="关闭快捷商店">
-                    ×
-                  </button>
-                </div>
-                {game.flags.discoveredShops.length === 0 ? (
-                  <p className="mota-modal-empty">访问过楼层内的商店后，即可在此随时远程交易。</p>
-                ) : (
-                  <div className="mota-shop-list">
-                    {game.flags.discoveredShops.map((shopId: ShopId) => {
-                      const shop = SHOPS[shopId];
+                  <div className="mota-diff-picker" role="radiogroup" aria-label="选择魔塔难度">
+                    {(['standard', 'hard'] as Difficulty[]).map((diff) => {
+                      const meta = DIFFICULTY_META[diff];
+                      const active = selectedDifficulty === diff;
                       return (
                         <button
-                          key={shopId}
+                          key={diff}
                           type="button"
-                          className="mota-shop-row"
-                          onClick={() => {
-                            const out = openQuickShop(game, shopId);
-                            if (out.changed) {
-                              if (out.sound) playMotaSfx(out.sound, sfxEnabled);
-                              setGame(out.state);
-                              setOverlay('none');
-                            }
-                          }}
+                          role="radio"
+                          aria-checked={active}
+                          className="mota-diff-card"
+                          data-active={active ? 'true' : undefined}
+                          data-diff={diff}
+                          onClick={() => setSelectedDifficulty(diff)}
                         >
-                          <span>{shop.name}</span>
-                          <span className="mota-shop-cost">进入 →</span>
+                          <strong>{meta.label}</strong>
+                          <span>{meta.summary}</span>
                         </button>
                       );
                     })}
                   </div>
-                )}
-              </div>
-            )}
 
-            {/* Save / Load Manager (G) */}
-            {overlay === 'saves' && (
-              <div className="mota-modal" role="dialog" aria-label="本地存档管理">
-                <div className="mota-modal-head">
-                  <div className="mota-modal-title">
-                    <PixelIcon name="save" size={16} />
-                    <strong>存档管理 · 本地浏览器存储</strong>
+                  <div className="mota-boot-actions">
+                    {saves.auto && (
+                      <ButtonBase variant="primary" type="button" onClick={() => handleLoadSlot('auto')}>
+                        <PixelIcon name="play" size={16} />
+                        <span>
+                          继续冒险 ({saves.auto.summary.floor}F · {DIFFICULTY_META[saves.auto.payload.difficulty === 'hard' ? 'hard' : 'standard'].shortLabel})
+                        </span>
+                      </ButtonBase>
+                    )}
+                    <ButtonBase
+                      variant={saves.auto ? 'secondary' : 'primary'}
+                      type="button"
+                      onClick={() => handleNewGame(selectedDifficulty)}
+                    >
+                      <PixelIcon name="tower" size={16} />
+                      <span>{saves.auto ? `新开 (${DIFFICULTY_META[selectedDifficulty].shortLabel})` : '开始攀登'}</span>
+                    </ButtonBase>
+                    {hasAnySave && (
+                      <ButtonBase variant="secondary" type="button" onClick={() => setOverlay('saves')}>
+                        <PixelIcon name="save" size={16} />
+                        <span>读取存档</span>
+                      </ButtonBase>
+                    )}
                   </div>
-                  <button type="button" className="mota-modal-close" onClick={() => setOverlay('none')} aria-label="关闭存档管理">
-                    ×
-                  </button>
-                </div>
-
-                <div className="mota-save-list">
-                  {SAVE_SLOTS.map(({ id, label }) => {
-                    const rec = saves[id];
-                    return (
-                      <div key={id} className="mota-save-row" data-slot={id}>
-                        <div className="mota-save-meta">
-                          <div className="mota-save-title">
-                            <strong>{label}</strong>
-                            {rec && <span className="mota-tag">本地</span>}
-                            {rec?.summary.victory && <span className="mota-tag">已通关</span>}
-                          </div>
-                          {rec ? (
-                            <p className="mota-save-detail">
-                              {rec.summary.floorName} · HP {rec.summary.hp} · 攻 {rec.summary.atk} · 防 {rec.summary.def} ·{' '}
-                              {formatTimestamp(rec.updatedAt)}
-                            </p>
-                          ) : (
-                            <p className="mota-save-detail mota-save-detail--empty">空槽位</p>
-                          )}
-                        </div>
-                        <div className="mota-save-btns">
-                          {id !== 'auto' && (
-                            <button
-                              type="button"
-                              className="mota-mini-key"
-                              onClick={() => persistSaveSlot(id, game)}
-                            >
-                              保存
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            className="mota-mini-key"
-                            disabled={!rec}
-                            onClick={() => handleLoadSlot(id)}
-                          >
-                            读取
-                          </button>
-                          {rec && id !== 'auto' && (
-                            <button
-                              type="button"
-                              className="mota-mini-key"
-                              onClick={() => void handleDeleteSlot(id)}
-                            >
-                              清除
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Help & Credits Modal (H) */}
-            {overlay === 'help' && (
-              <div className="mota-modal" role="dialog" aria-label="游戏指南与开源致谢">
-                <div className="mota-modal-head">
-                  <div className="mota-modal-title">
-                    <PixelIcon name="tower" size={16} />
-                    <strong>操作说明 & 机制手册</strong>
-                  </div>
-                  <button type="button" className="mota-modal-close" onClick={() => setOverlay('none')} aria-label="关闭帮助">
-                    ×
-                  </button>
-                </div>
-                <div className="mota-help-body">
-                  <dl className="mota-help-keys">
-                    <div><dt>方向键 / WASD / 点击格子</dt><dd>移动、开门、对话、自动寻路战斗</dd></div>
-                    <div><dt>B</dt><dd>怪物手册（查看显伤、临界值、+1防减伤）</dd></div>
-                    <div><dt>F</dt><dd>楼层传送器（7F 获得后可自由飞层）</dd></div>
-                    <div><dt>V</dt><dd>快捷商店（已访问的商店可随时远程交易）</dd></div>
-                    <div><dt>Z</dt><dd>撤回上一步（战斗/开门/买属性都可反悔）</dd></div>
-                    <div><dt>G</dt><dd>存档 / 读档与云端同步</dd></div>
-                    <div><dt>T</dt><dd>开关地图标注（道具/钥匙/NPC/特殊怪角标）</dd></div>
-                  </dl>
-                  <div className="mota-help-section">
-                    <h3>单色屏图例速查</h3>
-                    <ul>
-                      <li><strong>方框数字 / 反白「危」</strong>：怪物战损（左上角 <code>先/魔/固/连/吸</code> 为特效）。</li>
-                      <li><strong>底部下划线文字</strong>：可拾取道具（<code>[Y]/[B]/[R]</code> 钥匙、尖晶 <code>攻+3</code>、盾晶 <code>防+3</code>、十字瓶 <code>+200/+500</code>）。</li>
-                      <li><strong>右上角反白 <code>!</code> / <code>$</code></strong>：友好 NPC 对话 / 属性与钥匙商店。</li>
-                    </ul>
-                  </div>
-                  <div className="mota-help-section">
-                    <h3>特殊怪物机制</h3>
-                    <ul>
-                      <li><strong>先攻</strong>：怪物开局先攻击一次。</li>
-                      <li><strong>魔攻</strong>：无视防御，靠堆攻击抢临界回合。</li>
-                      <li><strong>坚固</strong>：怪物防御永远为「你的攻击-1」，需靠高防无伤防杀。</li>
-                      <li><strong>吸血</strong>：战前按当前生命比例吸血，趁低血量时击杀更划算。</li>
-                      <li><strong>2连击</strong>：怪物每回合攻击 2 次，优先提升防御。</li>
-                    </ul>
-                  </div>
-                  <p className="mota-help-credit">
-                    战斗公式、临界值算法与魔塔交互理念基于开源项目 <code>ckcz123/mota-js</code>（BSD-3-Clause），结合经典 21 层魔塔数值架构重制。
+                  <p className="mota-boot-credit">
+                    按 C 随时切换【{isPhosphorOs ? `${hybridModeLabel} / ${colorModeLabel}` : `${colorModeLabel} / ${hybridModeLabel}`}】 · 战斗与临界算法参考 ckcz123/mota-js (BSD-3-Clause)
                   </p>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Victory Screen */}
-            {overlay === 'victory' && (
-              <div className="mota-modal mota-modal--victory" role="dialog" aria-label="魔塔通关">
-                <div className="mota-title-art">
-                  <PixelPortrait sprite="hero_down" size={44} />
-                  <PixelPortrait sprite="npc_princess" size={44} />
+              {overlay === 'none' && game.dialogue && (
+                <div className="mota-dialogue" role="dialog" aria-label={game.dialogue.speaker}>
+                  <div className="mota-dialogue-head">
+                    <PixelPortrait sprite={game.dialogue.sprite} size={28} colorMode={colorMode} />
+                    <strong>{game.dialogue.speaker}</strong>
+                    <span className="mota-dialogue-page">
+                      {game.dialogue.index + 1} / {game.dialogue.lines.length}
+                    </span>
+                  </div>
+                  <p className="mota-dialogue-text">{game.dialogue.lines[game.dialogue.index]}</p>
+                  <div className="mota-dialogue-actions">
+                    {game.dialogue.index + 1 === game.dialogue.lines.length && game.dialogue.choice ? (
+                      <>
+                        <ButtonBase
+                          variant="primary"
+                          type="button"
+                          onClick={() => {
+                            const out = resolveDialogueChoice(game, true);
+                            commitOutcome(game, out.state, out.checkpoint, out.sound);
+                          }}
+                        >
+                          {game.dialogue.choice.confirmLabel}
+                        </ButtonBase>
+                        <ButtonBase
+                          variant="secondary"
+                          type="button"
+                          onClick={() => {
+                            const out = resolveDialogueChoice(game, false);
+                            setGame(out.state);
+                          }}
+                        >
+                          {game.dialogue.choice.cancelLabel}
+                        </ButtonBase>
+                      </>
+                    ) : (
+                      <ButtonBase
+                        variant="primary"
+                        type="button"
+                        onClick={() => {
+                          const out = advanceDialogue(game);
+                          if (out.sound) playMotaSfx(out.sound, sfxEnabled);
+                          setGame(out.state);
+                        }}
+                      >
+                        {game.dialogue.index + 1 < game.dialogue.lines.length ? '继续 (Enter)' : '关闭 (Enter)'}
+                      </ButtonBase>
+                    )}
+                  </div>
                 </div>
-                <h2 className="mota-boot-title">VICTORY · {victoryRank.grade}</h2>
-                <p className="mota-boot-sub">{victoryRank.note}</p>
-                <div className="mota-victory-stats">
-                  <div><span>最终生命得分</span><strong>{game.hero.hp}</strong></div>
-                  <div><span>攻击 / 防御</span><strong>{game.hero.atk} / {game.hero.def}</strong></div>
-                  <div><span>击败怪物</span><strong>{game.battlesWon}</strong></div>
-                  <div><span>总步数</span><strong>{game.steps}</strong></div>
+              )}
+
+              {overlay === 'none' && activeShopDef && (
+                <div className="mota-modal" role="dialog" aria-label={activeShopDef.name}>
+                  <div className="mota-modal-head">
+                    <div className="mota-modal-title">
+                      <PixelPortrait sprite={activeShopDef.sprite} size={24} colorMode={colorMode} />
+                      <strong>{activeShopDef.speaker}</strong>
+                      {activeShopDef.escalating && (
+                        <span className="mota-tag">已购 {game.shopPurchases[activeShopDef.id] ?? 0} 次</span>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="mota-modal-close"
+                      onClick={() => setGame((g) => closeActiveShop(g))}
+                      aria-label="关闭商店"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <p className="mota-modal-desc">{activeShopDef.greeting}</p>
+                  <div className="mota-shop-balance">
+                    <span>金币 {game.hero.gold}</span>
+                    <span>经验 {game.hero.exp}</span>
+                    <span>钥匙 {game.hero.yellowKeys}/{game.hero.blueKeys}/{game.hero.redKeys}</span>
+                  </div>
+                  <div className="mota-shop-list">
+                    {activeShopDef.options.map((opt) => {
+                      const balance =
+                        opt.currency === 'gold'
+                          ? game.hero.gold
+                          : opt.currency === 'exp'
+                            ? game.hero.exp
+                            : opt.currency === 'yellowKey'
+                              ? game.hero.yellowKeys
+                              : opt.currency === 'blueKey'
+                                ? game.hero.blueKeys
+                                : game.hero.redKeys;
+                      const currentCost = getShopOptionCost(activeShopDef.id, opt.id, game.shopPurchases);
+                      const costLabel = formatShopCostText(activeShopDef.id, opt.id, game.shopPurchases);
+                      const affordable = balance >= currentCost;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          className="mota-shop-row"
+                          disabled={!affordable}
+                          onClick={() => {
+                            const out = buyShopOption(game, activeShopDef.id, opt.id);
+                            commitOutcome(game, out.state, out.checkpoint, out.sound);
+                          }}
+                        >
+                          <span>{opt.label}</span>
+                          <span className="mota-shop-cost">
+                            {costLabel}
+                            {opt.costStep ? ` (+${opt.costStep}/次)` : ''}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="mota-boot-actions">
-                  <ButtonBase variant="primary" type="button" onClick={() => setOverlay('none')}>
-                    继续探索
-                  </ButtonBase>
-                  <ButtonBase variant="secondary" type="button" onClick={handleNewGame}>
-                    挑战更高分
-                  </ButtonBase>
+              )}
+
+              {overlay === 'book' && (
+                <div className="mota-modal" role="dialog" aria-label="怪物手册">
+                  <div className="mota-modal-head">
+                    <div className="mota-modal-title">
+                      <PixelIcon name="book" size={16} />
+                      <strong>怪物手册 · {floorDef.name}</strong>
+                    </div>
+                    <button type="button" className="mota-modal-close" onClick={() => setOverlay('none')} aria-label="关闭怪物手册">
+                      ×
+                    </button>
+                  </div>
+                  {floorMonsters.length === 0 ? (
+                    <p className="mota-modal-empty">当前楼层已无残留怪物。</p>
+                  ) : (
+                    <div className="mota-book-list">
+                      {floorMonsters.map((entry) => {
+                        const eff = getEffectiveEnemyStats(entry.monster, game.hero);
+                        const dmgTier = getDamageTier(entry.damageInfo?.damage ?? null, game.hero.hp);
+                        const lethal = dmgTier === 'lethal';
+                        return (
+                          <div key={entry.monster.id} className="mota-book-row" data-lethal={lethal ? 'true' : undefined}>
+                            <PixelPortrait sprite={entry.monster.sprite} size={28} colorMode={colorMode} />
+                            <div className="mota-book-info">
+                              <div className="mota-book-top">
+                                <strong>
+                                  {entry.monster.name}
+                                  {entry.count > 1 ? ` ×${entry.count}` : ''}
+                                </strong>
+                                {entry.monster.special?.map((sp) => (
+                                  <span key={sp} className="mota-tag" data-special={sp} title={SPECIAL_META[sp].desc}>
+                                    {SPECIAL_META[sp].name}
+                                  </span>
+                                ))}
+                                <span
+                                  className="mota-book-dmg"
+                                  data-dmg-tier={dmgTier}
+                                  data-lethal={lethal ? 'true' : undefined}
+                                >
+                                  伤 {entry.damageInfo ? entry.damageInfo.damage : '???'}
+                                </span>
+                              </div>
+                              <div className="mota-book-stats">
+                                <span>血 {eff.hp}</span>
+                                <span>攻 {eff.atk}</span>
+                                <span>防 {eff.def}</span>
+                                <span>金 {entry.monster.gold * (game.relics.coin ? 2 : 1)}</span>
+                                <span>经 {entry.monster.exp}</span>
+                              </div>
+                              <div className="mota-book-crit">
+                                <span>
+                                  临界:{' '}
+                                  {entry.critical && entry.critical.atkNeeded > 0
+                                    ? `+${entry.critical.atkNeeded}攻 (${entry.critical.damageReduced >= 0 ? `-${entry.critical.damageReduced}伤` : `破防伤${-entry.critical.damageReduced}`})`
+                                    : '—'}
+                                </span>
+                                <span>+1防: {entry.defReduce !== null ? `-${entry.defReduce}伤` : '—'}</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              )}
+
+              {overlay === 'fly' && (
+                <div className="mota-modal" role="dialog" aria-label="楼层传送器">
+                  <div className="mota-modal-head">
+                    <div className="mota-modal-title">
+                      <PixelIcon name="stairs" size={16} />
+                      <strong>楼层传送器 (0F – {game.maxFloor}F)</strong>
+                    </div>
+                    <button type="button" className="mota-modal-close" onClick={() => setOverlay('none')} aria-label="关闭楼层传送器">
+                      ×
+                    </button>
+                  </div>
+                  <div className="mota-fly-grid">
+                    {FLOORS.map((f) => {
+                      const unlocked = game.visitedFloors.includes(f.floor);
+                      const isCurrent = f.floor === game.floor;
+                      return (
+                        <button
+                          key={f.floor}
+                          type="button"
+                          className="mota-fly-btn"
+                          data-current={isCurrent ? 'true' : undefined}
+                          disabled={!unlocked}
+                          onClick={() => {
+                            const out = flyToFloor(game, f.floor);
+                            if (out.changed) {
+                              commitOutcome(game, out.state, out.checkpoint, out.sound);
+                              setOverlay('none');
+                            }
+                          }}
+                        >
+                          <strong>{f.floor}F</strong>
+                          <span>{unlocked ? f.name.replace(/^\d+F · /, '') : '未抵达'}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {overlay === 'quickShop' && (
+                <div className="mota-modal" role="dialog" aria-label="快捷商店">
+                  <div className="mota-modal-head">
+                    <div className="mota-modal-title">
+                      <PixelIcon name="shop" size={16} />
+                      <strong>快捷商店</strong>
+                    </div>
+                    <button type="button" className="mota-modal-close" onClick={() => setOverlay('none')} aria-label="关闭快捷商店">
+                      ×
+                    </button>
+                  </div>
+                  {game.flags.discoveredShops.length === 0 ? (
+                    <p className="mota-modal-empty">访问过楼层内的商店后，即可在此随时远程交易。</p>
+                  ) : (
+                    <div className="mota-shop-list">
+                      {game.flags.discoveredShops.map((shopId: ShopId) => {
+                        const shop = SHOPS[shopId];
+                        return (
+                          <button
+                            key={shopId}
+                            type="button"
+                            className="mota-shop-row"
+                            onClick={() => {
+                              const out = openQuickShop(game, shopId);
+                              if (out.changed) {
+                                if (out.sound) playMotaSfx(out.sound, sfxEnabled);
+                                setGame(out.state);
+                                setOverlay('none');
+                              }
+                            }}
+                          >
+                            <span>{shop.name}</span>
+                            <span className="mota-shop-cost">进入 →</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {overlay === 'saves' && (
+                <div className="mota-modal" role="dialog" aria-label="本地存档管理">
+                  <div className="mota-modal-head">
+                    <div className="mota-modal-title">
+                      <PixelIcon name="save" size={16} />
+                      <strong>存档管理 · 本地浏览器</strong>
+                    </div>
+                    <button type="button" className="mota-modal-close" onClick={() => setOverlay('none')} aria-label="关闭存档管理">
+                      ×
+                    </button>
+                  </div>
+
+                  <p className="mota-modal-desc">所有存档完全保存在当前浏览器 localStorage 中，无需联网或后端账号。</p>
+
+                  <div className="mota-save-list">
+                    {SAVE_SLOTS.map(({ id, label }) => {
+                      const rec = saves[id];
+                      return (
+                        <div key={id} className="mota-save-row" data-slot={id}>
+                          <div className="mota-save-meta">
+                            <div className="mota-save-title">
+                              <strong>{label}</strong>
+                              {rec && <span className="mota-tag">本地</span>}
+                              {rec && (
+                                <span className="mota-tag" data-diff={rec.payload.difficulty === 'hard' ? 'hard' : 'standard'}>
+                                  {DIFFICULTY_META[rec.payload.difficulty === 'hard' ? 'hard' : 'standard'].shortLabel}
+                                </span>
+                              )}
+                              {rec?.summary.victory && <span className="mota-tag">已通关</span>}
+                            </div>
+                            {rec ? (
+                              <p className="mota-save-detail">
+                                {rec.summary.floorName} · HP {rec.summary.hp} · 攻 {rec.summary.atk} · 防 {rec.summary.def} ·{' '}
+                                {formatTimestamp(rec.updatedAt)}
+                              </p>
+                            ) : (
+                              <p className="mota-save-detail mota-save-detail--empty">空槽位</p>
+                            )}
+                          </div>
+                          <div className="mota-save-btns">
+                            {id !== 'auto' && (
+                              <button
+                                type="button"
+                                className="mota-mini-key"
+                                onClick={() => persistSaveSlot(id, game)}
+                              >
+                                保存
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              className="mota-mini-key"
+                              disabled={!rec}
+                              onClick={() => handleLoadSlot(id)}
+                            >
+                              读取
+                            </button>
+                            {rec && id !== 'auto' && (
+                              <button
+                                type="button"
+                                className="mota-mini-key"
+                                onClick={() => handleDeleteSlot(id)}
+                              >
+                                清除
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {overlay === 'help' && (
+                <div className="mota-modal" role="dialog" aria-label="游戏指南与开源致谢">
+                  <div className="mota-modal-head">
+                    <div className="mota-modal-title">
+                      <PixelIcon name="tower" size={16} />
+                      <strong>操作说明 & 机制手册</strong>
+                    </div>
+                    <button type="button" className="mota-modal-close" onClick={() => setOverlay('none')} aria-label="关闭帮助">
+                      ×
+                    </button>
+                  </div>
+                  <div className="mota-help-body">
+                    <dl className="mota-help-keys">
+                      <div><dt>方向键 / WASD / 点击格子</dt><dd>移动、开门、对话、自动寻路战斗</dd></div>
+                      <div><dt>B</dt><dd>怪物手册（查看显伤、临界值、+1防减伤）</dd></div>
+                      <div><dt>F</dt><dd>楼层传送器（7F 获得后可自由飞层）</dd></div>
+                      <div><dt>V</dt><dd>快捷商店（已访问的商店可随时远程交易）</dd></div>
+                      <div><dt>Z</dt><dd>撤回上一步（战斗/开门/买属性都可反悔）</dd></div>
+                      <div><dt>G</dt><dd>本地浏览器存档 / 读档（4 个槽位）</dd></div>
+                      <div><dt>T</dt><dd>开关地图标注（道具/钥匙/NPC/特殊怪角标）</dd></div>
+                      <div><dt>C</dt><dd>切换视觉风格（{isPhosphorOs ? `${hybridModeLabel} ↔ ${colorModeLabel}` : `${colorModeLabel} ↔ ${hybridModeLabel}`}）</dd></div>
+                    </dl>
+                    <div className="mota-help-section">
+                      <h3>彩色图例速查</h3>
+                      <ul>
+                        <li><strong>三色门 / 钥匙</strong>：金黄 <code>[Y]</code> / 冰蓝 <code>[B]</code> / 绯红 <code>[R]</code> / 幽紫机关门。</li>
+                        <li><strong>道具色相</strong>：绯红尖晶（攻）、湛蓝盾晶（防）、翠绿十字瓶（血）、青白圣杯（唯一圣水 ×2）。</li>
+                        <li><strong>显伤分级</strong>：翠绿 <code>0</code> 无伤、琥珀黄可控、橙色高危、绯红实底无法击败。</li>
+                      </ul>
+                    </div>
+                    <div className="mota-help-section">
+                      <h3>进阶博弈与双难度</h3>
+                      <ul>
+                        <li><strong>递增商店</strong>：3F(+8G/次)、11F(+18G/次)、5F(+5E/次)、13F(+14E/次)，低层与高层商店交替比价最划算。</li>
+                        <li><strong>紧平衡钥匙</strong>：全塔零冗余装饰门，省下的多余钥匙可在 12F 黑市卖出换金币。</li>
+                        <li><strong>9 大战术特性</strong>：先攻、魔攻（无视防）、坚固（防=你攻-1）、2连/3连击（吃防阈值）、吸血（残血打）、破甲（无视部分防）、狂暴（每回合涨攻，逼高攻临界）、反伤（每受击反弹真伤）。</li>
+                        <li><strong>困难 · 红海</strong>：初始 850 HP、怪物强化、三大魔王激活【先攻】、十字架增幅 28%。</li>
+                      </ul>
+                    </div>
+                    <p className="mota-help-credit">
+                      战斗公式与临界值算法参考开源项目 <code>ckcz123/mota-js</code>（BSD-3-Clause），22 层独立格局与双难度数值为原创重构。
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {overlay === 'victory' && (
+                <div className="mota-modal mota-modal--victory" role="dialog" aria-label="魔塔通关">
+                  <div className="mota-title-art">
+                    <PixelPortrait sprite="hero_down" size={44} colorMode={colorMode} />
+                    <PixelPortrait sprite="npc_princess" size={44} colorMode={colorMode} />
+                  </div>
+                  <h2 className="mota-boot-title">VICTORY · {victoryRank.grade}</h2>
+                  <p className="mota-boot-sub">
+                    【{activeDiffMeta.label}】{victoryRank.note}
+                  </p>
+                  <div className="mota-victory-stats">
+                    <div><span>最终生命得分</span><strong>{game.hero.hp}</strong></div>
+                    <div><span>攻击 / 防御</span><strong>{game.hero.atk} / {game.hero.def}</strong></div>
+                    <div><span>击败怪物</span><strong>{game.battlesWon}</strong></div>
+                    <div><span>总步数</span><strong>{game.steps}</strong></div>
+                  </div>
+                  <div className="mota-boot-actions">
+                    <ButtonBase variant="primary" type="button" onClick={() => setOverlay('none')}>
+                      继续探索
+                    </ButtonBase>
+                    <ButtonBase variant="secondary" type="button" onClick={() => setOverlay('title')}>
+                      切换难度 / 重开
+                    </ButtonBase>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Optional screen D-Pad (toggled from topbar when needed) */}
           {showDpad && (
             <div className="mota-dpad" role="group" aria-label="方向控制">
               <button type="button" className="mota-dpad-btn mota-dpad-up" onClick={() => handleManualMove('up')} aria-label="向上">▲</button>
@@ -1383,9 +1513,7 @@ export default function MagicTowerGame() {
           )}
         </div>
 
-        {/* Hero Status + Keys + Relics + Action Keys */}
         <aside className="mota-hud" aria-label="勇者状态与操作">
-          {/* Core stats grid */}
           <section className="mota-panel">
             <div className="mota-stats-grid">
               <div className="mota-stat"><span>等级 LV</span><strong>{game.hero.lv}</strong></div>
@@ -1401,22 +1529,21 @@ export default function MagicTowerGame() {
             </div>
           </section>
 
-          {/* Keys & Relics */}
           <section className="mota-panel">
             <div className="mota-keys-row" aria-label="钥匙数量">
-              <div className="mota-key-item" title="铜钥匙 [Y]">
-                <PixelPortrait sprite="key_yellow" size={16} />
-                <span>铜[Y]</span>
+              <div className="mota-key-item" data-key="yellow" title="黄钥匙 [Y]">
+                <PixelPortrait sprite="key_yellow" size={16} colorMode={colorMode} />
+                <span>黄[Y]</span>
                 <strong>{game.hero.yellowKeys}</strong>
               </div>
-              <div className="mota-key-item" title="银钥匙 [B]">
-                <PixelPortrait sprite="key_blue" size={16} />
-                <span>银[B]</span>
+              <div className="mota-key-item" data-key="blue" title="蓝钥匙 [B]">
+                <PixelPortrait sprite="key_blue" size={16} colorMode={colorMode} />
+                <span>蓝[B]</span>
                 <strong>{game.hero.blueKeys}</strong>
               </div>
-              <div className="mota-key-item" title="金钥匙 [R]">
-                <PixelPortrait sprite="key_red" size={16} />
-                <span>金[R]</span>
+              <div className="mota-key-item" data-key="red" title="红钥匙 [R]">
+                <PixelPortrait sprite="key_red" size={16} colorMode={colorMode} />
+                <span>红[R]</span>
                 <strong>{game.hero.redKeys}</strong>
               </div>
             </div>
@@ -1432,7 +1559,6 @@ export default function MagicTowerGame() {
             </div>
           </section>
 
-          {/* Action Keys */}
           <section className="mota-actions-grid" aria-label="快捷工具">
             <ButtonBase
               variant="secondary"
@@ -1487,43 +1613,43 @@ export default function MagicTowerGame() {
               variant="secondary"
               type="button"
               className="mota-action-key"
-              onClick={handleNewGame}
+              onClick={() => setOverlay('title')}
+              title="返回标题界面以切换难度或重新开始"
             >
               <PixelIcon name="tower" size={14} />
-              <span>重开</span>
+              <span>难度/重开</span>
             </ButtonBase>
           </section>
 
           <section className="mota-panel mota-hud-foot" aria-label="快捷操作提示">
             <div className="mota-hud-foot-row">
-              <span>已达最高层</span>
-              <strong>{game.maxFloor}F / 21F</strong>
+              <span>当前难度</span>
+              <strong>{activeDiffMeta.label}</strong>
             </div>
             <div className="mota-hud-foot-row">
-              <span>击败怪物</span>
-              <strong>{game.battlesWon}</strong>
+              <span>已达最高层 / 击杀</span>
+              <strong>{game.maxFloor}F · {game.battlesWon} 怪</strong>
             </div>
             <p className="mota-hud-foot-keys">
-              WASD / 点击地图自动寻路 · B 手册 · F 楼传 · V 商店 · Z 撤回 · G 存档 · T 标注
+              WASD / 点击寻路 · B 手册 · F 楼传 · V 商店 · Z 撤回 · G 存档 · T 标注 · C 色彩
             </p>
           </section>
         </aside>
 
-        {/* Intel Column: Live Floor Monster Radar (wide 3-col) + Hover Inspector / Adventure Log */}
         <aside className="mota-intel" aria-label="本层怪物与情报">
           <section className="mota-panel mota-radar">
             <div className="mota-radar-head">
               <PixelIcon name="book" size={14} />
-              <strong>{game.relics.book ? `本层怪物 (${floorMonsters.length})` : '单色图例速查'}</strong>
+              <strong>{game.relics.book ? `本层怪物 (${floorMonsters.length})` : '彩色图例速查'}</strong>
             </div>
 
             {!game.relics.book ? (
               <ul className="mota-radar-legend">
-                <li><strong>[Y] / [B] / [R]</strong>：铜 / 银 / 金钥匙与对应门</li>
-                <li><strong>尖晶 / 盾晶</strong>：攻+3 / 防+3 永久强化</li>
-                <li><strong>十字瓶</strong>：小瓶 +200 / 大壶 +500 HP</li>
-                <li><strong>! / $</strong>：友好 NPC 对话 / 属性商店</li>
-                <li className="mota-radar-hint">登上 1F 拾取【怪物手册】后，此处将实时显示本层所有怪物战损与临界值。</li>
+                <li><strong>黄[Y] / 蓝[B] / 红[R]</strong>：三色钥匙与对应门</li>
+                <li><strong>红晶 / 蓝晶</strong>：攻击 +3 / 防御 +3 强化</li>
+                <li><strong>翠绿药瓶</strong>：小瓶 +200 / 金口大壶 +500 HP</li>
+                <li><strong>! / $</strong>：友好 NPC 对话 / 递增商店</li>
+                <li className="mota-radar-hint">登上 1F 拾取【怪物手册】后，此处将实时显示本层怪物战损与临界值。按 C 可切换{colorMode === 'color' ? hybridModeLabel : colorModeLabel}。</li>
               </ul>
             ) : floorMonsters.length === 0 ? (
               <p className="mota-radar-empty">本层怪物已全部肃清。</p>
@@ -1531,19 +1657,24 @@ export default function MagicTowerGame() {
               <div className="mota-radar-list">
                 {floorMonsters.map((entry) => {
                   const eff = getEffectiveEnemyStats(entry.monster, game.hero);
-                  const lethal = !entry.canBeat;
+                  const dmgTier = getDamageTier(entry.damageInfo?.damage ?? null, game.hero.hp);
+                  const lethal = dmgTier === 'lethal';
                   return (
                     <div
                       key={entry.monster.id}
                       className="mota-radar-row"
                       data-lethal={lethal ? 'true' : undefined}
                     >
-                      <PixelPortrait sprite={entry.monster.sprite} size={24} />
+                      <PixelPortrait sprite={entry.monster.sprite} size={24} colorMode={colorMode} />
                       <div className="mota-radar-info">
                         <div className="mota-radar-top">
                           <strong>{entry.monster.name}</strong>
                           <span className="mota-radar-count">×{entry.count}</span>
-                          <span className="mota-radar-dmg" data-lethal={lethal ? 'true' : undefined}>
+                          <span
+                            className="mota-radar-dmg"
+                            data-dmg-tier={dmgTier}
+                            data-lethal={lethal ? 'true' : undefined}
+                          >
                             {entry.damageInfo ? entry.damageInfo.damage : '危'}
                           </span>
                         </div>
@@ -1570,22 +1701,22 @@ export default function MagicTowerGame() {
             )}
           </section>
 
-          {/* Live Tile Inspector OR Event Log */}
           <section className="mota-panel mota-inspector" aria-live="polite">
             {inspected?.kind === 'monster' ? (
               <div className="mota-inspect-monster">
                 <div className="mota-inspect-head">
-                  <PixelPortrait sprite={inspected.monster.sprite} size={28} />
+                  <PixelPortrait sprite={inspected.monster.sprite} size={28} colorMode={colorMode} />
                   <div>
                     <strong>{inspected.monster.name}</strong>
                     <div className="mota-inspect-tags">
                       {inspected.monster.special?.map((sp) => (
-                        <span key={sp} className="mota-tag">{SPECIAL_META[sp].name}</span>
+                        <span key={sp} className="mota-tag" data-special={sp}>{SPECIAL_META[sp].name}</span>
                       ))}
                     </div>
                   </div>
                   <span
                     className="mota-inspect-dmg"
+                    data-dmg-tier={getDamageTier(inspected.dmg?.damage ?? null, game.hero.hp)}
                     data-lethal={!inspected.dmg || inspected.dmg.damage >= game.hero.hp ? 'true' : undefined}
                   >
                     伤 {inspected.dmg ? inspected.dmg.damage : '???'}
@@ -1611,7 +1742,7 @@ export default function MagicTowerGame() {
               </div>
             ) : inspected?.kind === 'item' ? (
               <div className="mota-inspect-simple">
-                <PixelPortrait sprite={inspected.item.sprite} size={26} />
+                <PixelPortrait sprite={inspected.item.sprite} size={26} colorMode={colorMode} />
                 <div>
                   <strong>{inspected.item.name}</strong>
                   <p>{inspected.item.shortDesc}</p>
@@ -1619,7 +1750,7 @@ export default function MagicTowerGame() {
               </div>
             ) : inspected?.kind === 'npc' ? (
               <div className="mota-inspect-simple">
-                <PixelPortrait sprite={inspected.npc.sprite} size={26} />
+                <PixelPortrait sprite={inspected.npc.sprite} size={26} colorMode={colorMode} />
                 <div>
                   <strong>{inspected.npc.name}</strong>
                   <p>{inspected.npc.hint}</p>
@@ -1627,7 +1758,7 @@ export default function MagicTowerGame() {
               </div>
             ) : inspected?.kind === 'shop' ? (
               <div className="mota-inspect-simple">
-                <PixelPortrait sprite={inspected.shop.sprite} size={26} />
+                <PixelPortrait sprite={inspected.shop.sprite} size={26} colorMode={colorMode} />
                 <div>
                   <strong>{inspected.shop.name}</strong>
                   <p>{inspected.shop.greeting}</p>
@@ -1635,7 +1766,7 @@ export default function MagicTowerGame() {
               </div>
             ) : inspected?.kind === 'door' ? (
               <div className="mota-inspect-simple">
-                <PixelPortrait sprite={inspected.info.sprite} size={26} />
+                <PixelPortrait sprite={inspected.info.sprite} size={26} colorMode={colorMode} />
                 <div>
                   <strong>{inspected.info.name}</strong>
                   <p>{inspected.info.desc}</p>

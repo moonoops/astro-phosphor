@@ -199,7 +199,7 @@ export default function Game2048() {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
-      if (document.querySelector('#start-menu-panel:not([hidden])')) return;
+      if (document.querySelector('#start-menu-panel:not([hidden]), #topbar-start-menu-panel:not([hidden])')) return;
 
       switch (event.key) {
         case 'ArrowUp':
