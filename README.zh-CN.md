@@ -8,27 +8,88 @@
 >
 > **线上实景扩展站**：[xox.pub](https://xox.pub)（基于本模板扩展的个人站点。注意：`xox.pub` 额外接入了 Chat 聊天室、留言板、音视频播放器等需要后端服务的功能，本轻量纯静态模板暂不提供这些后端能力；如有需要，可直接结合仓库内置的 `AGENTS.md` 与 `docs/DESIGN.md` 用 AI 快速搭建扩展。）
 
-![Astro Phosphor — 阳光午后 Macintosh LC CRT 中的 Rainbow OS 桌面](./docs/screenshots/desktop-rainbow.webp)
+---
+
+## 5 套复古 OS 风格实景展示（CRT 显示器 + 全屏模式）
+
+每套 OS 均内置 **4 套子主题预设（共 `20` 套）**、独立的系统栏拓扑、专属字体栈与动态 SVG 光标，并支持在 **CRT 书桌显示器（`Room` / `Close`）** 与 **1:1 无边框全屏（`Fullscreen`）** 之间一键无缝切换。
+
+### 1. Rainbow OS *（默认）* — `studio` · `marigold` · `sky` · `classic`
+阳光 CMY 创意工作台：暖奶油方格绘图纸桌面、顶部 `*.fig` 标签栏、`NOW.txt` 卡片与 `1px` 锐利黑边窗口。— [在线体验（`?os=rainbow`）](https://moonoops.github.io/astro-phosphor/?os=rainbow) · [设计规范](./docs/os/rainbow/DESIGN.md)
 
 <table>
   <tr>
     <td width="50%">
-      <img src="./docs/screenshots/os-phosphor.webp" alt="夜间台灯光影、翠绿荧光主题与实时 5-OS Design System 窗口" />
-      <br /><sub><b>Phosphor CRT OS · 夜间台灯光影 · 实时 5-OS Design System</b></sub>
+      <img src="./docs/screenshots/os-rainbow-desk.webp" alt="阳光午后 Macintosh LC CRT 显示器中的 Rainbow OS 桌面" />
+      <br /><sub><b>CRT 显示器实景（午后光影）· Rainbow 桌面</b></sub>
     </td>
     <td width="50%">
-      <img src="./docs/screenshots/os-coffee.webp" alt="Coffee OS 近景缩放、阅读模式与中文 CJK 排版文章" />
-      <br /><sub><b>Coffee OS · 阅读模式 · 中英双语 CJK MDX 博客</b></sub>
+      <img src="./docs/screenshots/os-rainbow-full.webp" alt="Rainbow OS 全屏模式展示作品集项目网格" />
+      <br /><sub><b>全屏工作区 · Work 作品集网格</b></sub>
     </td>
   </tr>
+</table>
+
+### 2. Phosphor CRT OS — `amber` · `green` · `blue` · `white`
+经典单色相荧光 CRT 终端：全 `0px` 直角、3D 凸起像素实体键帽、曲面光学与底部 Win95 风格任务栏。— [在线体验（`?os=phosphor`）](https://moonoops.github.io/astro-phosphor/?os=phosphor) · [设计规范](./docs/os/phosphor/DESIGN.md)
+
+<table>
   <tr>
     <td width="50%">
-      <img src="./docs/screenshots/os-cli.webp" alt="黄昏光影下的 CLI OS Prompt 极客终端桌面" />
-      <br /><sub><b>CLI OS · 黄昏光影 · Prompt 极客终端桌面</b></sub>
+      <img src="./docs/screenshots/os-phosphor-desk.webp" alt="夜间台灯光影下 Macintosh LC CRT 中的琥珀色 Phosphor OS 桌面" />
+      <br /><sub><b>CRT 显示器实景（夜间台灯）· 琥珀荧光桌面</b></sub>
     </td>
     <td width="50%">
-      <img src="./docs/screenshots/os-pixel.webp" alt="Pixel OS 经典麦金塔窗口运行离线 21 层魔塔像素 RPG" />
-      <br /><sub><b>Pixel OS · 清晨光影 · 5 款离线复古小游戏（魔塔 21F）</b></sub>
+      <img src="./docs/screenshots/os-phosphor-full.webp" alt="Phosphor CRT OS 翠绿预设全屏模式展示实时 5-OS Design System" />
+      <br /><sub><b>全屏工作区 · 翠绿荧光与实时 5-OS Design System</b></sub>
+    </td>
+  </tr>
+</table>
+
+### 3. Coffee OS — `roast` · `matcha` · `indigo` · `oat`
+复古档案纸张与 *Instrument Serif* 衬线排版，搭配顶部极简状态条、底部居中悬浮 Dock 与倾斜便签卡。— [在线体验（`?os=coffee`）](https://moonoops.github.io/astro-phosphor/?os=coffee) · [设计规范](./docs/os/coffee/DESIGN.md)
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="./docs/screenshots/os-coffee-desk.webp" alt="午后阳光下 Macintosh LC CRT 显示器中的 Coffee OS 桌面" />
+      <br /><sub><b>CRT 显示器实景（午后光影）· Coffee 纸墨桌面</b></sub>
+    </td>
+    <td width="50%">
+      <img src="./docs/screenshots/os-coffee-full.webp" alt="Coffee OS 全屏阅读模式展示中英双语 CJK MDX 博客文章" />
+      <br /><sub><b>全屏工作区 · 阅读模式与中文 CJK MDX 长文</b></sub>
+    </td>
+  </tr>
+</table>
+
+### 4. CLI OS — `claude` · `light` · `dark` · `matrix`
+纯 `IBM Plex Mono` 打造的 Prompt 极客终端桌面：编号命令行目录栏、`Welcome` 终端框与底部命令停靠栏。— [在线体验（`?os=cli`）](https://moonoops.github.io/astro-phosphor/?os=cli) · [设计规范](./docs/os/cli/DESIGN.md)
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="./docs/screenshots/os-cli-desk.webp" alt="黄昏光影下 Macintosh LC CRT 中的 CLI OS Prompt 终端桌面" />
+      <br /><sub><b>CRT 显示器实景（黄昏光影）· Prompt 终端桌面</b></sub>
+    </td>
+    <td width="50%">
+      <img src="./docs/screenshots/os-cli-full.webp" alt="CLI OS 全屏模式展示 IBM Plex Mono 终端档案与规格页" />
+      <br /><sub><b>全屏工作区 · 终端个人档案与规格页</b></sub>
+    </td>
+  </tr>
+</table>
+
+### 5. Pixel OS — `paper` · `slate` · `mint` · `sky`
+经典 Macintosh System 7 1-bit 点阵桌布、五色彩虹顶部菜单栏、六线细条纹标题栏与右侧对齐图标列。— [在线体验（`?os=pixel`）](https://moonoops.github.io/astro-phosphor/?os=pixel) · [设计规范](./docs/os/pixel/DESIGN.md)
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="./docs/screenshots/os-pixel-desk.webp" alt="清晨光影下 Macintosh LC CRT 中的 Pixel OS 经典麦金塔桌面" />
+      <br /><sub><b>CRT 显示器实景（清晨光影）· 经典麦金塔桌面</b></sub>
+    </td>
+    <td width="50%">
+      <img src="./docs/screenshots/os-pixel-full.webp" alt="Pixel OS 全屏模式运行离线 21 层魔塔像素 RPG" />
+      <br /><sub><b>全屏工作区 · 5 款离线复古小游戏（魔塔 21F）</b></sub>
     </td>
   </tr>
 </table>

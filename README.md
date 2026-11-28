@@ -8,27 +8,88 @@ A **100% static** 1990s **CRT desk & multi-OS** personal site template hosting *
 >
 > **Extended Live Showcase**: [xox.pub](https://xox.pub) *(a personal site built on top of this template — includes extra self-hosted backend features like Chat, Message Board, and Media Decks that are intentionally excluded from this lightweight static template; if you need backend features, you can spin them up quickly with any AI coding assistant using the included specs).*
 
-![Astro Phosphor — Rainbow OS inside a sunlit 1990s Macintosh LC CRT monitor](./docs/screenshots/desktop-rainbow.webp)
+---
+
+## 5 Retro OS Styles Showcase (CRT Monitor + Fullscreen)
+
+Each OS style has **4 built-in theme presets (`20` total)**, its own chrome topology, typography, dynamic SVG cursors, and seamless switching between **CRT Desk (`Room` / `Close`)** and **1:1 `Fullscreen`** modes.
+
+### 1. Rainbow OS *(Default)* — `studio` · `marigold` · `sky` · `classic`
+Daylight CMY creative studio on cream drafting graph paper with a top `*.fig` tab bar, `NOW.txt` sticky card, and crisp `1px` ink outlines. — [Live Preview (`?os=rainbow`)](https://moonoops.github.io/astro-phosphor/?os=rainbow) · [Spec](./docs/os/rainbow/DESIGN.md)
 
 <table>
   <tr>
     <td width="50%">
-      <img src="./docs/screenshots/os-phosphor.webp" alt="Phosphor CRT OS in night desk lighting with Green phosphor preset and live Design System switcher" />
-      <br /><sub><b>Phosphor CRT OS · Night Lighting · Live 5-OS Design System</b></sub>
+      <img src="./docs/screenshots/os-rainbow-desk.webp" alt="Rainbow OS desktop inside a sunlit afternoon 1990s Macintosh LC CRT monitor" />
+      <br /><sub><b>CRT Monitor View (Afternoon) · Rainbow Desktop</b></sub>
     </td>
     <td width="50%">
-      <img src="./docs/screenshots/os-coffee.webp" alt="Coffee OS in close zoom with Reading Mode and bilingual CJK MDX journal article" />
-      <br /><sub><b>Coffee OS · Reading Mode · Bilingual CJK MDX Journal</b></sub>
+      <img src="./docs/screenshots/os-rainbow-full.webp" alt="Rainbow OS in bezel-free fullscreen showing the Work portfolio grid" />
+      <br /><sub><b>Fullscreen View · Work Portfolio Grid</b></sub>
     </td>
   </tr>
+</table>
+
+### 2. Phosphor CRT OS — `amber` · `green` · `blue` · `white`
+Classic single-hue glowing monochrome CRT with `0px` corners, 3D extruded pixel keycaps, curved tube optics, and a Win95-inspired bottom taskbar. — [Live Preview (`?os=phosphor`)](https://moonoops.github.io/astro-phosphor/?os=phosphor) · [Spec](./docs/os/phosphor/DESIGN.md)
+
+<table>
   <tr>
     <td width="50%">
-      <img src="./docs/screenshots/os-cli.webp" alt="CLI OS Prompt-style developer desktop in warm dusk lighting" />
-      <br /><sub><b>CLI OS · Dusk Lighting · Prompt-Style Developer Desktop</b></sub>
+      <img src="./docs/screenshots/os-phosphor-desk.webp" alt="Phosphor CRT OS Amber desktop inside the Macintosh LC monitor in warm night desk lighting" />
+      <br /><sub><b>CRT Monitor View (Night) · Amber Phosphor Desktop</b></sub>
     </td>
     <td width="50%">
-      <img src="./docs/screenshots/os-pixel.webp" alt="Pixel OS Classic Macintosh window running offline 21-floor Magic Tower pixel RPG" />
-      <br /><sub><b>Pixel OS · Morning Lighting · 5 Offline Retro Games (Magic Tower 21F)</b></sub>
+      <img src="./docs/screenshots/os-phosphor-full.webp" alt="Phosphor CRT OS Green preset in fullscreen showing the live 5-OS Design System switcher" />
+      <br /><sub><b>Fullscreen View · Green Phosphor &amp; Live 5-OS Design System</b></sub>
+    </td>
+  </tr>
+</table>
+
+### 3. Coffee OS — `roast` · `matcha` · `indigo` · `oat`
+Archival editorial paper and *Instrument Serif* typography paired with a passive top status bar, floating bottom dock, and tilted sand `NOW.txt` card. — [Live Preview (`?os=coffee`)](https://moonoops.github.io/astro-phosphor/?os=coffee) · [Spec](./docs/os/coffee/DESIGN.md)
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="./docs/screenshots/os-coffee-desk.webp" alt="Coffee OS archival desktop inside the sunlit afternoon Macintosh LC CRT monitor" />
+      <br /><sub><b>CRT Monitor View (Afternoon) · Coffee Editorial Desktop</b></sub>
+    </td>
+    <td width="50%">
+      <img src="./docs/screenshots/os-coffee-full.webp" alt="Coffee OS in fullscreen Reading Mode displaying a bilingual CJK MDX journal article" />
+      <br /><sub><b>Fullscreen View · Reading Mode &amp; Bilingual CJK MDX Journal</b></sub>
+    </td>
+  </tr>
+</table>
+
+### 4. CLI OS — `claude` · `light` · `dark` · `matrix`
+Prompt-style developer terminal rendered in pure `IBM Plex Mono` with a numbered shell directory rail, Welcome terminal box, and pinned bottom command dock. — [Live Preview (`?os=cli`)](https://moonoops.github.io/astro-phosphor/?os=cli) · [Spec](./docs/os/cli/DESIGN.md)
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="./docs/screenshots/os-cli-desk.webp" alt="CLI OS Prompt-style developer desktop inside the CRT monitor in warm dusk lighting" />
+      <br /><sub><b>CRT Monitor View (Dusk) · Prompt-Style Terminal Desktop</b></sub>
+    </td>
+    <td width="50%">
+      <img src="./docs/screenshots/os-cli-full.webp" alt="CLI OS in fullscreen showing the About profile and structured specs in IBM Plex Mono" />
+      <br /><sub><b>Fullscreen View · Terminal Profile &amp; Specs</b></sub>
+    </td>
+  </tr>
+</table>
+
+### 5. Pixel OS — `paper` · `slate` · `mint` · `sky`
+Classic Macintosh System 7 1-bit pixel dot wallpaper with a 5-stripe retro rainbow top menu bar, 6-line pinstripe window titlebars, and right-aligned icon rail. — [Live Preview (`?os=pixel`)](https://moonoops.github.io/astro-phosphor/?os=pixel) · [Spec](./docs/os/pixel/DESIGN.md)
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="./docs/screenshots/os-pixel-desk.webp" alt="Pixel OS Classic Macintosh desktop inside the CRT monitor in crisp morning lighting" />
+      <br /><sub><b>CRT Monitor View (Morning) · Classic Macintosh Desktop</b></sub>
+    </td>
+    <td width="50%">
+      <img src="./docs/screenshots/os-pixel-full.webp" alt="Pixel OS in fullscreen running the offline 21-floor Magic Tower pixel RPG" />
+      <br /><sub><b>Fullscreen View · 5 Offline Retro Games (Magic Tower 21F)</b></sub>
     </td>
   </tr>
 </table>
